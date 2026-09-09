@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pandora</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        /* Removemos o espaço em branco do canvas */
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -131,8 +146,14 @@
             </article>
         </template>
     </main>
+    <p>© 2024 Pandora Livraria Mágica & Café. Todos os direitos reservados.</p>
+    <canvas id="meuCanvas" style="position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;"></canvas>
+    <canvas id="magica" width="400" height="400" style="border: 1px solid #a4ffb8;"></canvas>
+    <script src="JS/magica.js"></script>
+    <script src="JS/canvas.js"></script>
     <script src="JS/lancamento.js"></script>
     <script src="JS/promocoes.js"></script>
+    <footer class="rodape">
 </body>
 
 </html>

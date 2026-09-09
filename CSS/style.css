@@ -151,3 +151,11 @@ h3 {
     transform: translateY(-6px);
     box-shadow: 0 8px 20px rgba(26, 71, 42, 0.3);
 }
+
+#meuCanvas {
+    position: fixed;   /* Fixa na tela, não rola junto com a página */
+    top: 0;
+    left: 0;
+    z-index: 9999;       /* O número negativo joga ele para TRÁS de tudo! */
+    pointer-events: none; /* MÁGICA: Permite que você clique nos botões do site "atravessando" o canvas */
+}
