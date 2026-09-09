@@ -5,8 +5,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let mouseX = canvas.width / 2;
-let mouseY = canvas.height / 2;
+let mouseX = canvas.width;
+let mouseY = canvas.height;
 let sobreCard = false; // Nossa variável nova!
 
 // Ouve o mouse

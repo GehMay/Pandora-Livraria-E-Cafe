@@ -15,14 +15,16 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ## 🚀 Funcionalidades do Sistema
 
 ### 🟢 O que já está implementado (MVP)
-- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo banco de dados MySQL usando a tag `<template>` do HTML e manipulação segura via JavaScript.
-- [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções dentro do prazo de validade, buscadas do banco de dados em tempo real.
+- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo banco de dados JSON (`dados/banco.json`), usando a tag `<template>` do HTML e manipulação segura via JavaScript.
+- [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do arquivo de dados em tempo real.
 - [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
 - [x] **Interface Gráfica Temática:** Design responsivo baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
-- [x] **Modelagem de Dados:** Criação do modelo relacional com as tabelas `Usuario`, `Livro`, `Reserva`, `Reserva_Livro` e `Promocao`.
-- [x] **Segurança de Banco de Dados:** Uso de usuário dedicado (`pandora_app`) com acesso restrito apenas ao schema do projeto, sem expor o usuário `root`.
+- [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar uma varinha mágica luminosa interativa (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página.
+- [x] **Arquitetura Simplificada para Deploy:** Substituição do MySQL por leitura de arquivos `.json` para facilitar a hospedagem gratuita do MVP.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
+- [ ] **Deploy (Colocar no Ar):** Hospedar o servidor Node.js na nuvem para acesso público de forma rápida usando o `banco.json`.
+- [ ] **Migração Cloud:** Migrar o banco de dados temporário de JSON para um MySQL em nuvem quando houver necessidade de salvar dados complexos (Cadastros e Reservas).
 - [ ] **Seção de Destaques:** Lógica de negócio para exibir livros baseados nas maiores avaliações e número de vendas.
 - [ ] **Sistema de Login e Autenticação:** Cadastro de clientes e administradores com senhas protegidas e criptografadas.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
@@ -35,14 +37,17 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
 ```text
 📁 Raiz
  ├── 📁 CSS
- │    └── 📄 style.css              # Estilos visuais (tema Sonserina)
+ │    └── 📄 style.css              # Estilos visuais (tema Sonserina e UI)
  ├── 📁 JS
  │    ├── 📄 lancamento.js          # Busca e renderiza os lançamentos do BD
- │    └── 📄 promocoes.js           # Busca e renderiza as promoções ativas do BD
+ │    ├── 📄 promocoes.js           # Busca e renderiza as promoções ativas do BD
+ │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
+ │    └── 📄 magica.js              # Lógica das partículas e estrelas interativas
  ├── 📁 dados
- │    └── 📄 *.json                 # Arquivos temporários (fallback)
+ │    ├── 📄 banco.json             # Banco de dados principal da livraria (MVPs)
+ │    └── 📄 usuarios.json          # Banco de dados de contas (Temporário)
  ├── 📁 database
- │    └── 📄 setup.sql              # Script oficial de criação do Banco de Dados
+ │    └── 📄 setup.sql              # Script guardado para futura migração para MySQL
  ├── 📄 index.html                  # Página inicial da loja
  ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
  ├── 📄 GUIA-SERVIDOR.md            # Documentação técnica de como o Node funciona
@@ -51,21 +56,14 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
 
 ## 💻 Como Rodar o Projeto Localmente
 
-1. **Configuração do Banco de Dados:**
-   * Abra o MySQL Workbench.
-   * Abra e execute o arquivo `database/setup.sql`. Ele vai criar o schema `pandora_livraria` e popular com dados de exemplo.
-   * Execute o script de criação do usuário da aplicação:
-     ```sql
-     CREATE USER IF NOT EXISTS 'pandora_app'@'localhost' IDENTIFIED WITH mysql_native_password BY 'sua_senha';
-     GRANT ALL PRIVILEGES ON pandora_livraria.* TO 'pandora_app'@'localhost';
-     FLUSH PRIVILEGES;
-     ```
-2. **Configuração do Servidor:**
-   * Abra o arquivo `servidor-estatico.js` e atualize o campo `password` com a senha que você definiu para o usuário `pandora_app`.
-3. **Execução:**
-   * No terminal do seu editor, instale o driver do banco rodando: `npm install mysql2`.
-   * Inicie o servidor executando: `node servidor-estatico.js`.
-   * Abra seu navegador e acesse: `http://localhost:5500`.
+Com a nova arquitetura em JSON, rodar o projeto ficou incrivelmente simples (não exige mais banco de dados externo):
+
+1. **Abra o terminal** na pasta raiz do projeto.
+2. Caso ainda não tenha feito, instale as dependências executando:
+   `npm install`
+3. **Inicie o servidor** executando:
+   `node servidor-estatico.js`
+4. Abra seu navegador e acesse: `http://localhost:5500`
 
 ---
 

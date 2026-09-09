@@ -7,22 +7,22 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const mysql = require('mysql2');
+const mysql = require('mysql2'); // Mantemos caso queira voltar no futuro, mas não vamos usar agora
 
-const conexao = mysql.createConnection({
-  host: 'localhost',
-  user: 'pandora_app', // O novo usuário que só tem acesso a este projeto
-  password: 'pandora123', // A senha do projeto
-  database: 'pandora_livraria'
-});
+const ARQUIVO_BANCO = path.join(__dirname, 'dados', 'banco.json');
 
-conexao.connect((erro) => {
-  if (erro) {
-    console.error('Erro ao conectar no MySQL:', erro);
-  } else {
-    console.log('✅ Conectado ao MySQL com sucesso!');
+// Função para ler o nosso novo "Banco de Dados" em JSON
+function lerBanco() {
+  try {
+    const dados = fs.readFileSync(ARQUIVO_BANCO, 'utf-8');
+    return JSON.parse(dados);
+  } catch (erro) {
+    console.error('Erro ao ler banco.json:', erro.message);
+    return { livros: [], promocoes: [] };
   }
-});
+}
+
+console.log('✅ Servidor configurado para usar banco.json (Modo Deploy Simples)');
 
 // ═══════════════════════════════════════════════════════════════
 // 1. CONFIGURAÇÕES INICIAIS
@@ -355,73 +355,30 @@ const servidor = http.createServer(async (req, res) => {
   }
   
   if (req.method === 'GET' && req.url === '/api/lancamentos') {
-    conexao.query('SELECT * FROM Livro', (erro, resultados) => {
-      if (erro) {
-        console.error(erro);
-        responderJson(res, 500, { erro: 'Erro ao buscar no banco de dados' });
-      } else {
-        responderJson(res, 200, resultados);
-      }
-    });
+    const banco = lerBanco();
+    responderJson(res, 200, banco.livros);
     return;
   }
   
   if (req.method === 'POST' && req.url === '/api/lancamentos') {
-    try {
-      const corpo = await lerCorpoRequisicao(req);
-      
-      const titulo = corpo.titulo || 'Sem Título';
-      const autor = corpo.autor || 'Autor Desconhecido';
-      const categoria = corpo.categoria || 'Geral';
-      const preco = Number(corpo.preco) || 0.00;
-      const estoque = Number(corpo.estoque) || 0;
-      const sinopse = corpo.sinopse || '';
-      
-      const sql = 'INSERT INTO Livro (titulo, autor, categoria, preco, estoque, sinopse) VALUES (?, ?, ?, ?, ?, ?)';
-      conexao.query(sql, [titulo, autor, categoria, preco, estoque, sinopse], (erro, resultado) => {
-        if (erro) {
-          console.error(erro);
-          responderJson(res, 500, { erro: 'Erro ao salvar no banco de dados' });
-        } else {
-          responderJson(res, 201, { mensagem: 'Livro cadastrado com sucesso!', id: resultado.insertId });
-        }
-      });
-    } catch (erro) {
-      responderJson(res, 400, { erro: 'Erro ao processar requisição' });
-    }
+    responderJson(res, 501, { erro: 'Cadastro desativado temporariamente no modo JSON.' });
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/promocoes') {
-    const hoje = new Date().toISOString().split('T')[0];
-    const sql = `SELECT * FROM Promocao WHERE ativo = TRUE AND data_inicio <= ? AND data_fim >= ?`;
-    conexao.query(sql, [hoje, hoje], (erro, resultados) => {
-      if (erro) {
-        console.error(erro);
-        responderJson(res, 500, { erro: 'Erro ao buscar promoções' });
-      } else {
-        responderJson(res, 200, resultados);
-      }
-    });
+    const banco = lerBanco();
+    responderJson(res, 200, banco.promocoes);
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/destaques') {
-    const sqlAvaliados = 'SELECT * FROM Livro ORDER BY avaliacao DESC LIMIT 4';
-    const sqlVendidos = 'SELECT * FROM Livro ORDER BY total_vendas DESC LIMIT 4';
-    conexao.query(sqlAvaliados, (erro, maisAvaliados) => {
-      if (erro) {
-        console.error(erro);
-        return responderJson(res, 500, { erro: 'Erro ao buscar destaques' });
-      }
-      conexao.query(sqlVendidos, (erro, maisVendidos) => {
-        if (erro) {
-          console.error(erro);
-          return responderJson(res, 500, { erro: 'Erro ao buscar destaques' });
-        }
-        responderJson(res, 200, { maisAvaliados, maisVendidos });
-      });
-    });
+    const banco = lerBanco();
+    
+    // Simula o ORDER BY do SQL usando .sort() do Javascript
+    const maisAvaliados = [...banco.livros].sort((a, b) => b.avaliacao - a.avaliacao).slice(0, 4);
+    const maisVendidos = [...banco.livros].sort((a, b) => b.total_vendas - a.total_vendas).slice(0, 4);
+    
+    responderJson(res, 200, { maisAvaliados, maisVendidos });
     return;
   }
   

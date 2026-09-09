@@ -1,0 +1,66 @@
+{
+  "livros": [
+    {
+      "id_livro": 1,
+      "titulo": "Poções Muito Malignas",
+      "autor": "Phineas Bourne",
+      "preco": 120.50,
+      "categoria": "Poções",
+      "avaliacao": 4.8,
+      "total_vendas": 150
+    },
+    {
+      "id_livro": 2,
+      "titulo": "Magia Pura e Nobre",
+      "autor": "Draco Malfoy",
+      "preco": 55.50,
+      "categoria": "Biografias",
+      "avaliacao": 3.9,
+      "total_vendas": 45
+    },
+    {
+      "id_livro": 3,
+      "titulo": "Guia Avançado de Transfiguração",
+      "autor": "Emeric Switch",
+      "preco": 85.00,
+      "categoria": "Transfiguração",
+      "avaliacao": 4.9,
+      "total_vendas": 300
+    },
+    {
+      "id_livro": 4,
+      "titulo": "Segredos das Artes das Trevas",
+      "autor": "Salazar Sonserina",
+      "preco": 500.00,
+      "categoria": "Artes das Trevas",
+      "avaliacao": 5.0,
+      "total_vendas": 10
+    }
+  ],
+  "promocoes": [
+    {
+      "id_promocao": 1,
+      "titulo": "Happy Hour na Masmorra",
+      "descricao": "Todas as Cervejas Amanteigadas com desconto especial das 18h às 20h. Venha descansar após uma longa jornada mágica!",
+      "desconto": "50% OFF"
+    },
+    {
+      "id_promocao": 2,
+      "titulo": "Combo do Caldeirão",
+      "descricao": "Peça qualquer poção quente e ganhe um Sapo de Chocolate de brinde.",
+      "desconto": "Brinde"
+    },
+    {
+      "id_promocao": 3,
+      "titulo": "Semana das Trevas",
+      "descricao": "Todos os grimórios da Seção Restrita com desconto especial. Apresente sua carteirinha na entrada.",
+      "desconto": "25% OFF"
+    },
+    {
+      "id_promocao": 4,
+      "titulo": "Orgulho Sonserino",
+      "descricao": "Mostre seu cachecol verde e prata e ganhe desconto em qualquer grimório de Poções + um Suco de Abóbora grátis!",
+      "desconto": "20% + Brinde"
+    }
+  ]
+}
