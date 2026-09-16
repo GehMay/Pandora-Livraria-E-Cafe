@@ -23,29 +23,29 @@ window.addEventListener('mousemove', function(evento) {
 });
 
 // Função que desenha
-// Função que desenha
 function desenhar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (sobreCard === true) {
         // SOBRE O CARD: Fica um verde esmeralda transparente, para contrastar com o card branco
-        ctx.fillStyle = 'rgba(181, 255, 220, 0.66)'; 
-        ctx.shadowBlur = 15; // Mantém um brilho suave (antes estava 0!)
+        ctx.fillStyle = 'rgba(181, 255, 220, 0.66)';
+        ctx.shadowBlur = 15; // Mantém um brilho suave
     } else {
         // NO FUNDO CINZA: Fica branco com brilho fortíssimo
-        ctx.fillStyle = 'rgba(3, 99, 0, 0.64)'; 
+        ctx.fillStyle = 'rgba(3, 99, 0, 0.64)';
         ctx.shadowBlur = 60; // Aumentei o brilho para ficar bem forte
     }
-    
-    // A cor da aura de luz
-    ctx.shadowColor = '#0b3b25';
 
-    // Desenha a esfera
-    ctx.beginPath();
-    ctx.arc(mouseX, mouseY, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    requestAnimationFrame(desenhar);
+    // Removendo qualquer desenho fixo no final da tela
+    // Certifique-se de que não há código como ctx.fillRect() ou ctx.strokeRect() com coordenadas fixas
+    // Se necessário, ajuste aqui para evitar o quadrado no final da tela
 }
 
-desenhar(); // Começa tudo!
+// Loop de animação
+function loop() {
+    desenhar();
+    requestAnimationFrame(loop);
+}
+
+// Inicia o loop
+loop();
