@@ -5,62 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pandora</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        body {
-            margin: 0;
-        }
-    </style>
-    <style>
-        body {
-            margin: 0;
-        }
-
-        /* Removemos o espaço em branco do canvas */
-        canvas {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="CSS/style.css">
 </head>
 
 <body>
     <header class="cabecalho">
-        <p>Pandora Livraria & Café</p><br>
+        <p>Pandora Livraria & Café</p>
         <nav class="cabecalho_nav">
             <p>Tome seu café enquanto lê seus livros favoritos</p>
         </nav>
+        <div class="cabecalho_acoes">
+            <a href="login.html" class="btn-login">Entrar</a>
+            <a href="cadastro.html" class="btn-cadastro">Criar Conta</a>
+        </div>
     </header>
-    <div class="varinha">🪄</div>
     <main class="container">
         <h1 class="titulo-pagina">Saiba Mais</h1>
         <p class="subtitulo-pagina">Loja localizada em: <br> Beco Diagonal, Nº 42, Londres Mágica (Ao lado da Floreios e
-            Borrões)</p>
+            Borrões)
+        </p>
 
         <!-- CARD GIGANTE CONTENDO O TÍTULO E A VITRINE -->
-        <div style="padding: 0 2rem; margin-top: 2rem;">
-            <div class="card" style="padding: 2rem;">
-                <h3 style="margin-bottom: 1.5rem;">Lançamentos de Livros</h3>
+        <div class="secao-vitrine">
+            <div class="card card-padding">
+                <h3 class="secao-titulo">Lançamentos de Livros</h3>
 
                 <!-- A ÁREA DOS LIVROS (Fica DENTRO do card gigante) -->
-                <div class="cards-grid" id="meus-lancamentos" style="padding: 0;">
+                <div class="cards-grid cards-grid-interno" id="meus-lancamentos">
                     <!-- O JavaScript vai jogar os livros aqui dentro -->
                 </div>
             </div>
         </div>
 
         <!-- CARD GIGANTE DE PROMOÇÕES -->
-        <div style="padding: 0 2rem; margin-top: 2rem;">
-            <div class="card" style="padding: 2rem;">
-                <h3 style="margin-bottom: 1.5rem;">🐍 Promoções Mágicas</h3>
+        <div class="secao-vitrine">
+            <div class="card card-padding">
+                <h3 class="secao-titulo">🐍 Promoções Mágicas</h3>
                 <!-- O JavaScript vai jogar as promoções aqui dentro -->
-                <div class="cards-grid" id="minhas-promocoes" style="padding: 0;"></div>
+                <div class="cards-grid cards-grid-interno" id="minhas-promocoes"></div>
             </div>
         </div>
 
-        <div style="padding: 0 2rem; margin-top: 2rem; margin-bottom: 2rem;">
-            <div class="card" style="padding: 2rem;">
-                <h3 style="margin-bottom: 1.5rem;">Sobre a Livraria</h3>
-                <p style="margin-bottom: 0.25rem;">A Pandora Livraria Mágica & Café é um refúgio para bruxos e bruxas
+        <div class="secao-sobre">
+            <div class="card card-padding">
+                <h3 class="sobre-livraria-titulo">Sobre a Livraria</h3>
+                <p class="sobre-livraria">A Pandora Livraria Mágica & Café é um refúgio para bruxos e bruxas
                     que buscam conhecimento, aventura e magia em cada página.
                     Com uma vasta coleção de livros raros e eventos literários, oferecemos uma experiência única para
                     todos os amantes da magia.</p>
@@ -83,11 +72,11 @@
                 <div class="card-body">
                     <h3 class="card-title">Principais Categorias</h3>
                     <span class="badge">Seções da nossa Biblioteca</span>
-                    <p1 class="card-descricao">Poções e Alquimia Avançada<br>
+                    <p class="card-descricao">Poções e Alquimia Avançada<br>
                         Artes das Trevas (Seção Restrita)<br>
                         História da Magia Antiga<br>
                         Magizoologia e Criaturas<br>
-                        Biografias de Sangues-Puros</p1>
+                        Biografias de Sangues-Puros</p>
                 </div>
             </article>
         </div>
@@ -96,12 +85,12 @@
                 <div class="card-banner" aria-hidden="true"></div>
                 <div class="card-body">
                     <h3 class="card-title">Dados da Loja</h3>
-                    <p1 class="card-descricao">Nome: Pandora Livraria Mágica & Café <br>
+                    <p class="card-descricao">Nome: Pandora Livraria Mágica & Café <br>
                         Endereço: Beco Diagonal, Nº 42, Londres Mágica <br>
                         Contato Mágico: Envio por Coruja (Respostas em até 1 dia útil)<br>
                         Rede de Flu: Lareira "Pandora, Beco Diagonal"<br>
                         E-mail (para Trouxas): contato@pandoramagica.com<br>
-                        Instagram: @pandora.magica</p1><br>
+                        Instagram: @pandora.magica</p><br>
                     <span class="badge">Nossa história</span>
                     <p class="card-descricao">Fundada por dois bruxos de uma antiga e nobre linhagem da Sonserina, a
                         Pandora nasceu da ambição de reunir os
@@ -110,9 +99,9 @@
                         Com poltronas de couro de dragão, iluminação esmeralda e Cerveja Amanteigada, criamos o ambiente
                         perfeito para mentes astutas passarem horas folheando.</p><br>
                     <span class="badge">Horário de Funcionamento</span>
-                    <p1 class="card-descricao">Segunda a sexta: 9h às 20h (Fuso de Londres)<br>
+                    <p class="card-descricao">Segunda a sexta: 9h às 20h (Fuso de Londres)<br>
                         Sábado: 9h às 18h (Dias de lua cheia fechamos às 17h)<br>
-                        Domingo: 10h às 16h</p1>
+                        Domingo: 10h às 16h</p>
                 </div>
             </article>
         </div>
@@ -134,26 +123,24 @@
         <template id="molde-promocao">
             <article class="card-interno">
                 <!-- Olha a faixinha aqui para deixar igual ao livro! -->
-                <div class="card-banner" aria-hidden="true"
-                    style="background-color: #2a623d; text-align: center; padding: 5px; border-radius: 4px;">⚡</div>
+                <div class="card-banner banner-promocao" aria-hidden="true">⚡</div>
 
                 <div class="card-body">
                     <h6 class="book-title promocao-titulo">Título da Promoção</h6>
-                    <span class="badge promocao-desconto" style="background-color: #1a472a; color: white;">20%
-                        OFF</span>
+                    <span class="badge badge-desconto promocao-desconto">20% OFF</span>
                     <p class="card-descricao promocao-desc">Descrição mágica da promoção.</p>
                 </div>
             </article>
         </template>
     </main>
-    <p>© 2024 Pandora Livraria Mágica & Café. Todos os direitos reservados.</p>
-    <canvas id="meuCanvas" style="position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;"></canvas>
-    <canvas id="magica" width="0" height="0" style="border: 0px solid #a4ffb8;"></canvas>
+    <footer class="rodape">
+        <p>© 2024 Pandora Livraria Mágica & Café. Todos os direitos reservados.</p>
+    </footer>
+    <canvas id="meuCanvas"></canvas>
     <script src="JS/magica.js"></script>
     <script src="JS/canvas.js"></script>
     <script src="JS/lancamento.js"></script>
     <script src="JS/promocoes.js"></script>
-    <footer class="rodape">
 </body>
 
 </html>

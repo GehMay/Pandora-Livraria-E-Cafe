@@ -1,18 +1,24 @@
 const canvas = document.getElementById('meuCanvas');
 const ctx = canvas.getContext('2d');
 
-// Ajusta o tamanho
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// Ajusta o tamanho do canvas para cobrir toda a janela
+function redimensionar() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+redimensionar();
+window.addEventListener('resize', redimensionar);
 
-let mouseX = canvas.width;
-let mouseY = canvas.height;
-let sobreCard = false; // Nossa variável nova!
+let mouseX = -100;
+let mouseY = -100;
+let mouseAtivo = false;
+let sobreCard = false;
 
 // Ouve o mouse
 window.addEventListener('mousemove', function(evento) {
     mouseX = evento.clientX;
     mouseY = evento.clientY;
+    mouseAtivo = true;
 
     // Detetive de Cards: O mouse está num card?
     if (evento.target.closest('.card') || evento.target.closest('.card-interno')) {
@@ -22,23 +28,40 @@ window.addEventListener('mousemove', function(evento) {
     }
 });
 
-// Função que desenha
+// Esconde a luz quando o mouse sai da janela
+document.addEventListener('mouseleave', function() {
+    mouseAtivo = false;
+});
+
+document.addEventListener('mouseenter', function() {
+    mouseAtivo = true;
+});
+
+// Raio da bolinha
+// Raio da bolinha
+const RAIO_BOLINHA = 6;
+
 function desenhar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (sobreCard === true) {
-        // SOBRE O CARD: Fica um verde esmeralda transparente, para contrastar com o card branco
-        ctx.fillStyle = 'rgba(181, 255, 220, 0.66)';
-        ctx.shadowBlur = 15; // Mantém um brilho suave
-    } else {
-        // NO FUNDO CINZA: Fica branco com brilho fortíssimo
-        ctx.fillStyle = 'rgba(3, 99, 0, 0.64)';
-        ctx.shadowBlur = 60; // Aumentei o brilho para ficar bem forte
-    }
+    if (mouseAtivo) {
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, RAIO_BOLINHA, 0, Math.PI * 2);
 
-    // Removendo qualquer desenho fixo no final da tela
-    // Certifique-se de que não há código como ctx.fillRect() ou ctx.strokeRect() com coordenadas fixas
-    // Se necessário, ajuste aqui para evitar o quadrado no final da tela
+        if (sobreCard) {
+            // Em cima do card: transparência aumenta (80% transparente, alpha 0.2)
+            ctx.fillStyle = 'rgba(26, 71, 42, 0.2)';
+            ctx.shadowColor = 'rgba(26, 71, 42, 0.25)';
+            ctx.shadowBlur = 8;
+        } else {
+            // No fundo normal: cor sólida com ~40% de transparência (alpha 0.6)
+            ctx.fillStyle = 'rgba(26, 71, 42, 0.6)';
+            ctx.shadowColor = 'rgba(26, 71, 42, 0.4)';
+            ctx.shadowBlur = 15;
+        }
+
+        ctx.fill();
+    }
 }
 
 // Loop de animação

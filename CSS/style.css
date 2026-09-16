@@ -16,13 +16,6 @@
     }
 }
 
-.varinha {
-    animation: flutuar 2s ease-in-out infinite; 
-    /* nome  duração  ritmo         repetição */
-    font-size: 3rem;
-    text-align: center;
-}
-
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background-color: #e8f0ec; /* Fundo prata/cinza esverdeado bem claro */
@@ -32,18 +25,70 @@ body {
 
 .cabecalho {
     background-color: #1a472a; /* Verde escuro Sonserina */
-    padding: 1rem;
+    padding: 1.2rem;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    gap: 0.3rem;
     color: #ffffff;
     border-radius: 0 0 50px 50px;
     border-bottom: 4px solid #5d5d5d; /* Detalhe em Prata */
+    text-align: center;
+    position: relative; /* Necessário para posicionar os botões no canto */
+}
+
+.cabecalho > p {
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
 .cabecalho_nav p {
     font-size: 1rem;
     color: #c4d4cc; /* Prata esverdeado */
+}
+
+/* Botões de Login e Cadastro no canto superior direito */
+.cabecalho_acoes {
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-login,
+.btn-cadastro {
+    display: inline-block;
+    text-decoration: none;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #c4d4cc;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-login {
+    background-color: transparent;
+    color: #c4d4cc;
+}
+
+.btn-login:hover {
+    background-color: #c4d4cc;
+    color: #1a472a;
+}
+
+.btn-cadastro {
+    background-color: #c4d4cc;
+    color: #1a472a;
+}
+
+.btn-cadastro:hover {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #1a472a;
 }
 
 .titulo-pagina {
@@ -156,6 +201,141 @@ h3 {
     position: fixed;   /* Fixa na tela, não rola junto com a página */
     top: 0;
     left: 0;
-    z-index: 9999;       /* O número negativo joga ele para TRÁS de tudo! */
+    z-index: 9999;
     pointer-events: none; /* MÁGICA: Permite que você clique nos botões do site "atravessando" o canvas */
+}
+
+/* Seções e Vitrines */
+.secao-vitrine {
+    padding: 0 2rem;
+    margin-top: 2rem;
+}
+
+.secao-sobre {
+    padding: 0 2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.card-padding {
+    padding: 2rem;
+}
+
+.secao-titulo,
+.sobre-livraria-titulo {
+    margin-bottom: 1.5rem;
+}
+
+.sobre-livraria {
+    margin-bottom: 0.25rem;
+}
+
+.cards-grid-interno {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+/* Moldes e Promoções */
+.banner-promocao {
+    background-color: #2a623d;
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.badge-desconto {
+    background-color: #1a472a;
+    color: #ffffff;
+}
+
+/* Canvas e Efeitos */
+canvas {
+    display: block;
+}
+
+/* Rodapé */
+.rodape {
+    background-color: #1a472a;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 50px 50px 0 0;
+    border-top: 4px solid #5d5d5d;
+}
+
+/* Estilos para Formulários (Login / Cadastro) */
+.form-container {
+    max-width: 400px;
+    margin: 4rem auto;
+    background-color: #2a623d; /* Verde Sonserina secundário */
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border: 2px solid #5d5d5d; /* Prata */
+    color: #ffffff;
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 1.5rem;
+    color: #c4d4cc;
+}
+
+.form-grupo {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.form-grupo label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-grupo input {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #c4d4cc;
+    background-color: #ffffff;
+    color: #1a472a;
+    font-size: 1rem;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #c4d4cc;
+    background-color: #c4d4cc;
+    color: #1a472a;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+.form-link {
+    display: block;
+    margin-top: 1rem;
+    color: #c4d4cc;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.form-link:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+.link-home {
+    text-decoration: none;
+    color: inherit;
 }
