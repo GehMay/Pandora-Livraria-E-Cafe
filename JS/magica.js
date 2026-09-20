@@ -1,7 +1,4 @@
-// Menos estrelas em telas pequenas: mais leve para o celular
-const QUANTIDADE_ESTRELAS = window.innerWidth < 700 ? 12 : 30;
-
-for (let i = 0; i < QUANTIDADE_ESTRELAS; i++) { // Coloquei 30, mas pode voltar para 100 depois
+for (let i = 0; i < 30; i++) { // Coloquei 30, mas pode voltar para 100 depois
 
     // Posição X aleatória
     let posX = Math.random() * window.innerWidth;
