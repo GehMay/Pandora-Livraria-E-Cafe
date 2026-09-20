@@ -1,8 +1,19 @@
+<p align="center">
+  <img src="imagens/logo.svg" alt="Logo da Pandora Livraria & Café" width="220">
+</p>
+
 # 📚☕ Pandora Livraria & Café
 
 Um projeto de estudo Full-Stack focado no desenvolvimento de um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
 
 Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com o objetivo principal de aprender e consolidar os fundamentos da web (Manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização estrutural).
+
+## 🌐 Acesse o Projeto Online
+👉 **[pandora-livraria-e-cafe.onrender.com](https://pandora-livraria-e-cafe.onrender.com)**
+
+[![Prévia do site Pandora Livraria & Café](imagens/preview.png)](https://pandora-livraria-e-cafe.onrender.com)
+
+> ⏳ O projeto está hospedado no plano gratuito do Render. Se ficar um tempo sem acessos, o primeiro carregamento pode levar cerca de 50 segundos para "acordar" o servidor.
 
 ## 🎯 Objetivo do Projeto (Produto Final)
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.

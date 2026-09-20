@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="titulo">
+  <title id="titulo">Pandora Livraria &amp; Café</title>
+
+  <!-- Fundo circular -->
+  <circle cx="200" cy="200" r="190" fill="#1a472a"/>
+  <circle cx="200" cy="200" r="178" fill="none" stroke="#d4af37" stroke-width="3"/>
+
+<g transform="translate(0,-30)">
+  <!-- Estrelas mágicas -->
+  <g fill="#f3d97a">
+    <path d="M110 92 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
+    <path d="M292 78 l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5z"/>
+    <path d="M330 150 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+    <path d="M78 170 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+    <circle cx="245" cy="105" r="3"/>
+    <circle cx="150" cy="70" r="2.5"/>
+    <circle cx="350" cy="205" r="2.5"/>
+    <circle cx="55" cy="225" r="2.5"/>
+  </g>
+
+  <!-- Vapor do café que vira fumaça mágica -->
+  <g fill="none" stroke="#e8f0ec" stroke-width="5" stroke-linecap="round" opacity="0.9">
+    <path d="M262 175 C248 158 276 146 262 128 C252 115 266 106 262 96"/>
+    <path d="M292 180 C280 166 302 156 292 142"/>
+  </g>
+
+  <!-- Livro aberto -->
+  <g>
+    <!-- capa -->
+    <path d="M62 232 L200 258 L338 232 L338 292 L200 320 L62 292 Z" fill="#c4a02c"/>
+    <!-- páginas esquerda -->
+    <path d="M70 212 C120 200 165 206 200 226 L200 300 C165 282 120 276 70 288 Z" fill="#f4f7f6"/>
+    <!-- páginas direita -->
+    <path d="M330 212 C280 200 235 206 200 226 L200 300 C235 282 280 276 330 288 Z" fill="#e8f0ec"/>
+    <!-- linhas de texto -->
+    <g stroke="#2a623d" stroke-width="3" stroke-linecap="round" opacity="0.55">
+      <path d="M92 234 C120 228 148 231 174 242"/>
+      <path d="M92 250 C120 244 148 247 174 258"/>
+      <path d="M92 266 C120 260 148 263 174 274"/>
+      <path d="M308 234 C280 228 252 231 226 242"/>
+      <path d="M308 250 C280 244 252 247 226 258"/>
+    </g>
+    <!-- lombada -->
+    <path d="M200 226 L200 300" stroke="#1a472a" stroke-width="3"/>
+  </g>
+
+  <!-- Xícara de café sobre o livro -->
+  <g>
+    <!-- pires -->
+    <ellipse cx="277" cy="222" rx="42" ry="8" fill="#d6e8dc"/>
+    <!-- corpo -->
+    <path d="M245 188 L309 188 C309 214 296 222 277 222 C258 222 245 214 245 188 Z" fill="#ffffff"/>
+    <!-- alça -->
+    <path d="M309 194 C328 194 328 214 306 214" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <!-- café -->
+    <ellipse cx="277" cy="188" rx="32" ry="6" fill="#6b4226"/>
+    <!-- brilho -->
+    <path d="M254 196 C255 206 260 212 266 215" fill="none" stroke="#c4d4cc" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Varinha mágica -->
+  <g transform="rotate(-38 130 170)">
+    <rect x="70" y="164" width="120" height="9" rx="4.5" fill="#6b4226"/>
+    <rect x="70" y="164" width="26" height="9" rx="4.5" fill="#3f2715"/>
+    <circle cx="196" cy="168.5" r="4" fill="#f3d97a"/>
+  </g>
+  <!-- faíscas da ponta da varinha -->
+  <g fill="#f3d97a">
+    <path d="M187 111 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+    <circle cx="170" cy="96" r="3"/>
+    <circle cx="208" cy="128" r="2.5"/>
+  </g>
+
+</g>
+
+  <!-- Nome -->
+  <text x="200" y="334" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="bold" fill="#f4f7f6" letter-spacing="1.5">PANDORA</text>
+  <text x="200" y="357" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#d4af37" letter-spacing="3">LIVRARIA &amp; CAFÉ</text>
+</svg>
