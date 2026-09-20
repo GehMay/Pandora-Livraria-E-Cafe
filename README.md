@@ -54,13 +54,14 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo banco de dados JSON (`dados/banco.json`), usando a tag `<template>` do HTML e manipulação segura via JavaScript.
 - [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do arquivo de dados em tempo real.
 - [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
-- [x] **Interface Gráfica Temática:** Design responsivo baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
-- [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar uma varinha mágica luminosa interativa (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página.
+- [x] **Interface Gráfica Temática:** Design baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
+- [x] **Layout Responsivo:** Adaptado para computador, tablet e celular: no celular os livros e promoções aparecem em duas colunas compactas, os botões do cabeçalho passam para baixo do título e o rodapé fica sempre no fim da tela.
+- [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar um brilho luminoso interativo (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque.
 - [x] **Arquitetura Simplificada para Deploy:** Substituição do MySQL por leitura de arquivos `.json` para facilitar a hospedagem gratuita do MVP.
 - [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
 - [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
 - [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
-- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e tipo de usuário (`cliente`).
+- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `admin`).
 - [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe o nome do usuário com o botão "Sair".
 - [x] **Contas de Teste Fixas:** Um cliente e um administrador sempre disponíveis para demonstração (veja a seção abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
@@ -70,6 +71,8 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). Falta uma sessão validada pelo servidor para proteger áreas restritas (reservas e painel de admin).
 - [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
+- [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
+- [ ] **Migração do Front-end para React (objetivo futuro):** Reescrever as páginas como componentes reutilizáveis (cabeçalho, cards, formulários) com **React + Vite**, mantendo o servidor Node atual como API. A ideia é fazer a migração por partes, em uma branch separada, e ajustar o deploy no Render para rodar o build antes de publicar.
 - [ ] **Painel Administrativo (`painel-admin.html`):** Área restrita para funcionários gerenciarem o estoque e as promoções.
 
 ## 🔑 Contas de Teste
