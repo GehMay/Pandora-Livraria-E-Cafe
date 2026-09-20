@@ -2,26 +2,51 @@
   <img src="imagens/logo.svg" alt="Logo da Pandora Livraria & Café" width="220">
 </p>
 
-# 📚☕ Pandora Livraria & Café
+<h1 align="center">📚☕ Pandora Livraria & Café</h1>
+
+<p align="center">
+  <em>Tome seu café enquanto lê seus livros favoritos, no coração do Beco Diagonal.</em>
+</p>
+
+<p align="center">
+  <a href="https://pandora-livraria-e-cafe.onrender.com">
+    <img src="https://img.shields.io/badge/Acessar_o_site-Online-1a472a?style=for-the-badge&logo=render&logoColor=white" alt="Acessar o site online">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-sem_frameworks-2a623d?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js sem frameworks">
+  <img src="https://img.shields.io/badge/Front--end-HTML%20%7C%20CSS%20%7C%20JS-2a623d?style=flat-square" alt="HTML, CSS e JavaScript">
+  <img src="https://img.shields.io/badge/Hospedagem-Render-2a623d?style=flat-square&logo=render&logoColor=white" alt="Hospedado no Render">
+  <img src="https://img.shields.io/badge/Licen%C3%A7a-CC%20BY--SA%204.0-c4a02c?style=flat-square" alt="Licença CC BY-SA 4.0">
+</p>
+
+<p align="center">
+  <a href="https://pandora-livraria-e-cafe.onrender.com">
+    <img src="imagens/preview.png" alt="Prévia do site Pandora Livraria & Café" width="800">
+  </a>
+</p>
+
+<p align="center">
+  <sub>⏳ Hospedado no plano gratuito do Render: se o site ficar um tempo sem acessos, o primeiro carregamento pode levar cerca de 50 segundos para "acordar" o servidor.</sub>
+</p>
+
+---
 
 Um projeto de estudo Full-Stack focado no desenvolvimento de um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
 
 Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com o objetivo principal de aprender e consolidar os fundamentos da web (Manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização estrutural).
-
-## 🌐 Acesse o Projeto Online
-👉 **[pandora-livraria-e-cafe.onrender.com](https://pandora-livraria-e-cafe.onrender.com)**
-
-[![Prévia do site Pandora Livraria & Café](imagens/preview.png)](https://pandora-livraria-e-cafe.onrender.com)
-
-> ⏳ O projeto está hospedado no plano gratuito do Render. Se ficar um tempo sem acessos, o primeiro carregamento pode levar cerca de 50 segundos para "acordar" o servidor.
 
 ## 🎯 Objetivo do Projeto (Produto Final)
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
 * **Front-end:** HTML5, CSS3 puros (Grid e Flexbox) e Vanilla JavaScript.
-* **Back-end:** Node.js (utilizando apenas os módulos nativos como `http` e `fs`, sem frameworks como Express, para aprofundamento técnico).
-* **Banco de Dados:** MySQL (relacional).
+* **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
+* **Armazenamento de dados:** Arquivos JSON (`dados/`), escolhidos para simplificar o deploy do MVP. A modelagem em MySQL está pronta em `database/setup.sql` para uma futura migração.
+* **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
+* **Hospedagem:** [Render](https://render.com) (plano gratuito), com deploy automático a cada `git push` na branch `master`.
+* **Design:** Logo e favicon em SVG, criados exclusivamente para o projeto.
 
 ## 🚀 Funcionalidades do Sistema
 
@@ -32,13 +57,17 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Interface Gráfica Temática:** Design responsivo baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
 - [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar uma varinha mágica luminosa interativa (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página.
 - [x] **Arquitetura Simplificada para Deploy:** Substituição do MySQL por leitura de arquivos `.json` para facilitar a hospedagem gratuita do MVP.
+- [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
+- [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
+- [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
+- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e tipo de usuário (`cliente`).
+- [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
-- [ ] **Deploy (Colocar no Ar):** Hospedar o servidor Node.js na nuvem para acesso público de forma rápida usando o `banco.json`.
-- [ ] **Migração Cloud:** Migrar o banco de dados temporário de JSON para um MySQL em nuvem quando houver necessidade de salvar dados complexos (Cadastros e Reservas).
-- [ ] **Seção de Destaques:** Lógica de negócio para exibir livros baseados nas maiores avaliações e número de vendas.
-- [ ] **Sistema de Login e Autenticação:** Cadastro de clientes e administradores com senhas protegidas e criptografadas.
-- [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
+- [ ] **Conectar os Formulários à API:** Ligar as telas de login e cadastro às rotas do servidor com JavaScript (hoje os formulários ainda não enviam os dados).
+- [ ] **Sessão de Usuário:** Manter o usuário logado entre as páginas e diferenciar clientes de administradores.
+- [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
+- [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Painel Administrativo (`painel-admin.html`):** Área restrita para funcionários gerenciarem o estoque e as promoções.
 
 ## 📂 Estrutura do Projeto
@@ -50,31 +79,52 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 CSS
  │    └── 📄 style.css              # Estilos visuais (tema Sonserina e UI)
  ├── 📁 JS
- │    ├── 📄 lancamento.js          # Busca e renderiza os lançamentos do BD
- │    ├── 📄 promocoes.js           # Busca e renderiza as promoções ativas do BD
+ │    ├── 📄 lancamento.js          # Busca e renderiza os lançamentos
+ │    ├── 📄 promocoes.js           # Busca e renderiza as promoções ativas
  │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
  │    └── 📄 magica.js              # Lógica das partículas e estrelas interativas
  ├── 📁 dados
- │    ├── 📄 banco.json             # Banco de dados principal da livraria (MVPs)
- │    └── 📄 usuarios.json          # Banco de dados de contas (Temporário)
+ │    ├── 📄 banco.json             # Dados da livraria: livros e promoções (MVP)
+ │    ├── 📄 usuarios.json          # Contas de usuários (criado automaticamente ao cadastrar)
+ │    └── 📄 lancamentos.json       # Lançamentos cadastrados pela API (criado automaticamente)
  ├── 📁 database
  │    └── 📄 setup.sql              # Script guardado para futura migração para MySQL
+ ├── 📁 imagens
+ │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
+ │    └── 📄 preview.png            # Print do site usado no README
  ├── 📄 index.html                  # Página inicial da loja
+ ├── 📄 login.html                  # Tela de login
+ ├── 📄 cadastro.html               # Tela de criação de conta
+ ├── 📄 testes.html                 # Página de testes de animação (desenvolvimento)
+ ├── 📄 teste-canvas.html           # Página de testes do canvas (desenvolvimento)
  ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
+ ├── 📄 package.json                # Dependências e script de inicialização (npm start)
+ ├── 📄 package-lock.json           # Versões exatas das dependências
+ ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules)
  ├── 📄 GUIA-SERVIDOR.md            # Documentação técnica de como o Node funciona
  └── 📄 README.md                   # Esta documentação
 ```
 
 ## 💻 Como Rodar o Projeto Localmente
 
-Com a nova arquitetura em JSON, rodar o projeto ficou incrivelmente simples (não exige mais banco de dados externo):
+Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dados externo. É necessário apenas ter o [Node.js](https://nodejs.org) instalado.
 
-1. **Abra o terminal** na pasta raiz do projeto.
-2. Caso ainda não tenha feito, instale as dependências executando:
-   `npm install`
-3. **Inicie o servidor** executando:
-   `node servidor-estatico.js`
-4. Abra seu navegador e acesse: `http://localhost:5500`
+1. **Clone o repositório** e entre na pasta:
+   ```bash
+   git clone https://github.com/GehMay/Pandora-Livraria-E-Cafe.git
+   cd Pandora-Livraria-E-Cafe
+   ```
+2. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+3. **Inicie o servidor:**
+   ```bash
+   npm start
+   ```
+4. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
+
+> 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela.
 
 ---
 
