@@ -359,3 +359,38 @@ canvas {
         display: none;
     }
 }
+
+/* Ajustes leves para telas pequenas (o visual do computador não muda) */
+@media (max-width: 880px) {
+    /* Botões saem do canto e ficam embaixo do título, sem cobrir o texto */
+    .cabecalho_acoes {
+        position: static;
+        transform: none;
+        justify-content: center;
+        margin-top: 0.4rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .secao-vitrine,
+    .secao-sobre {
+        padding: 0 1rem;
+    }
+
+    .card-padding {
+        padding: 1rem;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+
+    .cards-grid-interno {
+        padding: 0;
+    }
+
+    .form-container {
+        margin: 2rem 1rem;
+    }
+}
