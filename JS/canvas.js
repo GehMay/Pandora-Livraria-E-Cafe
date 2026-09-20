@@ -14,8 +14,14 @@ let mouseY = -100;
 let mouseAtivo = false;
 let sobreCard = false;
 
-// Ouve o mouse
-window.addEventListener('mousemove', function(evento) {
+// Ouve o mouse. O brilho só existe para quem usa mouse de verdade (PC, ou celular/tablet com mouse conectado).
+// Toques e caneta são ignorados: no celular sem mouse a luz fica sempre desligada.
+window.addEventListener('pointermove', function(evento) {
+    if (evento.pointerType !== 'mouse') {
+        mouseAtivo = false;
+        return;
+    }
+
     mouseX = evento.clientX;
     mouseY = evento.clientY;
     mouseAtivo = true;
@@ -28,13 +34,16 @@ window.addEventListener('mousemove', function(evento) {
     }
 });
 
+// Um toque na tela apaga a luz (o navegador do celular simula um "mouse" depois do toque)
+window.addEventListener('pointerdown', function(evento) {
+    if (evento.pointerType !== 'mouse') {
+        mouseAtivo = false;
+    }
+});
+
 // Esconde a luz quando o mouse sai da janela
 document.addEventListener('mouseleave', function() {
     mouseAtivo = false;
-});
-
-document.addEventListener('mouseenter', function() {
-    mouseAtivo = true;
 });
 
 // Raio da bolinha

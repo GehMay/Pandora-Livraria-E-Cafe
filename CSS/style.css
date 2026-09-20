@@ -21,6 +21,8 @@ body {
     background-color: #e8f0ec; /* Fundo prata/cinza esverdeado bem claro */
     display: grid;
     grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    min-height: 100dvh; /* Celular: considera a barra do navegador. O rodapé fica sempre no fim da tela */
 }
 
 .cabecalho {
