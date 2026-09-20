@@ -21,6 +21,8 @@ body {
     background-color: #e8f0ec; /* Fundo prata/cinza esverdeado bem claro */
     display: grid;
     grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
+    overflow-x: hidden; /* Estrelas e varinhas animadas não geram rolagem lateral */
 }
 
 .cabecalho {
@@ -131,7 +133,7 @@ body {
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
     gap: 1rem;
     padding: 0 2rem;
     box-sizing: border-box;
@@ -354,8 +356,120 @@ canvas {
     height: 64px;
 }
 
-@media (max-width: 700px) {
-    .cabecalho_logo {
-        display: none;
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVIDADE
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tablets e telas médias: logo e botões saem do canto e entram no fluxo do cabeçalho */
+@media (max-width: 900px) {
+    .cabecalho {
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .cabecalho_logo,
+    .cabecalho_acoes {
+        position: static;
+        transform: none;
+    }
+
+    .cabecalho_logo img {
+        width: 56px;
+        height: 56px;
+    }
+
+    .cabecalho_acoes {
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 0.3rem;
+    }
+
+    .btn-login,
+    .btn-cadastro {
+        padding: 0.6rem 1.2rem; /* Área de toque confortável */
+    }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+    .cabecalho {
+        border-radius: 0 0 30px 30px;
+    }
+
+    .cabecalho > p {
+        font-size: 1.15rem;
+    }
+
+    .cabecalho_nav p {
+        font-size: 0.9rem;
+    }
+
+    .titulo-pagina {
+        margin: 1.5rem 0;
+        font-size: 1.6rem;
+    }
+
+    .subtitulo-pagina {
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .secao-vitrine,
+    .secao-sobre {
+        padding: 0 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .card-padding {
+        padding: 1rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .cards-grid {
+        padding: 0 1rem;
+    }
+
+    .cards-grid-interno {
+        padding: 0;
+    }
+
+    .form-container {
+        margin: 2rem 1rem;
+        padding: 1.5rem 1.25rem;
+    }
+
+    .form-grupo input,
+    .btn-submit {
+        font-size: 1rem; /* Evita o zoom automático do iOS ao focar no campo */
+    }
+
+    .rodape {
+        border-radius: 30px 30px 0 0;
+        padding: 1.25rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 360px) {
+    .cabecalho_acoes {
+        width: 100%;
+    }
+
+    .btn-login,
+    .btn-cadastro {
+        flex: 1;
+        text-align: center;
+        padding: 0.6rem 0.5rem;
+    }
+}
+
+/* Telas de toque: sem "pulo" de hover nos cards */
+@media (hover: none) {
+    .card-interno:hover {
+        transform: none;
     }
 }

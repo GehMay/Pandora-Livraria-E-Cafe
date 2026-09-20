@@ -28,6 +28,21 @@ window.addEventListener('mousemove', function(evento) {
     }
 });
 
+// Celular/tablet: a bolinha segue o dedo enquanto ele toca a tela
+function seguirToque(evento) {
+    const toque = evento.touches[0];
+    mouseX = toque.clientX;
+    mouseY = toque.clientY;
+    mouseAtivo = true;
+    sobreCard = !!(evento.target.closest('.card') || evento.target.closest('.card-interno'));
+}
+
+window.addEventListener('touchstart', seguirToque, { passive: true });
+window.addEventListener('touchmove', seguirToque, { passive: true });
+window.addEventListener('touchend', function() {
+    mouseAtivo = false;
+});
+
 // Esconde a luz quando o mouse sai da janela
 document.addEventListener('mouseleave', function() {
     mouseAtivo = false;
