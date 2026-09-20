@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node servidor-estatico.js"
+  },
   "dependencies": {
     "mysql2": "^3.24.2"
   }

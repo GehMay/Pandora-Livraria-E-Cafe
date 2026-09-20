@@ -28,7 +28,7 @@ console.log('✅ Servidor configurado para usar banco.json (Modo Deploy Simples)
 // 1. CONFIGURAÇÕES INICIAIS
 // ═══════════════════════════════════════════════════════════════
 
-const PORTA = 5500;
+const PORTA = process.env.PORT || 5500;
 const PASTA_PROJETO = __dirname;
 const PASTA_DADOS = path.join(PASTA_PROJETO, 'dados');
 const ARQUIVO_USUARIOS = path.join(PASTA_DADOS, 'usuarios.json');
@@ -418,7 +418,7 @@ const servidor = http.createServer(async (req, res) => {
 // 13. INICIAR SERVIDOR
 // ═══════════════════════════════════════════════════════════════
 
-servidor.listen(PORTA, () => {
+servidor.listen(PORTA, '0.0.0.0', () => {
   console.log(`
 ╔════════════════════════════════════════════════════════╗
 ║    SERVIDOR INICIADO COM SUCESSO!                      ║
