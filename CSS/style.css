@@ -371,55 +371,80 @@ canvas {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767px) {
     .secao-vitrine,
     .secao-sobre {
-        padding: 0 1rem;
+        padding: 0 0.75rem;
+        margin-top: 1.5rem;
     }
 
     .card-padding {
-        padding: 1rem;
+        padding: 1rem 0.75rem;
     }
 
+    /* Cards grandes (Produtos, Categorias, Dados): uma coluna */
     .cards-grid {
         grid-template-columns: 1fr;
-        padding: 0 1rem;
-    }
-
-    .cards-grid-interno {
-        padding: 0;
+        padding: 0 0.75rem;
     }
 
     .form-container {
         margin: 2rem 1rem;
     }
 
-    /* Cards compactos: ícone em faixa lateral e texto ao lado, em vez de empilhados */
-    .cards-grid-interno {
-        gap: 0.75rem;
+    .titulo-pagina {
+        margin: 1.5rem 0.75rem;
+        font-size: 1.6rem;
     }
 
-    .card-interno {
-        flex-direction: row;
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .card-descricao {
+        text-align: left;
+    }
+
+    /* Livros e promoções: duas colunas compactas, como no computador */
+    .cards-grid-interno {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+        padding: 0;
     }
 
     .card-banner {
-        flex: 0 0 64px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        font-size: 1.6rem;
-        border-radius: 0;
+        padding: 0.5rem 0;
+        font-size: 1.4rem;
     }
 
     .card-interno .card-body {
-        padding: 0.75rem;
+        padding: 0.6rem;
         min-width: 0;
     }
 
+    .card-interno .book-title {
+        font-size: 0.9rem;
+        overflow-wrap: anywhere;
+    }
+
     .card-interno .card-descricao {
+        font-size: 0.8rem;
         margin-top: 0.15rem;
         text-align: left; /* Justificado abre espaços enormes entre as palavras em telas estreitas */
+        overflow-wrap: anywhere;
+    }
+}
+
+/* Celulares bem pequenos: volta para uma coluna */
+@media (max-width: 300px) {
+    .cards-grid-interno {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Telas de toque: cards não "levantam" no hover, evita sobrepor o card de cima */
+@media (hover: none) {
+    .card-interno:hover {
+        transform: none;
     }
 }
