@@ -339,3 +339,23 @@ canvas {
     text-decoration: none;
     color: inherit;
 }
+
+/* Logo fixa no canto superior esquerdo do cabeçalho */
+.cabecalho_logo {
+    position: absolute;
+    top: 50%;
+    left: 1.5rem;
+    transform: translateY(-50%);
+    line-height: 0;
+}
+
+.cabecalho_logo img {
+    width: 64px;
+    height: 64px;
+}
+
+@media (max-width: 700px) {
+    .cabecalho_logo {
+        display: none;
+    }
+}
