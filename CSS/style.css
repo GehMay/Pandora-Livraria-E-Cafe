@@ -450,3 +450,37 @@ canvas {
         transform: none;
     }
 }
+
+/* Mensagens dos formulários e saudação do usuário logado */
+.form-mensagem {
+    margin-top: 1rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.form-mensagem[hidden] {
+    display: none;
+}
+
+.form-mensagem-erro {
+    background-color: #ffe3e3;
+    color: #8a1c1c;
+}
+
+.form-mensagem-ok {
+    background-color: #d6f5df;
+    color: #14532d;
+}
+
+.cabecalho_saudacao {
+    align-self: center;
+    color: #c4d4cc;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.btn-login {
+    font-family: inherit; /* O botão "Sair" é um <button>, então herda a mesma fonte dos links */
+}

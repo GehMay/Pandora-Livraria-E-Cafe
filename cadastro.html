@@ -23,7 +23,7 @@
     <main class="container">
         <div class="form-container">
             <h2>Criar Conta</h2>
-            <form action="#" method="POST">
+            <form action="#" method="POST" data-api="/api/cadastro">
                 <div class="form-grupo">
                     <label for="nome">Nome Completo</label>
                     <input type="text" id="nome" name="nome" required placeholder="Seu nome bruxo">
@@ -36,6 +36,7 @@
                     <label for="senha">Senha</label>
                     <input type="password" id="senha" name="senha" required placeholder="Crie uma senha forte">
                 </div>
+                <p id="mensagem-form" class="form-mensagem" role="alert" hidden></p>
                 <button type="submit" class="btn-submit">Criar Conta Mágica</button>
             </form>
             <a href="login.html" class="form-link">Já tem uma conta? Entre aqui!</a>
@@ -48,5 +49,6 @@
 
     <script src="JS/magica.js"></script>
     <script src="JS/canvas.js"></script>
+    <script src="JS/auth.js"></script>
 </body>
 </html>

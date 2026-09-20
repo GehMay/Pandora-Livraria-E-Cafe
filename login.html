@@ -23,7 +23,7 @@
     <main class="container">
         <div class="form-container">
             <h2>Entrar</h2>
-            <form action="#" method="POST">
+            <form action="#" method="POST" data-api="/api/login">
                 <div class="form-grupo">
                     <label for="email">E-mail Bruxo</label>
                     <input type="email" id="email" name="email" required placeholder="bruxo@hogwarts.com">
@@ -32,6 +32,7 @@
                     <label for="senha">Senha</label>
                     <input type="password" id="senha" name="senha" required placeholder="Sua senha secreta">
                 </div>
+                <p id="mensagem-form" class="form-mensagem" role="alert" hidden></p>
                 <button type="submit" class="btn-submit">Acessar Cofre</button>
             </form>
             <a href="cadastro.html" class="form-link">Ainda não tem conta? Crie uma agora!</a>
@@ -44,5 +45,6 @@
 
     <script src="JS/magica.js"></script>
     <script src="JS/canvas.js"></script>
+    <script src="JS/auth.js"></script>
 </body>
 </html>

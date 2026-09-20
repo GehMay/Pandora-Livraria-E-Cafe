@@ -61,14 +61,27 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
 - [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
 - [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e tipo de usuário (`cliente`).
+- [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe o nome do usuário com o botão "Sair".
+- [x] **Contas de Teste Fixas:** Um cliente e um administrador sempre disponíveis para demonstração (veja a seção abaixo).
+- [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
-- [ ] **Conectar os Formulários à API:** Ligar as telas de login e cadastro às rotas do servidor com JavaScript (hoje os formulários ainda não enviam os dados).
-- [ ] **Sessão de Usuário:** Manter o usuário logado entre as páginas e diferenciar clientes de administradores.
+- [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). Falta uma sessão validada pelo servidor para proteger áreas restritas (reservas e painel de admin).
 - [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Painel Administrativo (`painel-admin.html`):** Área restrita para funcionários gerenciarem o estoque e as promoções.
+
+## 🔑 Contas de Teste
+
+Para experimentar o site sem precisar cadastrar nada, use uma destas contas (recriadas sempre que o servidor liga):
+
+| Tipo | E-mail | Senha |
+|---|---|---|
+| Cliente | `cliente@pandora.com` | `cliente123` |
+| Funcionário / Admin | `admin@pandora.com` | `admin123` |
+
+> ⚠️ São contas públicas de demonstração, então nunca use nelas uma senha real. Contas criadas pelo formulário de cadastro são temporárias: no plano gratuito do Render elas somem quando o servidor reinicia ou dorme.
 
 ## 📂 Estrutura do Projeto
 
@@ -81,6 +94,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 JS
  │    ├── 📄 lancamento.js          # Busca e renderiza os lançamentos
  │    ├── 📄 promocoes.js           # Busca e renderiza as promoções ativas
+ │    ├── 📄 auth.js                # Login, cadastro e saudação do usuário no cabeçalho
  │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
  │    └── 📄 magica.js              # Lógica das partículas e estrelas interativas
  ├── 📁 dados

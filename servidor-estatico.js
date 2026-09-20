@@ -120,6 +120,36 @@ function salvarUsuarios(usuarios) {
 }
 
 /**
+ * Contas de teste fixas (demonstração): um cliente e um funcionário/admin.
+ * Como o disco do Render gratuito é apagado a cada reinício, elas são recriadas
+ * toda vez que o servidor liga, então sempre existem para quem quiser testar.
+ */
+const CONTAS_FIXAS = [
+  { id: 'conta-teste-cliente', nome: 'Cliente Teste', email: 'cliente@pandora.com', senha: 'cliente123', tipo: 'cliente' },
+  { id: 'conta-teste-admin', nome: 'Admin Teste', email: 'admin@pandora.com', senha: 'admin123', tipo: 'admin' }
+];
+
+function garantirContasFixas() {
+  const emailsFixos = CONTAS_FIXAS.map(c => c.email);
+  const usuarios = lerUsuarios().filter(u => !emailsFixos.includes(u.email));
+
+  CONTAS_FIXAS.forEach(conta => {
+    usuarios.push({
+      id: conta.id,
+      nome: conta.nome,
+      email: conta.email,
+      senha: criarHashSenha(conta.senha),
+      tipo: conta.tipo,
+      criadoEm: new Date().toISOString()
+    });
+  });
+
+  salvarUsuarios(usuarios);
+}
+
+garantirContasFixas();
+
+/**
  * Lê todos os lançamentos do arquivo JSON
  */
 function lerLancamentos() {
@@ -307,7 +337,16 @@ function mapearUrlParaArquivo(urlPath) {
   const caminhoUrl = decodeURIComponent(urlPath.split('?')[0]);
   let caminhoRelativo = caminhoUrl === '/' ? '/index.html' : caminhoUrl;
   const caminhoCompleto = path.resolve(PASTA_PROJETO, `.${caminhoRelativo}`);
-  
+
+  // Arquivos internos não podem ser baixados pelo navegador (senhas, código do servidor, etc.)
+  const relativo = '/' + path.relative(PASTA_PROJETO, caminhoCompleto).split(path.sep).join('/');
+  const ARQUIVOS_PRIVADOS = ['/servidor-estatico.js', '/package.json', '/package-lock.json'];
+  const PASTAS_PRIVADAS = ['/dados', '/database', '/node_modules', '/.git'];
+  if (ARQUIVOS_PRIVADOS.includes(relativo) ||
+      PASTAS_PRIVADAS.some(p => relativo === p || relativo.startsWith(p + '/'))) {
+    return null;
+  }
+
   if (!caminhoCompleto.startsWith(PASTA_PROJETO + path.sep) && 
       caminhoCompleto !== PASTA_PROJETO) {
     return null;
