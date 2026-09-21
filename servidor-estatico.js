@@ -34,6 +34,14 @@ const PASTA_DADOS = path.join(PASTA_PROJETO, 'dados');
 const ARQUIVO_USUARIOS = path.join(PASTA_DADOS, 'usuarios.json');
 const ARQUIVO_LANCAMENTOS = path.join(PASTA_DADOS, 'lancamentos.json');
 
+// Quem se cadastra com um e-mail desse domínio é da equipe (funcionário/admin).
+// Qualquer outro e-mail (Gmail, Outlook, etc.) vira conta de cliente.
+const DOMINIO_LOJA = 'pandoralivraria.com.br';
+
+function ehEmailDaLoja(email) {
+  return email.endsWith('@' + DOMINIO_LOJA);
+}
+
 // Criar pasta 'dados' se não existir
 if (!fs.existsSync(PASTA_DADOS)) {
   fs.mkdirSync(PASTA_DADOS, { recursive: true });
@@ -125,8 +133,8 @@ function salvarUsuarios(usuarios) {
  * toda vez que o servidor liga, então sempre existem para quem quiser testar.
  */
 const CONTAS_FIXAS = [
-  { id: 'conta-teste-cliente', nome: 'Cliente Teste', email: 'cliente@pandora.com', senha: 'cliente123', tipo: 'cliente' },
-  { id: 'conta-teste-admin', nome: 'Admin Teste', email: 'admin@pandora.com', senha: 'admin123', tipo: 'admin' }
+  { id: 'conta-teste-cliente', nome: 'Cliente Teste', email: 'cliente@gmail.com', senha: 'cliente123', tipo: 'cliente' },
+  { id: 'conta-teste-funcionario', nome: 'Funcionário Teste', email: `funcionario@${DOMINIO_LOJA}`, senha: 'equipe123', tipo: 'funcionario' }
 ];
 
 function garantirContasFixas() {
@@ -276,7 +284,7 @@ async function apiCadastro(req, res) {
       nome,
       email,
       senha: criarHashSenha(senha),
-      tipo: 'cliente',
+      tipo: ehEmailDaLoja(email) ? 'funcionario' : 'cliente',
       criadoEm: new Date().toISOString()
     };
     
@@ -335,7 +343,8 @@ async function apiLogin(req, res) {
 
 function mapearUrlParaArquivo(urlPath) {
   const caminhoUrl = decodeURIComponent(urlPath.split('?')[0]);
-  let caminhoRelativo = caminhoUrl === '/' ? '/index.html' : caminhoUrl;
+  // Pasta (termina em "/", como "/" ou "/perfil/") serve o index.html dela
+  let caminhoRelativo = caminhoUrl.endsWith('/') ? caminhoUrl + 'index.html' : caminhoUrl;
   const caminhoCompleto = path.resolve(PASTA_PROJETO, `.${caminhoRelativo}`);
 
   // Arquivos internos não podem ser baixados pelo navegador (senhas, código do servidor, etc.)

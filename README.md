@@ -72,8 +72,8 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
-- [ ] **Migração do Front-end para React (objetivo futuro):** Reescrever as páginas como componentes reutilizáveis (cabeçalho, cards, formulários) com **React + Vite**, mantendo o servidor Node atual como API. A ideia é fazer a migração por partes, em uma branch separada, e ajustar o deploy no Render para rodar o build antes de publicar.
-- [ ] **Painel Administrativo (`painel-admin.html`):** Área restrita para funcionários gerenciarem o estoque e as promoções.
+- [x] **Migração do Front-end para React (em andamento):** Primeira parte migrada — a página "Minha Conta" (`perfil-app/`, React + Vite) já roda em produção junto com o restante do site em HTML puro, que continua sendo migrado por partes.
+- [ ] **Painel da Equipe Completo:** Hoje `painel-funcionario.html` é só um placeholder estático. Falta o painel de verdade pra gerenciar estoque e promoções (provavelmente também em React).
 
 ## 🔑 Contas de Teste
 
@@ -81,8 +81,10 @@ Para experimentar o site sem precisar cadastrar nada, use uma destas contas (rec
 
 | Tipo | E-mail | Senha |
 |---|---|---|
-| Cliente | `cliente@pandora.com` | `cliente123` |
-| Funcionário / Admin | `admin@pandora.com` | `admin123` |
+| Cliente | `cliente@gmail.com` | `cliente123` |
+| Funcionário / Admin | `funcionario@pandoralivraria.com.br` | `equipe123` |
+
+> O tipo da conta é definido pelo domínio do e-mail no cadastro: quem usa `@pandoralivraria.com.br` vira funcionário/admin, qualquer outro domínio (Gmail, Outlook, etc.) vira cliente.
 
 > ⚠️ São contas públicas de demonstração, então nunca use nelas uma senha real. Contas criadas pelo formulário de cadastro são temporárias: no plano gratuito do Render elas somem quando o servidor reinicia ou dorme.
 
@@ -109,13 +111,22 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
+ ├── 📁 perfil-app                  # Código-fonte React (Vite) da página "Minha Conta"
+ │    ├── 📁 src
+ │    │    ├── 📄 main.jsx           # Ponto de entrada do React
+ │    │    └── 📄 App.jsx            # Tela de perfil do cliente
+ │    ├── 📄 index.html              # HTML base usado pelo Vite
+ │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /perfil)
+ │    └── 📄 package.json            # Dependências do app React (react, vite)
+ ├── 📁 perfil                      # Build gerado do perfil-app (gerado por `npm run build:perfil`, servido em /perfil)
  ├── 📄 index.html                  # Página inicial da loja
  ├── 📄 login.html                  # Tela de login
  ├── 📄 cadastro.html               # Tela de criação de conta
+ ├── 📄 painel-funcionario.html     # Painel da equipe (placeholder, área restrita a funcionário/admin)
  ├── 📄 testes.html                 # Página de testes de animação (desenvolvimento)
  ├── 📄 teste-canvas.html           # Página de testes do canvas (desenvolvimento)
  ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
- ├── 📄 package.json                # Dependências e script de inicialização (npm start)
+ ├── 📄 package.json                # Dependências e scripts (npm start, npm run build:perfil)
  ├── 📄 package-lock.json           # Versões exatas das dependências
  ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules)
  ├── 📄 GUIA-SERVIDOR.md            # Documentação técnica de como o Node funciona
@@ -142,6 +153,21 @@ Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dado
 4. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
 
 > 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela.
+
+### ⚛️ Mexendo na parte em React (`perfil-app/`)
+
+A página "Minha Conta" já é servida pronta (pasta `/perfil`, gerada previamente), então rodar `npm start` sozinho já é suficiente pra navegar no site inteiro. Só é preciso mexer no `perfil-app/` quando for alterar essa página:
+
+1. **Modo desenvolvimento** (com hot reload, mas ainda precisa do servidor Node rodando em outro terminal pra API/CSS/imagens funcionarem):
+   ```bash
+   cd perfil-app
+   npm install
+   npm run dev
+   ```
+2. **Gerar o build de novo** depois de editar o React (o servidor Node só serve o que está na pasta `/perfil`, então esse passo é obrigatório antes de commitar):
+   ```bash
+   npm run build:perfil
+   ```
 
 ---
 

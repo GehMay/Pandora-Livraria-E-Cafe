@@ -29,6 +29,13 @@ function sair() {
     window.location.href = 'index.html';
 }
 
+// Cliente e equipe (funcionário/admin) caem em páginas diferentes depois de entrar.
+function paginaDaConta(usuario) {
+    return usuario.tipo === 'funcionario' || usuario.tipo === 'admin'
+        ? 'painel-funcionario.html'
+        : 'perfil/index.html';
+}
+
 async function enviarParaApi(rota, dados) {
     const resposta = await fetch(rota, {
         method: 'POST',
@@ -75,7 +82,7 @@ if (formulario) {
 
             salvarSessao(resultado.usuario);
             mostrarMensagem('Tudo certo! Entrando...', 'ok');
-            setTimeout(() => { window.location.href = 'index.html'; }, 700);
+            setTimeout(() => { window.location.href = paginaDaConta(resultado.usuario); }, 700);
         } catch (erro) {
             mostrarMensagem(erro.message, 'erro');
             botao.disabled = false;
@@ -90,10 +97,12 @@ const areaAcoes = document.querySelector('.cabecalho_acoes');
 
 if (usuarioLogado && areaAcoes) {
     const primeiroNome = String(usuarioLogado.nome || '').split(' ')[0];
+    const ehEquipe = usuarioLogado.tipo === 'funcionario' || usuarioLogado.tipo === 'admin';
 
-    const saudacao = document.createElement('span');
-    saudacao.className = 'cabecalho_saudacao';
-    saudacao.textContent = 'Olá, ' + primeiroNome + (usuarioLogado.tipo === 'admin' ? ' · Equipe' : '');
+    const linkConta = document.createElement('a');
+    linkConta.className = 'cabecalho_saudacao';
+    linkConta.href = paginaDaConta(usuarioLogado);
+    linkConta.textContent = 'Olá, ' + primeiroNome + (ehEquipe ? ' · Equipe' : '');
 
     const botaoSair = document.createElement('button');
     botaoSair.type = 'button';
@@ -101,5 +110,19 @@ if (usuarioLogado && areaAcoes) {
     botaoSair.textContent = 'Sair';
     botaoSair.addEventListener('click', sair);
 
-    areaAcoes.replaceChildren(saudacao, botaoSair);
+    areaAcoes.replaceChildren(linkConta, botaoSair);
+}
+
+// ── Guarda de página: só deixa entrar quem tem a sessão certa ───
+// Páginas restritas marcam isso com <body data-requer-sessao="funcionario"> (ou "cliente")
+const tipoExigido = document.body.dataset.requerSessao;
+
+if (tipoExigido) {
+    const tiposPermitidos = tipoExigido === 'funcionario'
+        ? ['funcionario', 'admin']
+        : [tipoExigido];
+
+    if (!usuarioLogado || !tiposPermitidos.includes(usuarioLogado.tipo)) {
+        window.location.href = 'login.html';
+    }
 }
