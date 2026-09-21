@@ -1,0 +1,652 @@
+================================================================================
+  PANDORA LIVRARIA & CAFÉ - EXPLICAÇÃO DOS CÓDIGOS
+================================================================================
+
+Este guia explica os comandos usados em cada arquivo do projeto.
+Quando um comando se repete, ele é explicado só na primeira vez em que aparece.
+Nos outros arquivos, o guia avisa que o comando é usado da mesma maneira.
+
+Ordem do guia:
+  1. HTML   (index.html, login.html, cadastro.html, testes.html, teste-canvas.html)
+  2. CSS    (style.css)
+  3. JavaScript do navegador (lancamento.js, promocoes.js, canvas.js, magica.js, auth.js)
+  4. Servidor (servidor-estatico.js)
+  5. Arquivos de configuração (package.json, .gitignore, package-lock.json)
+
+
+================================================================================
+  1. HTML
+================================================================================
+
+--------------------------------------------------------------------------------
+  index.html (a página inicial)
+--------------------------------------------------------------------------------
+
+ESTRUTURA BÁSICA
+
+  <!DOCTYPE html>
+      Avisa ao navegador que o arquivo é HTML5.
+
+  <html lang="pt-BR">
+      Envolve a página toda e diz que o idioma é português do Brasil.
+
+  <head>
+      Área com informações que não aparecem na tela.
+
+  <meta charset="UTF-8">
+      Faz os acentos e emojis aparecerem corretamente.
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      Faz a página se ajustar à largura do celular, em vez de aparecer minúscula.
+
+  <title>
+      O texto que aparece na aba do navegador.
+
+  <link rel="icon" type="image/svg+xml" href="imagens/logo.svg">
+      O ícone da aba (favicon). No caso, a logo.
+
+  <link rel="stylesheet" href="CSS/style.css">
+      Liga o arquivo de estilos (CSS) à página.
+
+  <body>
+      Tudo o que aparece na tela.
+
+  <!-- texto -->
+      Comentário. O navegador ignora.
+
+CONTEÚDO
+
+  <header>, <main>, <footer>
+      Cabeçalho, conteúdo principal e rodapé. Só dão significado à página.
+      O visual vem do CSS.
+
+  <nav>
+      Área de navegação.
+
+  <div>
+      Caixa genérica para agrupar elementos.
+
+  <article>
+      Bloco independente. É usado em cada card.
+
+  <h1>, <h3>, <h6>
+      Títulos, do maior (h1) ao menor (h6).
+
+  <p>
+      Parágrafo.
+
+  <span>
+      Trecho de texto dentro de uma linha. Serve para estilizar ou para o
+      JavaScript preencher.
+
+  <br>
+      Quebra de linha.
+
+  <a href="login.html">
+      Link. O "href" é o destino.
+
+  <img src="..." alt="...">
+      Imagem. O "alt" descreve a imagem para leitores de tela.
+
+  <canvas id="meuCanvas">
+      Tela de desenho. É usada pelo brilho que segue o mouse.
+
+  <template id="molde-livro">
+      Molde invisível de um card. O JavaScript copia esse molde para cada livro.
+
+  <script src="JS/arquivo.js">
+      Carrega um arquivo JavaScript.
+
+ATRIBUTOS
+
+  class="nome"
+      Nome de estilo, usado pelo CSS. Vários elementos podem ter a mesma classe.
+
+  id="nome"
+      Nome único, usado pelo JavaScript para achar o elemento.
+
+  aria-hidden="true"
+      Esconde o elemento de leitores de tela. Usado no emoji decorativo.
+
+  data-categoria="..."
+      Guarda uma informação extra dentro do elemento.
+
+--------------------------------------------------------------------------------
+  login.html e cadastro.html
+--------------------------------------------------------------------------------
+
+Usam os mesmos comandos do index.html (<head>, <header>, <main>, <footer>,
+<script>, <link>, <meta>). Os comandos novos são os de FORMULÁRIO:
+
+  <form action="#" method="POST" data-api="/api/login">
+      Formulário. O "data-api" guarda a rota do servidor que o auth.js vai
+      chamar. O action="#" só impede o envio padrão do navegador.
+
+  <label for="email">
+      Texto que descreve um campo. O "for" liga ao "id" do campo, então tocar
+      no texto seleciona o campo.
+
+  <input type="email" id="email" name="email" required placeholder="...">
+      Campo de digitação.
+        type         -> o tipo (e-mail, senha com pontinhos, texto...).
+        name         -> o nome do dado que será enviado.
+        required     -> obriga o preenchimento.
+        placeholder  -> o texto cinza de exemplo.
+
+  <button type="submit">
+      Botão que envia o formulário.
+
+  <p id="mensagem-form" role="alert" hidden>
+      Espaço para mensagens de erro. O "hidden" o esconde até haver mensagem.
+      O role="alert" faz leitores de tela lerem o aviso.
+
+O cadastro.html só acrescenta o campo "nome" e usa data-api="/api/cadastro".
+
+--------------------------------------------------------------------------------
+  testes.html e teste-canvas.html
+--------------------------------------------------------------------------------
+
+São páginas de experimento. Usam <style>, que é CSS escrito dentro do próprio
+HTML, em vez de um arquivo separado. Neles, "overflow: hidden" esconde a barra
+de rolagem. O resto é igual ao que já foi explicado.
+
+
+================================================================================
+  2. CSS (style.css)
+================================================================================
+
+SELETORES (dizem QUEM recebe o estilo)
+
+  *                      Todos os elementos.
+  body, h3               Todos os elementos dessa tag.
+  .cabecalho             Elementos com class="cabecalho".
+  #meuCanvas             O elemento com esse id.
+  .a, .b                 A vírgula significa: vale para os dois.
+  .cabecalho > p         Só o <p> que é filho direto do cabeçalho.
+  .card:hover            O card quando o mouse está em cima.
+  .form-mensagem[hidden] Só quando o elemento tem o atributo "hidden".
+
+ESPAÇO E TAMANHO
+
+  margin            Espaço FORA da caixa.
+  padding           Espaço DENTRO da caixa, entre a borda e o conteúdo.
+                    Com 2 valores (2rem 0): vertical e horizontal.
+                    Com 4 valores: cima, direita, baixo, esquerda.
+  box-sizing: border-box
+                    A largura já inclui padding e borda, o que facilita as
+                    contas. No "*", junto com "margin: 0; padding: 0", zera os
+                    espaços padrão do navegador.
+  width, height, max-width, min-height
+                    Tamanho, e limites máximo e mínimo.
+
+  UNIDADES
+    px    pixel fixo.
+    rem   relativo ao tamanho da letra base.
+    %     parte do tamanho do elemento pai.
+    vh    1% da altura da tela.
+    dvh   igual ao vh, mas descontando a barra do navegador no celular.
+    fr    fração do espaço disponível, usada no grid.
+
+LAYOUT
+
+  display: flex
+      Alinha os filhos em linha ou em coluna. Vem junto com:
+        flex-direction   linha ou coluna.
+        align-items      alinha no eixo cruzado.
+        justify-content  alinha no eixo principal.
+        gap              espaço entre os filhos.
+        flex-wrap        permite quebrar linha.
+        flex             quanto cada filho cresce.
+
+  display: grid
+      Cria uma grade.
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
+            Significa: "quantas colunas de pelo menos 250px couberem, dividindo
+            o espaço igualmente".
+        grid-template-rows: auto 1fr auto
+            No body, faz o meio esticar e o rodapé ir para baixo.
+
+  display: inline-block / block / none
+      Como o elemento se comporta, ou se ele some.
+
+  position
+      relative  serve de referência para os filhos.
+      absolute  posição livre dentro do pai (usada nos botões e na logo).
+      fixed     fixa na tela (usada no canvas).
+      static    posição normal.
+      Vem junto com: top, right, left, transform: translateY(-50%) (move o
+      elemento) e z-index (quem fica na frente).
+
+  overflow: hidden        Corta o que passa da caixa.
+  overflow-wrap: anywhere Permite quebrar palavras muito longas.
+
+APARÊNCIA
+
+  background-color, color
+      Cor de fundo e cor do texto. As cores podem ser hexadecimais (#1a472a)
+      ou rgba(26, 71, 42, 0.6), onde o último número é a transparência.
+
+  background: linear-gradient(...)   Fundo em degradê.
+  border                             Borda.
+  border-radius                      Cantos arredondados.
+  box-shadow                         Sombra.
+  opacity                            Transparência do elemento inteiro.
+  font-family, font-size, font-weight: bold, line-height
+                                     Fonte, tamanho, negrito e altura da linha.
+  text-align                         Alinhamento do texto.
+  text-decoration: none              Tira o sublinhado dos links.
+  cursor: pointer                    Mãozinha ao passar o mouse.
+  pointer-events: none               O elemento não recebe cliques; o clique
+                                     atravessa (usado no canvas).
+  transition                         Anima a mudança suavemente (por exemplo,
+                                     no hover).
+  @keyframes flutuar                 Define uma animação chamada "flutuar".
+
+RESPONSIVIDADE
+
+  @media (max-width: 880px) { ... }
+      As regras de dentro só valem em telas até essa largura. É assim que o
+      celular ganha um layout próprio.
+
+  @media (hover: none) { ... }
+      Só vale em telas de toque, sem mouse.
+
+  min(250px, 100%) dentro de minmax()
+      Escolhe o menor dos dois valores.
+
+
+================================================================================
+  3. JAVASCRIPT DO NAVEGADOR
+================================================================================
+
+--------------------------------------------------------------------------------
+  lancamento.js
+  (Aqui ficam explicados a maioria dos comandos de JavaScript.)
+--------------------------------------------------------------------------------
+
+  async function nome() { }
+      Função que pode "esperar" coisas demoradas.
+
+  try { } catch (erro) { }
+      Tenta executar. Se algo der erro, vai para o catch em vez de quebrar tudo.
+
+  await fetch('/api/lancamentos')
+      Pede dados ao servidor e espera a resposta.
+
+  await resposta.json()
+      Converte a resposta em objetos JavaScript.
+
+  const / let
+      Criam variáveis. "const" não pode ser reatribuída; "let" pode.
+
+  document.getElementById('x')
+      Acha o elemento com id="x".
+
+  elemento.innerHTML = ''
+      Esvazia o conteúdo do elemento.
+
+  lista.forEach(item => { })
+      Repete o bloco para cada item da lista. A seta "=>" é uma função curta.
+
+  molde.content.cloneNode(true)
+      Tira uma cópia completa do <template>.
+
+  copia.querySelector('.classe')
+      Acha o primeiro elemento com essa classe, dentro da cópia.
+
+  elemento.textContent = valor
+      Coloca texto no elemento (é seguro, não interpreta HTML).
+
+  livro.categoria || 'Geral'
+      Usa a categoria e, se estiver vazia, usa "Geral".
+
+  container.appendChild(copia)
+      Cola a cópia dentro do container, na tela.
+
+  console.error(...)
+      Escreve um erro no console do navegador (tecla F12).
+
+  carregarLivrosNaTela();
+      Chama a função, ou seja, executa quando a página abre.
+
+--------------------------------------------------------------------------------
+  promocoes.js
+--------------------------------------------------------------------------------
+
+Faz EXATAMENTE a mesma coisa do lancamento.js: mesma estrutura de fetch,
+template, cloneNode, forEach e appendChild. Muda só a rota (/api/promocoes) e
+os campos (título, desconto, descrição).
+
+--------------------------------------------------------------------------------
+  canvas.js (o brilho que segue o mouse)
+--------------------------------------------------------------------------------
+
+  canvas.getContext('2d')
+      Pega o "pincel" para desenhar em 2D.
+
+  canvas.width = window.innerWidth
+      Ajusta o tamanho da tela de desenho ao tamanho da janela.
+
+  window.addEventListener('evento', função)
+      Fica escutando um evento (mover o mouse, redimensionar a janela) e
+      executa a função quando ele acontece.
+
+  pointermove
+      Evento de movimento. Foi usado porque informa o TIPO do aparelho.
+
+  evento.pointerType !== 'mouse'
+      Ignora toque e caneta. Só aceita mouse.
+
+  evento.clientX / evento.clientY
+      Posição do mouse na tela.
+
+  evento.target.closest('.card')
+      Verifica se o mouse está em cima de um card (ou dentro de um).
+
+  pointerdown
+      Evento de toque ou clique. Usado para apagar o brilho quando o dedo toca.
+
+  document.addEventListener('mouseleave', ...)
+      Apaga o brilho quando o mouse sai da janela.
+
+  ctx.clearRect(0, 0, largura, altura)
+      Apaga tudo o que estava desenhado.
+
+  ctx.beginPath()
+      Começa um novo desenho.
+
+  ctx.arc(x, y, raio, 0, Math.PI * 2)
+      Desenha um círculo. (Math.PI * 2 é o círculo completo.)
+
+  ctx.fillStyle / ctx.shadowColor / ctx.shadowBlur
+      Cor do preenchimento, cor da sombra e o quanto ela é desfocada
+      (o "brilho").
+
+  ctx.fill()
+      Pinta o desenho.
+
+  requestAnimationFrame(loop)
+      Pede ao navegador para repetir a função a cada quadro (cerca de 60 vezes
+      por segundo). Isso cria a animação.
+
+  if (...) { } else { }
+      Decide entre duas opções (brilho fraco sobre um card, forte no fundo).
+
+--------------------------------------------------------------------------------
+  magica.js (estrelas e varinhas)
+--------------------------------------------------------------------------------
+
+Usa da mesma maneira: document.createElement (explicado abaixo),
+appendChild, requestAnimationFrame (mesma ideia do canvas, mas mexendo em
+elementos) e addEventListener.
+
+Comandos novos:
+
+  for (let i = 0; i < 30; i++) { }
+      Repete o bloco 30 vezes, criando 30 estrelas.
+
+  Math.random()
+      Sorteia um número entre 0 e 1. Usado para posição, velocidade e
+      opacidade aleatórias.
+
+  document.createElement('div')
+      Cria um elemento novo pelo JavaScript.
+
+  elemento.style.left = valor + 'px'
+      Muda o estilo CSS do elemento pelo JavaScript.
+
+  window.innerWidth / window.innerHeight
+      Largura e altura da janela.
+
+  posY -= velocidade
+      Diminui o valor (a estrela sobe). "-=" e "+=" alteram um número.
+
+  function criarVarinhasVoadoras(quantidade = 2)
+      Função com valor padrão: se você não informar a quantidade, usa 2.
+
+  setTimeout(função, tempo)
+      Executa a função depois de um tempo (em milissegundos). Usado para
+      espaçar as varinhas.
+
+  Math.sin(tempo)
+      Seno. Gera uma onda que sobe e desce, usada na flutuação.
+
+  `texto ${a} ${b}`  (com crase)
+      Texto com valores dentro. Usado no "transform" de rotação.
+
+  rotate(...), scaleX(-1)
+      Giram ou espelham o elemento.
+
+--------------------------------------------------------------------------------
+  auth.js (login, cadastro e sessão)
+--------------------------------------------------------------------------------
+
+Usa da mesma maneira: try/catch, async/await, fetch, getElementById,
+querySelector, textContent, createElement, addEventListener, setTimeout.
+
+Comandos novos:
+
+  localStorage.setItem / getItem / removeItem
+      Guardam, leem e apagam dados no navegador. Os dados ficam mesmo depois de
+      fechar a página.
+
+  JSON.stringify(objeto) / JSON.parse(texto)
+      Transformam objeto em texto (para guardar) e texto em objeto (para usar).
+
+  fetch(rota, { method: 'POST', headers, body })
+      Como o fetch anterior, mas ENVIANDO dados.
+        method   diz que é um envio.
+        headers  avisa que o corpo é JSON.
+        body     traz os dados.
+
+  resposta.ok
+      Verdadeiro se o servidor respondeu com sucesso.
+
+  throw new Error('mensagem')
+      Cria um erro de propósito, que cai no catch.
+
+  .catch(() => ({}))
+      Se a resposta não for um JSON válido, devolve um objeto vazio em vez de
+      quebrar.
+
+  document.querySelector('form[data-api]')
+      Acha o formulário que tem o atributo data-api.
+
+  formulario.addEventListener('submit', ...)
+      Escuta o envio do formulário.
+
+  evento.preventDefault()
+      Impede o comportamento padrão do navegador, que seria recarregar a
+      página.
+
+  new FormData(formulario) + Object.fromEntries(...)
+      Juntam todos os campos preenchidos em um objeto.
+
+  formulario.dataset.api
+      Lê o valor do atributo data-api.
+
+  botao.disabled = true
+      Desativa o botão (evita clique duplo).
+
+  mensagem.hidden = true / false
+      Esconde ou mostra o elemento.
+
+  window.location.href = 'index.html'
+      Leva o usuário para outra página.
+
+  .split(' ')[0]
+      Divide o nome em palavras e pega a primeira.
+
+  areaAcoes.replaceChildren(a, b)
+      Troca tudo o que tinha dentro do elemento pelos novos.
+
+  condição ? a : b
+      Escolhe "a" se for verdade, senão "b". (Exemplo: "Equipe" só se for
+      admin.)
+
+  usuarioLogado && areaAcoes
+      "E": só executa se as duas coisas existirem.
+
+
+================================================================================
+  4. SERVIDOR (servidor-estatico.js)
+================================================================================
+
+Roda com Node, fora do navegador.
+
+IMPORTAÇÕES E CONFIGURAÇÃO
+
+  require('http')
+      Traz um módulo pronto do Node:
+        http    servidor
+        fs      arquivos
+        path    caminhos
+        crypto  criptografia
+
+  mysql = require('mysql2')
+      Importado, mas NÃO usado por enquanto (reserva para o futuro).
+
+  __dirname
+      Pasta onde o arquivo está.
+
+  path.join(a, b)
+      Junta pedaços de caminho de forma correta para cada sistema.
+
+  process.env.PORT || 5500
+      Lê a porta definida pelo Render e, se não houver, usa 5500.
+
+  const TIPOS_MIME = { '.html': '...' }
+      Objeto que liga a extensão do arquivo ao tipo de conteúdo, para o
+      navegador saber o que recebeu.
+
+ARQUIVOS (módulo fs)
+
+  fs.existsSync        O arquivo existe?
+  fs.mkdirSync         Cria pasta.
+  fs.readFileSync      Lê arquivo.
+  fs.writeFileSync     Grava arquivo. (O "Sync" significa que espera terminar.)
+  fs.stat              Dados sobre o arquivo (por exemplo, se é mesmo um
+                       arquivo).
+  fs.createReadStream(...).pipe(res)
+                       Envia o arquivo aos poucos, sem carregar tudo na memória.
+
+SEGURANÇA (módulo crypto)
+
+  crypto.randomBytes(16)
+      Gera bytes aleatórios (o "salt", um tempero único por senha).
+
+  crypto.scryptSync(senha, salt, 64)
+      Transforma a senha num código irreversível (hash), de propósito lento
+      para dificultar ataques.
+
+  crypto.timingSafeEqual
+      Compara dois hashes sem vazar informação pelo tempo de resposta.
+
+  crypto.randomUUID()
+      Gera um identificador único para cada usuário.
+
+FUNÇÕES PRINCIPAIS
+
+  criarHashSenha / verificarSenha
+      Guardam a senha no formato "salt:hash" e conferem no login.
+
+  lerUsuarios / salvarUsuarios (e as de lançamentos)
+      Leem e gravam o arquivo JSON, com JSON.parse e
+      JSON.stringify(dados, null, 2). O "2" deixa o arquivo legível.
+
+  garantirContasFixas
+      Recria o cliente e o admin de teste toda vez que o servidor liga. Usa:
+        .filter(...)   mantém só os itens que passam no teste.
+        .map(...)      transforma cada item.
+        .includes(...) verifica se um valor está na lista.
+        .push(...)     adiciona ao fim da lista.
+
+  emailValido
+      Usa uma "regex" (padrão de texto): /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      Ela exige: algo, um "@", algo, um ponto e algo.
+
+  usuarioPublico
+      Devolve o usuário SEM a senha, para nunca enviá-la ao navegador.
+
+  lerCorpoRequisicao
+      Monta os dados enviados pelo navegador. Usa new Promise e
+      req.on('data', ...) / req.on('end', ...), porque o corpo chega em
+      pedaços. Recusa corpos muito grandes.
+
+  responderJson(res, status, dados)
+      Responde com JSON.
+        res.writeHead(status, cabeçalhos)  define o status e o tipo.
+        res.end(...)                       envia e encerra a resposta.
+
+  apiCadastro e apiLogin
+      Validam os campos, mexem no JSON e respondem. Usam:
+        .trim()         tira espaços das pontas.
+        .toLowerCase()  deixa em minúsculas.
+        .some(...)      algum item bate?
+        .find(...)      acha o primeiro item que bate.
+
+  mapearUrlParaArquivo
+      Converte a URL em caminho de arquivo e BLOQUEIA o que é privado (código,
+      pasta dados, .git). path.resolve, path.relative, path.extname e
+      .startsWith ajudam a impedir que alguém peça arquivos fora da pasta
+      do site.
+
+  servirArquivo
+      Acha o arquivo, descobre o tipo e envia. Se não achar, responde 404.
+
+CÓDIGOS DE RESPOSTA HTTP QUE APARECEM
+
+  200  deu certo
+  201  criado
+  400  pedido inválido
+  401  não autenticado (senha errada)
+  403  proibido
+  404  não achei
+  405  método não permitido
+  409  conflito (e-mail já existe)
+  501  não implementado
+
+O CORAÇÃO DO SERVIDOR
+
+  http.createServer(async (req, res) => { ... })
+      Cria o servidor. A função roda a cada pedido, com "req" (o pedido) e
+      "res" (a resposta).
+
+  req.method e req.url
+      O tipo do pedido (GET busca, POST envia) e o endereço. Os vários
+      if (req.method === 'POST' && req.url === '/api/login') funcionam como um
+      ROTEADOR: cada rota chama a sua função.
+
+  Em /api/destaques:
+      [...banco.livros].sort((a, b) => b.avaliacao - a.avaliacao).slice(0, 4)
+      Copia a lista (os "..."), ordena do maior para o menor e pega só os
+      4 primeiros.
+
+  servidor.listen(PORTA, '0.0.0.0', ...)
+      Liga o servidor. O "0.0.0.0" aceita conexões de fora, como o Render
+      exige.
+
+  console.log
+      Escreve no terminal (ou nos logs do Render). O texto com moldura é só
+      decoração.
+
+
+================================================================================
+  5. ARQUIVOS DE CONFIGURAÇÃO
+================================================================================
+
+  package.json
+      "scripts": { "start": "node servidor-estatico.js" } cria o atalho
+      "npm start", que o Render usa para ligar o site.
+      "dependencies" lista o que o projeto precisa (mysql2). O comando
+      "npm install" baixa isso.
+
+  .gitignore
+      Lista o que o Git deve ignorar: node_modules/ e os JSON de usuários e
+      lançamentos, que são gerados na hora.
+
+  package-lock.json
+      Gerado sozinho. Guarda as versões exatas das dependências. Não se edita
+      à mão.
+
+================================================================================
