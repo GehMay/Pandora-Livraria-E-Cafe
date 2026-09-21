@@ -12,6 +12,7 @@ Ordem do guia:
   3. JavaScript do navegador (lancamento.js, promocoes.js, canvas.js, magica.js, auth.js)
   4. Servidor (servidor-estatico.js)
   5. Arquivos de configuração (package.json, .gitignore, package-lock.json)
+  6. React (perfil-app/), na ordem em que os arquivos foram criados
 
 
 ================================================================================
@@ -648,5 +649,139 @@ O CORAÇÃO DO SERVIDOR
   package-lock.json
       Gerado sozinho. Guarda as versões exatas das dependências. Não se edita
       à mão.
+
+
+================================================================================
+  6. REACT (perfil-app/)
+================================================================================
+
+Essa pasta é a primeira parte do site migrada para React (a tela "Minha
+Conta"). A diferença para o resto do site: em vez de mexer no DOM na mão
+(como o auth.js faz, com createElement e replaceChildren), aqui você descreve
+COMO a tela deve ficar, e o React atualiza a página sozinho quando os dados
+mudam. Os arquivos abaixo estão na ordem em que foram criados.
+
+--------------------------------------------------------------------------------
+  package.json (dependências e comandos)
+--------------------------------------------------------------------------------
+
+  "dependencies": { "react": "...", "react-dom": "..." }
+      react       a biblioteca em si: componentes, hooks, JSX.
+      react-dom   a "ponte" que pega o que o React monta e escreve de
+                 verdade no DOM do navegador.
+
+  "devDependencies": { "vite": "...", "@vitejs/plugin-react": "..." }
+      vite                  ferramenta de build e servidor de
+                           desenvolvimento.
+      @vitejs/plugin-react  ensina o Vite a entender arquivos .jsx.
+
+  "scripts": { "dev": "vite", "build": "vite build" }
+      npm run dev     liga o servidor de desenvolvimento (com hot reload).
+      npm run build   gera a versão final, pronta para produção.
+
+--------------------------------------------------------------------------------
+  vite.config.js (configuração do build)
+--------------------------------------------------------------------------------
+
+  defineConfig({ ... })
+      Função do Vite que só organiza a configuração (dá autocomplete no
+      editor).
+
+  plugins: [react()]
+      Ativa o suporte a JSX/React dentro do Vite.
+
+  base: '/perfil/'
+      Avisa que essa página vai morar em /perfil/ dentro do site, não na
+      raiz. Por isso os arquivos gerados apontam para /perfil/assets/...
+
+  build: { outDir: '../perfil', emptyOutDir: true }
+      outDir        onde o "npm run build" escreve o resultado: fora da
+                    pasta perfil-app, direto na pasta perfil/ que o
+                    servidor Node serve como arquivo estático.
+      emptyOutDir   apaga o conteúdo antigo antes de gerar o build novo.
+
+  server: { proxy: { '/api': 'http://localhost:5500', ... } }
+      Só vale em desenvolvimento (npm run dev): redireciona pedidos de API,
+      CSS e imagens para o servidor Node de verdade, que roda numa porta
+      separada.
+
+--------------------------------------------------------------------------------
+  index.html (o HTML base que o Vite usa)
+--------------------------------------------------------------------------------
+
+  <div id="root"></div>
+      Caixa vazia onde o React vai desenhar tudo.
+
+  <script type="module" src="/src/main.jsx">
+      Carrega o ponto de entrada do React. O "type=module" permite usar
+      import/export dentro do arquivo.
+
+--------------------------------------------------------------------------------
+  src/main.jsx (ponto de entrada do React)
+--------------------------------------------------------------------------------
+
+  import { StrictMode } from 'react'
+  import { createRoot } from 'react-dom/client'
+      "import" traz pedaços prontos de uma biblioteca ou de outro arquivo
+      (o equivalente ao <script src="..."> do resto do site, mas para
+      módulos JavaScript).
+
+  createRoot(document.getElementById('root'))
+      Pega a <div id="root"> do index.html e entrega o controle dela ao
+      React. É o único lugar que toca o DOM "na mão" diretamente.
+
+  .render(<StrictMode><App /></StrictMode>)
+      Manda desenhar o componente <App />. <StrictMode> só liga avisos de
+      boas práticas durante o desenvolvimento; não aparece na tela.
+
+  <App />
+      Isso é JSX: parece HTML, mas o Vite transforma em código JavaScript
+      antes de rodar no navegador.
+
+--------------------------------------------------------------------------------
+  src/App.jsx (a tela "Minha Conta")
+--------------------------------------------------------------------------------
+
+  export default function App() { ... }
+      Um COMPONENTE React: uma função que devolve a interface (em JSX).
+      "export default" permite importar essa função em outro arquivo (o
+      main.jsx é quem importa).
+
+  const [usuario, setUsuario] = useState(null)
+      Hook de ESTADO. "usuario" guarda o valor atual; "setUsuario" é a
+      única forma de mudá-lo. Quando muda, o React re-executa o componente
+      e atualiza só o que precisa na tela (diferente do
+      areaAcoes.replaceChildren manual do auth.js).
+
+  useEffect(() => { ... }, [])
+      Hook de EFEITO. Roda o código de dentro depois que o componente
+      aparece na tela — usado aqui para ler a sessão do localStorage, que
+      não é parte do "desenho" da tela, e sim um efeito colateral. O "[]"
+      no final diz para rodar só uma vez, quando o componente aparece.
+
+  if (!sessao) { window.location.href = '/login.html'; return; }
+      Mesma ideia do "guarda de página" do auth.js: sem sessão, manda para
+      o login.
+
+  if (!usuario) { return null; }
+      RENDERIZAÇÃO CONDICIONAL: em vez de esconder elementos com CSS
+      (hidden, display: none), o componente decide o que devolver. Aqui,
+      nada, enquanto a sessão ainda está sendo checada.
+
+  return ( <> ... </> )
+      O componente devolve o JSX da tela. <> </> é um "Fragment": agrupa
+      vários elementos sem precisar de uma <div> extra em volta.
+
+  className="cabecalho"
+      Em JSX, o atributo se chama "className" em vez de "class" (porque
+      "class" já é palavra reservada do JavaScript). Faz a mesma coisa.
+
+  onClick={sair}
+      Em vez de addEventListener, no JSX os eventos ficam como atributos
+      diretos (onClick, onSubmit, etc.), recebendo a função a ser chamada.
+
+  {usuario.nome}, {formatarData(usuario.criadoEm)}
+      Chaves { } dentro do JSX inserem um valor JavaScript no meio do HTML
+      — aqui, os dados do usuário logado.
 
 ================================================================================
