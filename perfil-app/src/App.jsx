@@ -30,21 +30,14 @@ export default function App() {
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    const sessao = lerSessao();
+    if(!usuario) return
 
-    if (!sessao) {
-      window.location.href = '/login.html';
-      return;
-    }
+    fetch('/api/destaques')
+      .then((Rresposta) => resposta.json())
+      .then((dados) => setDestaques(dados.maisAvaliados))
+      .catch(() => setDestaques([]))
 
-    // Funcionário/admin não usa essa página, e sim o painel da equipe.
-    if (sessao.tipo === 'funcionario' || sessao.tipo === 'admin') {
-      window.location.href = '/painel-funcionario.html';
-      return;
-    }
-
-    setUsuario(sessao);
-  }, []);
+  }, [usuario]);
 
   if (!usuario) {
     return null; // Ainda checando a sessão ou redirecionando
@@ -71,22 +64,26 @@ export default function App() {
 
       <main className="container">
         <div className="form-container">
-          <h2>Olá, {primeiroNome}!</h2>
-
-          <div className="form-grupo">
-            <label>Nome completo</label>
-            <p>{usuario.nome}</p>
+          <div className="secao-vitrine">
+            <div className="card card-padding">
+              <h3 className="secao-titulo">Destaques para Você</h3>
+              <div className="cards-grid cards-grid-interno">
+                {destaques === null && <p>Carregando Destaques...</p>}
+                {destaques?.map((livro) => (
+                  <article className="card-interno" key={livro.id_livro}>
+                    <div className="card-body">
+                      <h6 className="book-title">{livro.tituli}</h6>
+                      <span className="badge">{livro.categoria}</span>
+                      <p className="card-descricao">
+                        Autor: {livro.autor} <br/>
+                        Preço: R& {livro.preco}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="form-grupo">
-            <label>E-mail</label>
-            <p>{usuario.email}</p>
-          </div>
-          <div className="form-grupo">
-            <label>Membro desde</label>
-            <p>{formatarData(usuario.criadoEm)}</p>
-          </div>
-
-          <a href="/index.html" className="form-link">Voltar</a>
         </div>
       </main>
 
