@@ -58,7 +58,7 @@ export default function App() {
         <a href="/index.html" className="cabecalho_logo" aria-label="Página inicial">
           <img src="/imagens/logo.svg" alt="Logo Pandora Livraria & Café" />
         </a>
-        <a href="/index.html" className="link-home">
+        <a className="cabecalho_titulo">
           <p>Pandora Livraria & Café</p>
         </a>
         <nav className="cabecalho_nav">
@@ -86,7 +86,7 @@ export default function App() {
             <p>{formatarData(usuario.criadoEm)}</p>
           </div>
 
-          <a href="/index.html" className="form-link">Voltar à loja</a>
+          <a href="/index.html" className="form-link">Voltar</a>
         </div>
       </main>
 
