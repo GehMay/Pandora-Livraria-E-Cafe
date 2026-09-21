@@ -48,12 +48,10 @@ export default function App() {
   return (
     <>
       <header className="cabecalho">
-        <a href="/index.html" className="cabecalho_logo" aria-label="Página inicial">
+        <div className="cabecalho_logo">
           <img src="/imagens/logo.svg" alt="Logo Pandora Livraria & Café" />
-        </a>
-        <a className="cabecalho_titulo">
-          <p>Pandora Livraria & Café</p>
-        </a>
+        </div>
+        <p>Pandora Livraria & Café</p>
         <nav className="cabecalho_nav">
           <p>Sua conta mágica</p>
         </nav>
