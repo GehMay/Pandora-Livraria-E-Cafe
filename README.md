@@ -17,6 +17,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Node.js-sem_frameworks-2a623d?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js sem frameworks">
   <img src="https://img.shields.io/badge/Front--end-HTML%20%7C%20CSS%20%7C%20JS-2a623d?style=flat-square" alt="HTML, CSS e JavaScript">
+  <img src="https://img.shields.io/badge/React-em_migração-2a623d?style=flat-square&logo=react&logoColor=white" alt="React em migração">
   <img src="https://img.shields.io/badge/Hospedagem-Render-2a623d?style=flat-square&logo=render&logoColor=white" alt="Hospedado no Render">
   <img src="https://img.shields.io/badge/Licen%C3%A7a-CC%20BY--SA%204.0-c4a02c?style=flat-square" alt="Licença CC BY-SA 4.0">
 </p>
@@ -35,13 +36,13 @@
 
 Um projeto de estudo Full-Stack focado no desenvolvimento de um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
 
-Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com o objetivo principal de aprender e consolidar os fundamentos da web (Manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização estrutural).
+Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com o objetivo principal de aprender e consolidar os fundamentos da web (Manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização estrutural). Agora que os fundamentos estão consolidados, o front-end está migrando aos poucos para **React**, página por página.
 
 ## 🎯 Objetivo do Projeto (Produto Final)
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
-* **Front-end:** HTML5, CSS3 puros (Grid e Flexbox) e Vanilla JavaScript.
+* **Front-end:** HTML5, CSS3 puros (Grid e Flexbox) e Vanilla JavaScript. A página "Minha Conta" (`perfil-app/`) já usa **React + Vite**, primeira parte de uma migração gradual (veja o Roadmap).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
 * **Armazenamento de dados:** Arquivos JSON (`dados/`), escolhidos para simplificar o deploy do MVP. A modelagem em MySQL está pronta em `database/setup.sql` para uma futura migração.
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
@@ -61,9 +62,10 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
 - [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
 - [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
-- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `admin`).
-- [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe o nome do usuário com o botão "Sair".
-- [x] **Contas de Teste Fixas:** Um cliente e um administrador sempre disponíveis para demonstração (veja a seção abaixo).
+- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `funcionario`), definidos automaticamente pelo domínio do e-mail no cadastro.
+- [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
+- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para a página de perfil (`perfil/`, em React) e funcionário/admin vai para o painel da equipe (`painel-funcionario.html`), cada um protegido para aceitar só o tipo de conta certo.
+- [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
 
