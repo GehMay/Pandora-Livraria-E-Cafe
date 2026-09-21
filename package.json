@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node servidor-estatico.js"
+    "start": "node servidor-estatico.js",
+    "build:perfil": "cd perfil-app && npm install && npm run build"
   },
   "dependencies": {
     "mysql2": "^3.24.2"

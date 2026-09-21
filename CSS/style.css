@@ -77,6 +77,18 @@ body {
     color: #c4d4cc;
 }
 
+.cabecalho_saudacao {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-decoration: none;
+    align-self: center;
+}
+
+.cabecalho_saudacao:hover {
+    text-decoration: underline;
+}
+
 .btn-login:hover {
     background-color: #c4d4cc;
     color: #1a472a;
