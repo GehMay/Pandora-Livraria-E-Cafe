@@ -26,7 +26,7 @@ body {
 }
 
 .cabecalho {
-    background-color: liinear-gradient(135deg, #1a472a, #2a623d); /* Verde escuro Sonserina */
+    background: linear-gradient(135deg, #1a472a, #2a623d); /* Verde escuro Sonserina */
     padding: 1.2rem;
     display: flex;
     flex-direction: column;
