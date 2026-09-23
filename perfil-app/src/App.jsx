@@ -21,22 +21,34 @@ function sair() {
   window.location.href = '/index.html';
 }
 
-function formatarData(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('pt-BR');
-}
-
 export default function App() {
   const [usuario, setUsuario] = useState(null);
+  const [destaques, setDestaques] = useState(null); // null = ainda carregando
 
   useEffect(() => {
-    if(!usuario) return
+    const sessao = lerSessao();
+
+    if (!sessao) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    // Funcionário/admin não usa essa página, e sim o painel da equipe.
+    if (sessao.tipo === 'funcionario' || sessao.tipo === 'admin') {
+      window.location.href = '/painel-funcionario.html';
+      return;
+    }
+
+    setUsuario(sessao);
+  }, []);
+
+  useEffect(() => {
+    if (!usuario) return; // só busca depois de confirmar a sessão
 
     fetch('/api/destaques')
-      .then((Rresposta) => resposta.json())
+      .then((resposta) => resposta.json())
       .then((dados) => setDestaques(dados.maisAvaliados))
-      .catch(() => setDestaques([]))
-
+      .catch(() => setDestaques([]));
   }, [usuario]);
 
   if (!usuario) {
@@ -61,25 +73,26 @@ export default function App() {
       </header>
 
       <main className="container">
-        <div className="form-container">
-          <div className="secao-vitrine">
-            <div className="card card-padding">
-              <h3 className="secao-titulo">Destaques para Você</h3>
-              <div className="cards-grid cards-grid-interno">
-                {destaques === null && <p>Carregando Destaques...</p>}
-                {destaques?.map((livro) => (
-                  <article className="card-interno" key={livro.id_livro}>
-                    <div className="card-body">
-                      <h6 className="book-title">{livro.tituli}</h6>
-                      <span className="badge">{livro.categoria}</span>
-                      <p className="card-descricao">
-                        Autor: {livro.autor} <br/>
-                        Preço: R& {livro.preco}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
+        <h1 className="titulo-pagina">Olá, {primeiroNome}!</h1>
+
+        <div className="secao-vitrine">
+          <div className="card card-padding">
+            <h3 className="secao-titulo">Destaques para Você</h3>
+            <div className="cards-grid cards-grid-interno">
+              {destaques === null && <p>Carregando destaques...</p>}
+              {destaques?.map((livro) => (
+                <article className="card-interno" key={livro.id_livro}>
+                  <div className="card-banner" aria-hidden="true">📚</div>
+                  <div className="card-body">
+                    <h6 className="book-title">{livro.titulo}</h6>
+                    <span className="badge">{livro.categoria}</span>
+                    <p className="card-descricao">
+                      Autor: {livro.autor} <br />
+                      Preço: R$ {livro.preco}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>
