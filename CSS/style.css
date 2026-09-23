@@ -69,7 +69,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     border: 2px solid #c4d4cc;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .btn-login {
@@ -92,6 +92,7 @@ body {
 .btn-login:hover {
     background-color: #c4d4cc;
     color: #1a472a;
+    transform: scale(1.03);
 }
 
 .btn-cadastro {
@@ -103,6 +104,7 @@ body {
     background-color: #ffffff;
     border-color: #ffffff;
     color: #1a472a;
+    transform: scale(1.03);
 }
 
 .titulo-pagina {
@@ -334,6 +336,7 @@ canvas {
 .btn-submit:hover {
     background-color: #ffffff;
     border-color: #ffffff;
+    transform: scale(1.03);
 }
 
 .form-link {
@@ -366,6 +369,7 @@ canvas {
 .cabecalho_logo img {
     width: 64px;
     height: 64px;
+    animation: flutuar 4s ease-in-out infinite;
 }
 
 @media (max-width: 700px) {
