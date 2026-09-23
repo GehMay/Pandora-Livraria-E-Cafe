@@ -186,19 +186,19 @@ h3 {
 }
 
 .card-interno[data-categoria="Poções"] .card-banner {
-    background-color: #4b0082; /* Roxo poção */
+    background-color: #260041;
 }
 
 .card-interno[data-categoria="Transfiguração"] .card-banner {
-    background-color: #0e4c92; /* Azul Corvinal */
+    background-color: #271853;
 }
 
 .card-interno[data-categoria="Artes das Trevas"] .card-banner {
-    background-color: #1a1a1a; /* Preto/sombrio */
+    background-color: #1a1a1a;
 }
 
 .card-interno[data-categoria="Biografias"] .card-banner {
-    background-color: #7a0c0c; /* Vermelho Grifinória */
+    background-color: #7a4e0c;
 }
 
 .book-title {

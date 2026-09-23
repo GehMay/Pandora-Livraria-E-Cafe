@@ -21,6 +21,8 @@ async function carregarLivrosNaTela() {
             copia.querySelector('.autor-livro').textContent = livro.autor;
             copia.querySelector('.preco-livro').textContent = livro.preco;
             copia.querySelector('.card-interno').dataset.categoria = livro.categoria || 'Geral';
+            copia.querySelector('.card-interno').dataset.categoria = livro.categoria || 'Geral';
+            copia.querySelector('.card-banner').textContent = ICONES_POR_CATEGORIA[livro.categoria] || '📚';
 
             // Cola na tela
             container.appendChild(copia);
@@ -30,5 +32,12 @@ async function carregarLivrosNaTela() {
         console.error("Ops! Erro ao tentar carregar os livros:", erro);
     }
 }
+
+const ICONES_POR_CATEGORIA = {
+    'Poções': '🧪',
+    'Transfiguração': '🪄',
+    'Artes das Trevas': '💀',
+    'Biografias': '📜'
+};
 
 carregarLivrosNaTela();

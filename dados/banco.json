@@ -35,6 +35,24 @@
       "categoria": "Artes das Trevas",
       "avaliacao": 5.0,
       "total_vendas": 10
+    },
+    {
+      "id_livro": 5,
+      "titulo": "O Segredos das Artes das Trevas",
+      "autor": "Voldemort",
+      "preco": 666.00,
+      "categoria": "Artes das Trevas",
+      "avaliacao": 4.5,
+      "total_vendas": 13
+    },
+    {
+      "id_livro": 6,
+      "titulo": "Um Livro de Pronúncias Corretas",
+      "autor": "Hermione Granger",
+      "preco": 45.00,
+      "categoria": "Feitiços",
+      "avaliacao": 4.9,
+      "total_vendas": 100
     }
   ],
   "promocoes": [
