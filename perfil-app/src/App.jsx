@@ -80,7 +80,7 @@ export default function App() {
             <h3 className="secao-titulo">Destaques para Você</h3>
             <div className="cards-grid cards-grid-interno">
               {destaques === null && <p>Carregando destaques...</p>}
-              {destaques?.map((livro) => (
+              {destaques?.slice(0, 3).map((livro) => (
                 <article className="card-interno" key={livro.id_livro}>
                   <div className="card-banner" aria-hidden="true">📚</div>
                   <div className="card-body">
