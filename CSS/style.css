@@ -39,6 +39,12 @@ body {
     position: relative; /* Necessário para posicionar os botões no canto */
 }
 
+.cabecalho_logo img {
+    width: 64px;
+    height: 64px;
+    animation: flutuar 4s ease-in-out infinite;
+}
+
 .cabecalho > p {
     font-size: 1.3rem;
     font-weight: bold;
@@ -134,6 +140,7 @@ body {
 }
 
 .card:hover {
+    transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(26, 71, 42, 0.25); /* Sombra mais intensa no hover */
 }
 
@@ -176,6 +183,22 @@ h3 {
     font-size: 2rem;      /* Emoji grande */
     padding: 1rem 0;      /* Espaço em cima e embaixo do emoji */
     border-radius: 6px 6px 0 0; /* Arredondado só em cima */
+}
+
+.card-interno[data-categoria="Poções"] .card-banner {
+    background-color: #4b0082; /* Roxo poção */
+}
+
+.card-interno[data-categoria="Transfiguração"] .card-banner {
+    background-color: #0e4c92; /* Azul Corvinal */
+}
+
+.card-interno[data-categoria="Artes das Trevas"] .card-banner {
+    background-color: #1a1a1a; /* Preto/sombrio */
+}
+
+.card-interno[data-categoria="Biografias"] .card-banner {
+    background-color: #7a0c0c; /* Vermelho Grifinória */
 }
 
 .book-title {

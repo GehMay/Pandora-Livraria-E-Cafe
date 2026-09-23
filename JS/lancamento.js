@@ -20,6 +20,7 @@ async function carregarLivrosNaTela() {
             copia.querySelector('.categoria-livro').textContent = livro.categoria || 'Geral';
             copia.querySelector('.autor-livro').textContent = livro.autor;
             copia.querySelector('.preco-livro').textContent = livro.preco;
+            copia.querySelector('.card-interno').dataset.categoria = livro.categoria || 'Geral';
 
             // Cola na tela
             container.appendChild(copia);
