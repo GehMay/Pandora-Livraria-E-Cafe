@@ -21,7 +21,6 @@ async function carregarLivrosNaTela() {
             copia.querySelector('.autor-livro').textContent = livro.autor;
             copia.querySelector('.preco-livro').textContent = livro.preco;
             copia.querySelector('.card-interno').dataset.categoria = livro.categoria || 'Geral';
-            copia.querySelector('.card-interno').dataset.categoria = livro.categoria || 'Geral';
             copia.querySelector('.card-banner').textContent = ICONES_POR_CATEGORIA[livro.categoria] || '📚';
 
             // Cola na tela
