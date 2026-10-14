@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Este app React cuida só da página "Minha Conta" (/perfil).
-// O resto do site continua em HTML puro, servido pelo servidor-estatico.js.
+// O app React cuida das páginas fora da entrada, login e cadastro.
+// O servidor-estatico.js direciona as rotas da aplicação para este build.
 export default defineConfig({
   plugins: [react()],
   base: '/perfil/',

@@ -21,7 +21,7 @@ function sair() {
   window.location.href = '/index.html';
 }
 
-export default function App() {
+function PaginaPerfil() {
   const [usuario, setUsuario] = useState(null);
   const [destaques, setDestaques] = useState(null); // null = ainda carregando
 
@@ -103,4 +103,105 @@ export default function App() {
       </footer>
     </>
   );
+}
+
+function PaginaPainelEquipe() {
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const sessao = lerSessao();
+    if (!sessao || !['funcionario', 'admin'].includes(sessao.tipo)) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    setUsuario(sessao);
+  }, []);
+
+  if (!usuario) return null;
+
+  const primeiroNome = String(usuario.nome || '').split(' ')[0];
+
+  return (
+    <>
+      <header className="cabecalho">
+        <a href="/index.html" className="cabecalho_logo" aria-label="Página inicial">
+          <img src="/imagens/logo.svg" alt="Logo Pandora Livraria & Café" />
+        </a>
+        <a href="/index.html" className="link-home">
+          <p>Pandora Livraria & Café</p>
+        </a>
+        <nav className="cabecalho_nav">
+          <p>Painel da equipe</p>
+        </nav>
+        <div className="cabecalho_acoes">
+          <span className="cabecalho_saudacao">Olá, {primeiroNome} · Equipe</span>
+          <button type="button" className="btn-login" onClick={sair}>Sair</button>
+        </div>
+      </header>
+
+      <main className="container">
+        <div className="form-container">
+          <h2>Painel da Equipe</h2>
+          <p>Em construção — em breve pedidos, estoque e lançamentos aparecem por aqui.</p>
+          <a href="/index.html" className="form-link">Voltar à loja</a>
+        </div>
+      </main>
+
+      <footer className="rodape">
+        <p>&copy; 2024 Pandora Livraria & Café - Todos os direitos reservados.</p>
+      </footer>
+    </>
+  );
+}
+
+function PaginaTeste({ script, corFundo, canvas = false }) {
+  useEffect(() => {
+    const estilosAnteriores = {
+      backgroundColor: document.body.style.backgroundColor,
+      margin: document.body.style.margin,
+      overflow: document.body.style.overflow
+    };
+
+    document.body.style.backgroundColor = corFundo;
+    document.body.style.margin = '0';
+    document.body.style.overflow = 'hidden';
+
+    if (!window.pandoraScriptTeste) {
+      const elementoScript = document.createElement('script');
+      elementoScript.src = script;
+      window.pandoraScriptTeste = elementoScript;
+      document.body.appendChild(elementoScript);
+    }
+
+    return () => {
+      Object.assign(document.body.style, estilosAnteriores);
+    };
+  }, [script, corFundo]);
+
+  return canvas ? <canvas id="meuCanvas" style={{ display: 'block' }} /> : null;
+}
+
+export default function App() {
+  const caminho = window.location.pathname;
+
+  useEffect(() => {
+    if (caminho === '/painel-funcionario.html') {
+      document.title = 'Painel da Equipe - Pandora Livraria & Café';
+    } else if (caminho === '/testes.html') {
+      document.title = 'Teste Mágico';
+    } else if (caminho === '/teste-canvas.html') {
+      document.title = 'Canvas Mágico';
+    }
+  }, [caminho]);
+
+  if (caminho === '/painel-funcionario.html') return <PaginaPainelEquipe />;
+  if (caminho === '/testes.html') {
+    return <PaginaTeste script="/JS/magica.js" corFundo="#2f5225" />;
+  }
+  if (caminho === '/teste-canvas.html') {
+    return <PaginaTeste script="/JS/canvas.js" corFundo="#0a0a1a" canvas />;
+  }
+
+  return <PaginaPerfil />;
 }

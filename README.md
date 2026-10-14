@@ -42,7 +42,7 @@ Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
-* **Front-end:** HTML5, CSS3 puros (Grid e Flexbox) e Vanilla JavaScript. A página "Minha Conta" (`perfil-app/`) já usa **React + Vite**, primeira parte de uma migração gradual (veja o Roadmap).
+* **Front-end:** `index.html`, `login.html` e `cadastro.html` usam HTML/CSS/JavaScript. As demais páginas, incluindo ferramentas de desenvolvimento, usam **React + Vite** (`perfil-app/`).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
 * **Armazenamento de dados:** Arquivos JSON (`dados/`), escolhidos para simplificar o deploy do MVP. A modelagem em MySQL está pronta em `database/setup.sql` para uma futura migração.
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
@@ -64,7 +64,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
 - [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `funcionario`), definidos automaticamente pelo domínio do e-mail no cadastro.
 - [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
-- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para a página de perfil (`perfil/`, em React) e funcionário/admin vai para o painel da equipe (`painel-funcionario.html`), cada um protegido para aceitar só o tipo de conta certo.
+- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para a página de perfil (`perfil/`, em React) e funcionário/admin vai para o painel da equipe (React, endereço `/painel-funcionario.html`), cada um protegido para aceitar só o tipo de conta certo.
 - [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
@@ -74,8 +74,8 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
-- [x] **Migração do Front-end para React (em andamento):** Primeira parte migrada — a página "Minha Conta" (`perfil-app/`, React + Vite) já roda em produção junto com o restante do site em HTML puro, que continua sendo migrado por partes.
-- [ ] **Painel da Equipe Completo:** Hoje `painel-funcionario.html` é só um placeholder estático. Falta o painel de verdade pra gerenciar estoque e promoções (provavelmente também em React).
+- [x] **Migração das páginas funcionais para React:** Perfil e painel da equipe usam React + Vite; início, login e cadastro permanecem em HTML.
+- [ ] **Painel da Equipe Completo:** O painel React ainda é um placeholder. Falta implementar o gerenciamento de estoque e promoções.
 
 ## 🔑 Contas de Teste
 
@@ -113,10 +113,10 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
- ├── 📁 perfil-app                  # Código-fonte React (Vite) da página "Minha Conta"
+ ├── 📁 perfil-app                  # Código-fonte React (Vite) das páginas restantes
  │    ├── 📁 src
  │    │    ├── 📄 main.jsx           # Ponto de entrada do React
- │    │    └── 📄 App.jsx            # Tela de perfil do cliente
+ │    │    └── 📄 App.jsx            # Perfil, painel da equipe e ferramentas de teste
  │    ├── 📄 index.html              # HTML base usado pelo Vite
  │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /perfil)
  │    └── 📄 package.json            # Dependências do app React (react, vite)
@@ -124,9 +124,6 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📄 index.html                  # Página inicial da loja
  ├── 📄 login.html                  # Tela de login
  ├── 📄 cadastro.html               # Tela de criação de conta
- ├── 📄 painel-funcionario.html     # Painel da equipe (placeholder, área restrita a funcionário/admin)
- ├── 📄 testes.html                 # Página de testes de animação (desenvolvimento)
- ├── 📄 teste-canvas.html           # Página de testes do canvas (desenvolvimento)
  ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
  ├── 📄 package.json                # Dependências e scripts (npm start, npm run build:perfil)
  ├── 📄 package-lock.json           # Versões exatas das dependências
@@ -156,9 +153,9 @@ Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dado
 
 > 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela.
 
-### ⚛️ Mexendo na parte em React (`perfil-app/`)
+### ⚛️ Mexendo nas páginas em React (`perfil-app/`)
 
-A página "Minha Conta" já é servida pronta (pasta `/perfil`, gerada previamente), então rodar `npm start` sozinho já é suficiente pra navegar no site inteiro. Só é preciso mexer no `perfil-app/` quando for alterar essa página:
+As páginas de perfil, painel da equipe e ferramentas de teste são geradas na pasta `/perfil`. Rodar `npm start` sozinho já é suficiente para navegar no site inteiro. Altere o `perfil-app/` para editar qualquer uma dessas telas:
 
 1. **Modo desenvolvimento** (com hot reload, mas ainda precisa do servidor Node rodando em outro terminal pra API/CSS/imagens funcionarem):
    ```bash
@@ -166,7 +163,7 @@ A página "Minha Conta" já é servida pronta (pasta `/perfil`, gerada previamen
    npm install
    npm run dev
    ```
-2. **Gerar o build de novo** depois de editar o React (o servidor Node só serve o que está na pasta `/perfil`, então esse passo é obrigatório antes de commitar):
+2. **Gerar o build de novo** depois de editar o React (o servidor Node serve as telas React a partir da pasta `/perfil`, então esse passo é obrigatório antes de commitar):
    ```bash
    npm run build:perfil
    ```

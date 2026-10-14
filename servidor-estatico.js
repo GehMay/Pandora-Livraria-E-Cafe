@@ -437,7 +437,11 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
   
-  const caminhoArquivo = mapearUrlParaArquivo(req.url);
+  const caminhoUrl = decodeURIComponent(req.url.split('?')[0]);
+  const rotasReact = ['/painel-funcionario.html', '/testes.html', '/teste-canvas.html'];
+  const caminhoArquivo = rotasReact.includes(caminhoUrl)
+    ? path.join(PASTA_PROJETO, 'perfil', 'index.html')
+    : mapearUrlParaArquivo(req.url);
   
   if (!caminhoArquivo) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
