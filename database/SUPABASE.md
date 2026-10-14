@@ -20,14 +20,22 @@ um ping leve a cada 3 dias, via GitHub Actions.
   que rodou; o `DELETE` de exemplo está comentado porque o critério de limpeza (quais tabelas,
   qual prazo) ainda não foi decidido.
 
+> ⚠️ **Sobre as chaves novas do Supabase** (`sb_publishable_...` / `sb_secret_...`, que
+> substituíram as antigas `anon`/`service_role` em JWT): o endpoint `GET /rest/v1/` (usado
+> pra "pingar" e manter o projeto ativo) só aceita a **secret key** — a publishable key dá
+> `401 Secret API key required` nele, porque esse endpoint introspecciona o schema inteiro.
+> Por isso o job `manter-ativo` usa `SUPABASE_SERVICE_ROLE_KEY`, não a `anon`. A chave
+> publishable (`SUPABASE_ANON_KEY`) continua guardada como secret pra quando o app em si
+> (front-end) passar a falar com o Supabase — ela é a chave seguro de usar no navegador.
+
 ## Como ativar
 
 1. Criar o projeto em [supabase.com](https://supabase.com) e copiar, em
-   **Project Settings → API**: a **Project URL**, a **anon key** e a **service_role key**.
+   **Project Settings → API Keys**: a **Project URL**, a **Publishable key** e a **Secret key**.
 2. No GitHub: **Settings → Secrets and variables → Actions → New repository secret** e criar:
    - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY` (⚠️ nunca colocar essa chave em código ou commit, só em secret)
+   - `SUPABASE_ANON_KEY` → valor da **Publishable key** (ainda não usado pelo workflow, guardado pro futuro)
+   - `SUPABASE_SERVICE_ROLE_KEY` → valor da **Secret key** (⚠️ nunca colocar em código ou commit, só em secret)
 3. No **SQL Editor** do Supabase, rodar o conteúdo de `database/supabase-limpeza-mensal.sql`
    para criar a função `limpeza_mensal()`.
 4. Testar manualmente antes de esperar o agendamento: na aba **Actions** do GitHub, abrir

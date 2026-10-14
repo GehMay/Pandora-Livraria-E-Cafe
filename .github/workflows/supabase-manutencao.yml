@@ -1,8 +1,10 @@
 name: Manutenção do Supabase
 
 # Mantém o projeto Supabase ativo (projetos free pausam após ~7 dias sem uso)
-# e roda uma limpeza mensal no banco. Veja database/SUPABASE.md para configurar
-# os secrets (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).
+# e roda uma limpeza mensal no banco. Este workflow só usa SUPABASE_URL e
+# SUPABASE_SERVICE_ROLE_KEY (veja database/SUPABASE.md). O secret
+# SUPABASE_ANON_KEY fica guardado pra quando o app passar a falar com o
+# Supabase de verdade (ela é a chave segura pra usar no front-end).
 on:
   schedule:
     - cron: '0 6 */3 * *' # a cada 3 dias, só pra manter ativo
@@ -16,16 +18,13 @@ jobs:
     steps:
       - name: Pingar o Supabase
         run: |
-          # As chaves novas do Supabase (sb_publishable_/sb_secret_) não são JWT:
-          # mandar também 'Authorization: Bearer' faz o gateway tentar validar como
-          # JWT e rejeitar com 401. Só o header 'apikey' é necessário aqui.
-          resposta=$(curl -s -w "\n%{http_code}" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          # O endpoint raiz /rest/v1/ (introspecção do schema) exige a secret key;
+          # a publishable key não tem permissão pra isso, só pra acessar tabelas/RPCs
+          # liberados por RLS. Por isso usamos a mesma chave do job de limpeza aqui.
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             "${{ secrets.SUPABASE_URL }}/rest/v1/")
-          codigo=$(echo "$resposta" | tail -n1)
-          corpo=$(echo "$resposta" | sed '$d')
           echo "Status HTTP: $codigo"
-          echo "Resposta: $corpo"
           if [ "$codigo" -ge 400 ]; then exit 1; fi
 
   limpeza-mensal:
