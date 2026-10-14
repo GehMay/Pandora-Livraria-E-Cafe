@@ -1,0 +1,33 @@
+name: Manutenção do Supabase
+
+# Mantém o projeto Supabase ativo (projetos free pausam após ~7 dias sem uso)
+# e roda uma limpeza mensal no banco. Veja database/SUPABASE.md para configurar
+# os secrets (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY).
+on:
+  schedule:
+    - cron: '0 6 */3 * *' # a cada 3 dias, só pra manter ativo
+    - cron: '0 6 1 * *'   # dia 1 de cada mês, pra limpeza
+  workflow_dispatch: {} # permite rodar manualmente em Actions > Run workflow (testa os dois jobs)
+
+jobs:
+  manter-ativo:
+    if: github.event.schedule == '0 6 */3 * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pingar o Supabase
+        run: |
+          curl -sf -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/"
+
+  limpeza-mensal:
+    if: github.event.schedule == '0 6 1 * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rodar limpeza mensal (função limpeza_mensal no banco)
+        run: |
+          curl -sf -X POST \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/limpeza_mensal"
