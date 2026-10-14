@@ -19,10 +19,13 @@ jobs:
           # As chaves novas do Supabase (sb_publishable_/sb_secret_) não são JWT:
           # mandar também 'Authorization: Bearer' faz o gateway tentar validar como
           # JWT e rejeitar com 401. Só o header 'apikey' é necessário aqui.
-          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
+          resposta=$(curl -s -w "\n%{http_code}" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             "${{ secrets.SUPABASE_URL }}/rest/v1/")
+          codigo=$(echo "$resposta" | tail -n1)
+          corpo=$(echo "$resposta" | sed '$d')
           echo "Status HTTP: $codigo"
+          echo "Resposta: $corpo"
           if [ "$codigo" -ge 400 ]; then exit 1; fi
 
   limpeza-mensal:
