@@ -16,9 +16,12 @@ jobs:
     steps:
       - name: Pingar o Supabase
         run: |
-          curl -sf -o /dev/null \
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/"
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/")
+          echo "Status HTTP: $codigo"
+          if [ "$codigo" -ge 400 ]; then exit 1; fi
 
   limpeza-mensal:
     if: github.event.schedule == '0 6 1 * *' || github.event_name == 'workflow_dispatch'
@@ -26,8 +29,10 @@ jobs:
     steps:
       - name: Rodar limpeza mensal (função limpeza_mensal no banco)
         run: |
-          curl -sf -X POST \
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
             -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Content-Type: application/json" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/limpeza_mensal"
+            "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/limpeza_mensal")
+          echo "Status HTTP: $codigo"
+          if [ "$codigo" -ge 400 ]; then exit 1; fi
