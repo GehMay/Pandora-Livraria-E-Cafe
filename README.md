@@ -44,7 +44,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ## 🛠️ Tecnologias Utilizadas
 * **Front-end:** `index.html`, `login.html` e `cadastro.html` usam HTML/CSS/JavaScript. As demais páginas, incluindo ferramentas de desenvolvimento, usam **React + Vite** (`perfil-app/`).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
-* **Armazenamento de dados:** Arquivos JSON (`dados/`), escolhidos para simplificar o deploy do MVP. A modelagem em MySQL está pronta em `database/setup.sql` para uma futura migração.
+* **Armazenamento de dados:** PostgreSQL hospedado no [Supabase](https://supabase.com) (schema em `database/supabase-schema.sql`), acessado via `pg` (driver nativo, sem ORM).
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
 * **Hospedagem:** [Render](https://render.com) (plano gratuito), com deploy automático a cada `git push` na branch `master`.
 * **Design:** Logo e favicon em SVG, criados exclusivamente para o projeto.
@@ -52,13 +52,12 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ## 🚀 Funcionalidades do Sistema
 
 ### 🟢 O que já está implementado (MVP)
-- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo banco de dados JSON (`dados/banco.json`), usando a tag `<template>` do HTML e manipulação segura via JavaScript.
-- [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do arquivo de dados em tempo real.
+- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo Postgres (tabela `livros`), usando a tag `<template>` do HTML e manipulação segura via JavaScript.
+- [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do banco em tempo real.
 - [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
 - [x] **Interface Gráfica Temática:** Design baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
 - [x] **Layout Responsivo:** Adaptado para computador, tablet e celular: no celular os livros e promoções aparecem em duas colunas compactas, os botões do cabeçalho passam para baixo do título e o rodapé fica sempre no fim da tela.
 - [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar um brilho luminoso interativo (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque.
-- [x] **Arquitetura Simplificada para Deploy:** Substituição do MySQL por leitura de arquivos `.json` para facilitar a hospedagem gratuita do MVP.
 - [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
 - [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
 - [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
@@ -66,16 +65,18 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
 - [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para a página de perfil (`perfil/`, em React) e funcionário/admin vai para o painel da equipe (React, endereço `/painel-funcionario.html`), cada um protegido para aceitar só o tipo de conta certo.
 - [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
-- [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
+- [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
+- [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
+- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario.html`) com três abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover) e **Empréstimos** (registrar empréstimo com data prevista de devolução, marcar devolução, status `ativo`/`atrasado`/`devolvido` calculado automaticamente). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
-- [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). Falta uma sessão validada pelo servidor para proteger áreas restritas (reservas e painel de admin).
-- [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
+- [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). As rotas de escrita do painel da equipe já conferem o e-mail contra os usuários cadastrados no banco, mas ainda falta uma sessão validada por token para proteger de verdade áreas restritas (reservas e painel de admin).
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
 - [x] **Migração das páginas funcionais para React:** Perfil e painel da equipe usam React + Vite; início, login e cadastro permanecem em HTML.
-- [ ] **Painel da Equipe Completo:** O painel React ainda é um placeholder. Falta implementar o gerenciamento de estoque e promoções.
+- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca e empréstimos (veja acima).
+- [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
 
 ## 🔑 Contas de Teste
 
@@ -88,7 +89,7 @@ Para experimentar o site sem precisar cadastrar nada, use uma destas contas (rec
 
 > O tipo da conta é definido pelo domínio do e-mail no cadastro: quem usa `@pandoralivraria.com.br` vira funcionário/admin, qualquer outro domínio (Gmail, Outlook, etc.) vira cliente.
 
-> ⚠️ São contas públicas de demonstração, então nunca use nelas uma senha real. Contas criadas pelo formulário de cadastro são temporárias: no plano gratuito do Render elas somem quando o servidor reinicia ou dorme.
+> ⚠️ São contas públicas de demonstração, então nunca use nelas uma senha real. Diferente de antes (quando o site usava JSON), contas criadas pelo formulário de cadastro agora ficam salvas no Postgres e sobrevivem a reinícios/deploys do Render.
 
 ## 📂 Estrutura do Projeto
 
@@ -104,12 +105,10 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    ├── 📄 auth.js                # Login, cadastro e saudação do usuário no cabeçalho
  │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
  │    └── 📄 magica.js              # Lógica das partículas e estrelas interativas
- ├── 📁 dados
- │    ├── 📄 banco.json             # Dados da livraria: livros e promoções (MVP)
- │    ├── 📄 usuarios.json          # Contas de usuários (criado automaticamente ao cadastrar)
- │    └── 📄 lancamentos.json       # Lançamentos cadastrados pela API (criado automaticamente)
  ├── 📁 database
- │    └── 📄 setup.sql              # Script guardado para futura migração para MySQL
+ │    ├── 📄 supabase-schema.sql           # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
+ │    ├── 📄 supabase-limpeza-mensal.sql   # Função de limpeza mensal do banco
+ │    └── 📄 SUPABASE.md                   # Como conectar o servidor ao Supabase e ativar a automação
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
@@ -124,17 +123,18 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📄 index.html                  # Página inicial da loja
  ├── 📄 login.html                  # Tela de login
  ├── 📄 cadastro.html               # Tela de criação de conta
- ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
- ├── 📄 package.json                # Dependências e scripts (npm start, npm run build:perfil)
+ ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js, conexão Postgres e rotas de API)
+ ├── 📄 package.json                # Dependências e scripts (npm start, npm run dev, npm run build:perfil)
  ├── 📄 package-lock.json           # Versões exatas das dependências
- ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules)
+ ├── 📄 .env.example                # Modelo da variável DATABASE_URL (copiar para .env)
+ ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules, .env)
  ├── 📄 GUIA-SERVIDOR.md            # Documentação técnica de como o Node funciona
  └── 📄 README.md                   # Esta documentação
 ```
 
 ## 💻 Como Rodar o Projeto Localmente
 
-Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dados externo. É necessário apenas ter o [Node.js](https://nodejs.org) instalado.
+O servidor precisa de um banco Postgres (Supabase) pra rodar — veja [`database/SUPABASE.md`](database/SUPABASE.md) pra criar o projeto e as tabelas antes do passo 4. Também é necessário ter o [Node.js](https://nodejs.org) instalado.
 
 1. **Clone o repositório** e entre na pasta:
    ```bash
@@ -145,13 +145,15 @@ Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dado
    ```bash
    npm install
    ```
-3. **Inicie o servidor:**
+3. **Configure a conexão com o banco:** copie `.env.example` para `.env` e preencha `DATABASE_URL`
+   com a *connection string* do Supabase (detalhes em `database/SUPABASE.md`).
+4. **Inicie o servidor** (usa `npm run dev` em vez de `npm start` pra carregar o `.env`):
    ```bash
-   npm start
+   npm run dev
    ```
-4. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
+5. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
 
-> 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela.
+> 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela. No Render, `DATABASE_URL` é configurada direto no painel (Environment), então lá o comando usado é o `npm start` normal.
 
 ### ⚛️ Mexendo nas páginas em React (`perfil-app/`)
 

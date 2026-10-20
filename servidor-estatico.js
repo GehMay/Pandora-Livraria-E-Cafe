@@ -7,22 +7,18 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const mysql = require('mysql2'); // Mantemos caso queira voltar no futuro, mas não vamos usar agora
+const { Pool, types } = require('pg');
 
-const ARQUIVO_BANCO = path.join(__dirname, 'dados', 'banco.json');
+// A coluna DATE do Postgres vira objeto Date em JS por padrão; mantemos como
+// string 'YYYY-MM-DD' (oid 1082), que é o formato que o front-end já espera.
+types.setTypeParser(1082, (valor) => valor);
 
-// Função para ler o nosso novo "Banco de Dados" em JSON
-function lerBanco() {
-  try {
-    const dados = fs.readFileSync(ARQUIVO_BANCO, 'utf-8');
-    return JSON.parse(dados);
-  } catch (erro) {
-    console.error('Erro ao ler banco.json:', erro.message);
-    return { livros: [], promocoes: [] };
-  }
-}
-
-console.log('✅ Servidor configurado para usar banco.json (Modo Deploy Simples)');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // Supabase exige TLS
+  max: 5
+});
+pool.on('error', (erro) => console.error('Erro inesperado no pool do Postgres:', erro.message));
 
 // ═══════════════════════════════════════════════════════════════
 // 1. CONFIGURAÇÕES INICIAIS
@@ -30,9 +26,6 @@ console.log('✅ Servidor configurado para usar banco.json (Modo Deploy Simples)
 
 const PORTA = process.env.PORT || 5500;
 const PASTA_PROJETO = __dirname;
-const PASTA_DADOS = path.join(PASTA_PROJETO, 'dados');
-const ARQUIVO_USUARIOS = path.join(PASTA_DADOS, 'usuarios.json');
-const ARQUIVO_LANCAMENTOS = path.join(PASTA_DADOS, 'lancamentos.json');
 
 // Quem se cadastra com um e-mail desse domínio é da equipe (funcionário/admin).
 // Qualquer outro e-mail (Gmail, Outlook, etc.) vira conta de cliente.
@@ -40,12 +33,6 @@ const DOMINIO_LOJA = 'pandoralivraria.com.br';
 
 function ehEmailDaLoja(email) {
   return email.endsWith('@' + DOMINIO_LOJA);
-}
-
-// Criar pasta 'dados' se não existir
-if (!fs.existsSync(PASTA_DADOS)) {
-  fs.mkdirSync(PASTA_DADOS, { recursive: true });
-  console.log(`✅ Pasta 'dados' criada`);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -85,7 +72,7 @@ function criarHashSenha(senha) {
 function verificarSenha(senha, senhaArmazenada) {
   const [salt, hashSalvo] = senhaArmazenada.split(':');
   const hashRecebido = crypto.scryptSync(senha, salt, 64).toString('hex');
-  
+
   try {
     return crypto.timingSafeEqual(
       Buffer.from(hashSalvo, 'hex'),
@@ -97,90 +84,32 @@ function verificarSenha(senha, senhaArmazenada) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 4. FUNÇÕES DE BANCO DE DADOS
+// 4. USUÁRIOS (Postgres)
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * Lê todos os usuários do arquivo JSON
- */
-function lerUsuarios() {
-  try {
-    if (!fs.existsSync(ARQUIVO_USUARIOS)) {
-      return [];
-    }
-    const dados = fs.readFileSync(ARQUIVO_USUARIOS, 'utf-8');
-    return JSON.parse(dados);
-  } catch (erro) {
-    console.error('Erro ao ler usuários:', erro.message);
-    return [];
-  }
-}
-
-/**
- * Salva usuários no arquivo JSON
- */
-function salvarUsuarios(usuarios) {
-  try {
-    fs.writeFileSync(ARQUIVO_USUARIOS, JSON.stringify(usuarios, null, 2), 'utf-8');
-  } catch (erro) {
-    console.error('Erro ao salvar usuários:', erro.message);
-  }
+async function buscarUsuarioPorEmail(email) {
+  const { rows } = await pool.query('select * from usuarios where email = $1', [email]);
+  return rows[0] || null;
 }
 
 /**
  * Contas de teste fixas (demonstração): um cliente e um funcionário/admin.
- * Como o disco do Render gratuito é apagado a cada reinício, elas são recriadas
- * toda vez que o servidor liga, então sempre existem para quem quiser testar.
+ * Garantidas (criadas ou atualizadas) toda vez que o servidor liga, pra sempre
+ * existirem pra quem quiser testar.
  */
 const CONTAS_FIXAS = [
-  { id: 'conta-teste-cliente', nome: 'Cliente Teste', email: 'cliente@gmail.com', senha: 'cliente123', tipo: 'cliente' },
-  { id: 'conta-teste-funcionario', nome: 'Funcionário Teste', email: `funcionario@${DOMINIO_LOJA}`, senha: 'equipe123', tipo: 'funcionario' }
+  { nome: 'Cliente Teste', email: 'cliente@gmail.com', senha: 'cliente123', tipo: 'cliente' },
+  { nome: 'Funcionário Teste', email: `funcionario@${DOMINIO_LOJA}`, senha: 'equipe123', tipo: 'funcionario' }
 ];
 
-function garantirContasFixas() {
-  const emailsFixos = CONTAS_FIXAS.map(c => c.email);
-  const usuarios = lerUsuarios().filter(u => !emailsFixos.includes(u.email));
-
-  CONTAS_FIXAS.forEach(conta => {
-    usuarios.push({
-      id: conta.id,
-      nome: conta.nome,
-      email: conta.email,
-      senha: criarHashSenha(conta.senha),
-      tipo: conta.tipo,
-      criadoEm: new Date().toISOString()
-    });
-  });
-
-  salvarUsuarios(usuarios);
-}
-
-garantirContasFixas();
-
-/**
- * Lê todos os lançamentos do arquivo JSON
- */
-function lerLancamentos() {
-  try {
-    if (!fs.existsSync(ARQUIVO_LANCAMENTOS)) {
-      return [];
-    }
-    const dados = fs.readFileSync(ARQUIVO_LANCAMENTOS, 'utf-8');
-    return JSON.parse(dados);
-  } catch (erro) {
-    console.error('Erro ao ler lançamentos:', erro.message);
-    return [];
-  }
-}
-
-/**
- * Salva lançamentos no arquivo JSON
- */
-function salvarLancamentos(lancamentos) {
-  try {
-    fs.writeFileSync(ARQUIVO_LANCAMENTOS, JSON.stringify(lancamentos, null, 2), 'utf-8');
-  } catch (erro) {
-    console.error('Erro ao salvar lançamentos:', erro.message);
+async function garantirContasFixas() {
+  for (const conta of CONTAS_FIXAS) {
+    await pool.query(
+      `insert into usuarios (nome, email, senha, tipo)
+       values ($1, $2, $3, $4)
+       on conflict (email) do update set nome = excluded.nome, senha = excluded.senha, tipo = excluded.tipo`,
+      [conta.nome, conta.email, criarHashSenha(conta.senha), conta.tipo]
+    );
   }
 }
 
@@ -203,8 +132,27 @@ function usuarioPublico(usuario) {
     nome: usuario.nome,
     email: usuario.email,
     tipo: usuario.tipo,
-    criadoEm: usuario.criadoEm
+    criadoEm: usuario.criado_em
   };
+}
+
+/**
+ * Checagem leve para as rotas de administração: confere se o e-mail informado
+ * no cabeçalho 'x-usuario-email' pertence a um funcionário/admin cadastrado.
+ * Não é um sistema de sessão seguro (ver roadmap do README), só evita que
+ * qualquer visitante anônimo chame as rotas de escrita do painel da equipe.
+ */
+async function ehFuncionarioOuAdmin(email) {
+  const usuario = await buscarUsuarioPorEmail(String(email || '').trim().toLowerCase());
+  return !!usuario && ['funcionario', 'admin'].includes(usuario.tipo);
+}
+
+async function exigirFuncionario(req, res) {
+  if (!(await ehFuncionarioOuAdmin(req.headers['x-usuario-email']))) {
+    responderJson(res, 403, { erro: 'Acesso restrito à equipe' });
+    return false;
+  }
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -214,7 +162,7 @@ function usuarioPublico(usuario) {
 function lerCorpoRequisicao(req) {
   return new Promise((resolve, reject) => {
     let corpo = '';
-    
+
     req.on('data', (chunk) => {
       corpo += chunk.toString();
       if (corpo.length > 10 * 1024 * 1024) {
@@ -222,7 +170,7 @@ function lerCorpoRequisicao(req) {
         req.destroy();
       }
     });
-    
+
     req.on('end', () => {
       try {
         resolve(JSON.parse(corpo || '{}'));
@@ -230,7 +178,7 @@ function lerCorpoRequisicao(req) {
         reject(new Error('JSON inválido'));
       }
     });
-    
+
     req.on('error', reject);
   });
 }
@@ -253,49 +201,44 @@ function responderJson(res, statusCode, dados) {
 async function apiCadastro(req, res) {
   try {
     const corpo = await lerCorpoRequisicao(req);
-    
+
     const nome = String(corpo.nome || '').trim();
     const email = String(corpo.email || '').trim().toLowerCase();
     const senha = String(corpo.senha || '').trim();
-    
+
     if (!nome || !email || !senha) {
       responderJson(res, 400, { erro: 'Nome, email e senha são obrigatórios' });
       return;
     }
-    
+
     if (!emailValido(email)) {
       responderJson(res, 400, { erro: 'Email inválido' });
       return;
     }
-    
+
     if (!senhaValida(senha)) {
       responderJson(res, 400, { erro: 'Senha deve ter pelo menos 6 caracteres' });
       return;
     }
-    
-    const usuarios = lerUsuarios();
-    if (usuarios.some(u => u.email === email)) {
+
+    const existente = await buscarUsuarioPorEmail(email);
+    if (existente) {
       responderJson(res, 409, { erro: 'Este email já está cadastrado' });
       return;
     }
-    
-    const novoUsuario = {
-      id: crypto.randomUUID(),
-      nome,
-      email,
-      senha: criarHashSenha(senha),
-      tipo: ehEmailDaLoja(email) ? 'funcionario' : 'cliente',
-      criadoEm: new Date().toISOString()
-    };
-    
-    usuarios.push(novoUsuario);
-    salvarUsuarios(usuarios);
-    
+
+    const { rows } = await pool.query(
+      `insert into usuarios (nome, email, senha, tipo)
+       values ($1, $2, $3, $4)
+       returning *`,
+      [nome, email, criarHashSenha(senha), ehEmailDaLoja(email) ? 'funcionario' : 'cliente']
+    );
+
     responderJson(res, 201, {
       mensagem: 'Cadastro realizado com sucesso!',
-      usuario: usuarioPublico(novoUsuario)
+      usuario: usuarioPublico(rows[0])
     });
-    
+
   } catch (erro) {
     console.error('Erro no cadastro:', erro.message);
     responderJson(res, 400, { erro: 'Erro ao processar cadastro' });
@@ -309,31 +252,299 @@ async function apiCadastro(req, res) {
 async function apiLogin(req, res) {
   try {
     const corpo = await lerCorpoRequisicao(req);
-    
+
     const email = String(corpo.email || '').trim().toLowerCase();
     const senha = String(corpo.senha || '').trim();
-    
+
     if (!email || !senha) {
       responderJson(res, 400, { erro: 'Email e senha são obrigatórios' });
       return;
     }
-    
-    const usuarios = lerUsuarios();
-    const usuario = usuarios.find(u => u.email === email);
-    
+
+    const usuario = await buscarUsuarioPorEmail(email);
+
     if (!usuario || !verificarSenha(senha, usuario.senha)) {
       responderJson(res, 401, { erro: 'Email ou senha inválidos' });
       return;
     }
-    
+
     responderJson(res, 200, {
       mensagem: 'Login realizado com sucesso!',
       usuario: usuarioPublico(usuario)
     });
-    
+
   } catch (erro) {
     console.error('Erro no login:', erro.message);
     responderJson(res, 400, { erro: 'Erro ao processar login' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9.5 API: PAINEL DA EQUIPE (LIVROS, PROMOÇÕES E EMPRÉSTIMOS)
+// ═══════════════════════════════════════════════════════════════
+
+async function apiCriarLivro(req, res) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const titulo = String(corpo.titulo || '').trim();
+    const autor = String(corpo.autor || '').trim();
+    const categoria = String(corpo.categoria || '').trim();
+    const preco = Number(corpo.preco);
+    const estoque = Number(corpo.estoque);
+
+    if (!titulo || !autor || !categoria || !Number.isFinite(preco) || preco < 0 || !Number.isFinite(estoque) || estoque < 0) {
+      responderJson(res, 400, { erro: 'Título, autor, categoria, preço e estoque válidos são obrigatórios' });
+      return;
+    }
+
+    const { rows } = await pool.query(
+      `insert into livros (titulo, autor, categoria, preco, avaliacao, total_vendas, estoque)
+       values ($1, $2, $3, $4, 0, 0, $5)
+       returning *`,
+      [titulo, autor, categoria, preco, estoque]
+    );
+
+    responderJson(res, 201, { mensagem: 'Livro cadastrado', livro: rows[0] });
+  } catch (erro) {
+    console.error('Erro ao criar livro:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar livro' });
+  }
+}
+
+async function apiEditarLivro(req, res, id) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const { rows } = await pool.query('select * from livros where id_livro = $1', [id]);
+    const livro = rows[0];
+    if (!livro) {
+      responderJson(res, 404, { erro: 'Livro não encontrado' });
+      return;
+    }
+
+    const titulo = corpo.titulo !== undefined ? String(corpo.titulo).trim() : livro.titulo;
+    const autor = corpo.autor !== undefined ? String(corpo.autor).trim() : livro.autor;
+    const categoria = corpo.categoria !== undefined ? String(corpo.categoria).trim() : livro.categoria;
+    const preco = corpo.preco !== undefined ? Number(corpo.preco) : livro.preco;
+    const estoque = corpo.estoque !== undefined ? Number(corpo.estoque) : livro.estoque;
+    const avaliacao = corpo.avaliacao !== undefined ? Number(corpo.avaliacao) : livro.avaliacao;
+
+    const atualizado = await pool.query(
+      `update livros set titulo = $1, autor = $2, categoria = $3, preco = $4, estoque = $5, avaliacao = $6
+       where id_livro = $7
+       returning *`,
+      [titulo, autor, categoria, preco, estoque, avaliacao, id]
+    );
+
+    responderJson(res, 200, { mensagem: 'Livro atualizado', livro: atualizado.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao editar livro:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar livro' });
+  }
+}
+
+async function apiRemoverLivro(res, id) {
+  try {
+    const emprestimoAtivo = await pool.query(
+      `select 1 from emprestimos where id_livro = $1 and status <> 'devolvido' limit 1`,
+      [id]
+    );
+    if (emprestimoAtivo.rowCount > 0) {
+      responderJson(res, 409, { erro: 'Esse livro tem empréstimo(s) não devolvidos e não pode ser removido' });
+      return;
+    }
+
+    const resultado = await pool.query('delete from livros where id_livro = $1', [id]);
+    if (resultado.rowCount === 0) {
+      responderJson(res, 404, { erro: 'Livro não encontrado' });
+      return;
+    }
+
+    responderJson(res, 200, { mensagem: 'Livro removido' });
+  } catch (erro) {
+    console.error('Erro ao remover livro:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar livro' });
+  }
+}
+
+async function apiCriarPromocao(req, res) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const titulo = String(corpo.titulo || '').trim();
+    const descricao = String(corpo.descricao || '').trim();
+    const desconto = String(corpo.desconto || '').trim();
+
+    if (!titulo || !descricao || !desconto) {
+      responderJson(res, 400, { erro: 'Título, descrição e desconto são obrigatórios' });
+      return;
+    }
+
+    const { rows } = await pool.query(
+      `insert into promocoes (titulo, descricao, desconto) values ($1, $2, $3) returning *`,
+      [titulo, descricao, desconto]
+    );
+
+    responderJson(res, 201, { mensagem: 'Promoção criada', promocao: rows[0] });
+  } catch (erro) {
+    console.error('Erro ao criar promoção:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar promoção' });
+  }
+}
+
+async function apiEditarPromocao(req, res, id) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const { rows } = await pool.query('select * from promocoes where id_promocao = $1', [id]);
+    const promocao = rows[0];
+    if (!promocao) {
+      responderJson(res, 404, { erro: 'Promoção não encontrada' });
+      return;
+    }
+
+    const titulo = corpo.titulo !== undefined ? String(corpo.titulo).trim() : promocao.titulo;
+    const descricao = corpo.descricao !== undefined ? String(corpo.descricao).trim() : promocao.descricao;
+    const desconto = corpo.desconto !== undefined ? String(corpo.desconto).trim() : promocao.desconto;
+
+    const atualizado = await pool.query(
+      `update promocoes set titulo = $1, descricao = $2, desconto = $3 where id_promocao = $4 returning *`,
+      [titulo, descricao, desconto, id]
+    );
+
+    responderJson(res, 200, { mensagem: 'Promoção atualizada', promocao: atualizado.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao editar promoção:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar promoção' });
+  }
+}
+
+async function apiRemoverPromocao(res, id) {
+  try {
+    const resultado = await pool.query('delete from promocoes where id_promocao = $1', [id]);
+    if (resultado.rowCount === 0) {
+      responderJson(res, 404, { erro: 'Promoção não encontrada' });
+      return;
+    }
+    responderJson(res, 200, { mensagem: 'Promoção removida' });
+  } catch (erro) {
+    console.error('Erro ao remover promoção:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar promoção' });
+  }
+}
+
+async function apiListarEmprestimos(res) {
+  try {
+    const { rows } = await pool.query(`
+      select
+        e.*,
+        coalesce(l.titulo, 'Livro removido') as titulo_livro,
+        coalesce(l.autor, '') as autor_livro
+      from emprestimos e
+      left join livros l on l.id_livro = e.id_livro
+      order by e.id_emprestimo
+    `);
+
+    const hoje = new Date().toISOString().slice(0, 10);
+    const lista = rows.map((emprestimo) => ({
+      ...emprestimo,
+      status: emprestimo.status === 'ativo' && emprestimo.data_prevista_devolucao < hoje
+        ? 'atrasado'
+        : emprestimo.status
+    }));
+
+    responderJson(res, 200, lista);
+  } catch (erro) {
+    console.error('Erro ao listar empréstimos:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar empréstimos' });
+  }
+}
+
+async function apiCriarEmprestimo(req, res) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const idLivro = Number(corpo.id_livro);
+    const nomeCliente = String(corpo.nome_cliente || '').trim();
+    const contatoCliente = String(corpo.contato_cliente || '').trim();
+    const dataPrevistaDevolucao = String(corpo.data_prevista_devolucao || '').trim();
+
+    if (!idLivro || !nomeCliente || !dataPrevistaDevolucao) {
+      responderJson(res, 400, { erro: 'Livro, nome do cliente e data prevista de devolução são obrigatórios' });
+      return;
+    }
+
+    const cliente = await pool.connect();
+    try {
+      await cliente.query('begin');
+
+      // Trava a linha do livro até o fim da transação, pra dois empréstimos
+      // simultâneos não conseguirem "vender" o mesmo último exemplar.
+      const { rows } = await cliente.query('select estoque from livros where id_livro = $1 for update', [idLivro]);
+      if (rows.length === 0) {
+        await cliente.query('rollback');
+        responderJson(res, 404, { erro: 'Livro não encontrado' });
+        return;
+      }
+      if (rows[0].estoque <= 0) {
+        await cliente.query('rollback');
+        responderJson(res, 409, { erro: 'Livro sem estoque disponível para empréstimo' });
+        return;
+      }
+
+      await cliente.query('update livros set estoque = estoque - 1 where id_livro = $1', [idLivro]);
+
+      const inserido = await cliente.query(
+        `insert into emprestimos (id_livro, nome_cliente, contato_cliente, data_prevista_devolucao)
+         values ($1, $2, $3, $4)
+         returning *`,
+        [idLivro, nomeCliente, contatoCliente || null, dataPrevistaDevolucao]
+      );
+
+      await cliente.query('commit');
+      responderJson(res, 201, { mensagem: 'Empréstimo registrado', emprestimo: inserido.rows[0] });
+    } catch (erroTransacao) {
+      await cliente.query('rollback').catch(() => {});
+      throw erroTransacao;
+    } finally {
+      cliente.release();
+    }
+  } catch (erro) {
+    console.error('Erro ao criar empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar empréstimo' });
+  }
+}
+
+async function apiDevolverEmprestimo(res, id) {
+  const cliente = await pool.connect();
+  try {
+    await cliente.query('begin');
+
+    const { rows } = await cliente.query('select * from emprestimos where id_emprestimo = $1 for update', [id]);
+    const emprestimo = rows[0];
+    if (!emprestimo) {
+      await cliente.query('rollback');
+      responderJson(res, 404, { erro: 'Empréstimo não encontrado' });
+      return;
+    }
+    if (emprestimo.status === 'devolvido') {
+      await cliente.query('rollback');
+      responderJson(res, 409, { erro: 'Esse empréstimo já foi devolvido' });
+      return;
+    }
+
+    const atualizado = await cliente.query(
+      `update emprestimos set status = 'devolvido', data_devolucao = current_date
+       where id_emprestimo = $1
+       returning *`,
+      [id]
+    );
+    await cliente.query('update livros set estoque = estoque + 1 where id_livro = $1', [emprestimo.id_livro]);
+    await cliente.query('commit');
+
+    responderJson(res, 200, { mensagem: 'Devolução registrada', emprestimo: atualizado.rows[0] });
+  } catch (erro) {
+    await cliente.query('rollback').catch(() => {});
+    console.error('Erro ao devolver empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar devolução' });
+  } finally {
+    cliente.release();
   }
 }
 
@@ -347,20 +558,20 @@ function mapearUrlParaArquivo(urlPath) {
   let caminhoRelativo = caminhoUrl.endsWith('/') ? caminhoUrl + 'index.html' : caminhoUrl;
   const caminhoCompleto = path.resolve(PASTA_PROJETO, `.${caminhoRelativo}`);
 
-  // Arquivos internos não podem ser baixados pelo navegador (senhas, código do servidor, etc.)
+  // Arquivos internos não podem ser baixados pelo navegador (código do servidor, etc.)
   const relativo = '/' + path.relative(PASTA_PROJETO, caminhoCompleto).split(path.sep).join('/');
   const ARQUIVOS_PRIVADOS = ['/servidor-estatico.js', '/package.json', '/package-lock.json'];
-  const PASTAS_PRIVADAS = ['/dados', '/database', '/node_modules', '/.git'];
+  const PASTAS_PRIVADAS = ['/database', '/node_modules', '/.git'];
   if (ARQUIVOS_PRIVADOS.includes(relativo) ||
       PASTAS_PRIVADAS.some(p => relativo === p || relativo.startsWith(p + '/'))) {
     return null;
   }
 
-  if (!caminhoCompleto.startsWith(PASTA_PROJETO + path.sep) && 
+  if (!caminhoCompleto.startsWith(PASTA_PROJETO + path.sep) &&
       caminhoCompleto !== PASTA_PROJETO) {
     return null;
   }
-  
+
   return caminhoCompleto;
 }
 
@@ -375,10 +586,10 @@ function servirArquivo(caminhoArquivo, res) {
       res.end('<h1>404 - Página não encontrada</h1>');
       return;
     }
-    
+
     const extensao = path.extname(caminhoArquivo).toLowerCase();
     const tipoMime = TIPOS_MIME[extensao] || 'application/octet-stream';
-    
+
     res.writeHead(200, { 'Content-Type': tipoMime });
     fs.createReadStream(caminhoArquivo).pipe(res);
   });
@@ -390,65 +601,126 @@ function servirArquivo(caminhoArquivo, res) {
 
 const servidor = http.createServer(async (req, res) => {
   console.log(`${req.method} ${req.url}`);
-  
+
   // APIs
   if (req.method === 'POST' && req.url === '/api/cadastro') {
     await apiCadastro(req, res);
     return;
   }
-  
+
   if (req.method === 'POST' && req.url === '/api/login') {
     await apiLogin(req, res);
     return;
   }
-  
+
   if (req.method === 'GET' && req.url === '/api/lancamentos') {
-    const banco = lerBanco();
-    responderJson(res, 200, banco.livros);
-    return;
-  }
-  
-  if (req.method === 'POST' && req.url === '/api/lancamentos') {
-    responderJson(res, 501, { erro: 'Cadastro desativado temporariamente no modo JSON.' });
+    const { rows } = await pool.query('select * from livros order by id_livro');
+    responderJson(res, 200, rows);
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/promocoes') {
-    const banco = lerBanco();
-    responderJson(res, 200, banco.promocoes);
+    const { rows } = await pool.query('select * from promocoes order by id_promocao');
+    responderJson(res, 200, rows);
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/destaques') {
-    const banco = lerBanco();
-    
-    // Simula o ORDER BY do SQL usando .sort() do Javascript
-    const maisAvaliados = [...banco.livros].sort((a, b) => b.avaliacao - a.avaliacao).slice(0, 4);
-    const maisVendidos = [...banco.livros].sort((a, b) => b.total_vendas - a.total_vendas).slice(0, 4);
-    
-    responderJson(res, 200, { maisAvaliados, maisVendidos });
+    const maisAvaliados = await pool.query('select * from livros order by avaliacao desc limit 4');
+    const maisVendidos = await pool.query('select * from livros order by total_vendas desc limit 4');
+    responderJson(res, 200, { maisAvaliados: maisAvaliados.rows, maisVendidos: maisVendidos.rows });
     return;
   }
-  
+
+  // APIs do painel da equipe (livros, promoções e empréstimos)
+  const idLivroRota = req.url.match(/^\/api\/admin\/livros\/(\d+)$/);
+  const idPromocaoRota = req.url.match(/^\/api\/admin\/promocoes\/(\d+)$/);
+  const devolucaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/devolver$/);
+
+  if (req.method === 'GET' && req.url === '/api/admin/livros') {
+    const { rows } = await pool.query('select * from livros order by id_livro');
+    responderJson(res, 200, rows);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/admin/livros') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiCriarLivro(req, res);
+    return;
+  }
+
+  if (req.method === 'PUT' && idLivroRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiEditarLivro(req, res, Number(idLivroRota[1]));
+    return;
+  }
+
+  if (req.method === 'DELETE' && idLivroRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiRemoverLivro(res, Number(idLivroRota[1]));
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/admin/promocoes') {
+    const { rows } = await pool.query('select * from promocoes order by id_promocao');
+    responderJson(res, 200, rows);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/admin/promocoes') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiCriarPromocao(req, res);
+    return;
+  }
+
+  if (req.method === 'PUT' && idPromocaoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiEditarPromocao(req, res, Number(idPromocaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'DELETE' && idPromocaoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiRemoverPromocao(res, Number(idPromocaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/admin/emprestimos') {
+    await apiListarEmprestimos(res);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/admin/emprestimos') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiCriarEmprestimo(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && devolucaoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiDevolverEmprestimo(res, Number(devolucaoRota[1]));
+    return;
+  }
+
   // Arquivos estáticos
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { 'Allow': 'GET, HEAD, POST' });
     res.end('Método não permitido');
     return;
   }
-  
+
   const caminhoUrl = decodeURIComponent(req.url.split('?')[0]);
   const rotasReact = ['/painel-funcionario.html', '/testes.html', '/teste-canvas.html'];
   const caminhoArquivo = rotasReact.includes(caminhoUrl)
     ? path.join(PASTA_PROJETO, 'perfil', 'index.html')
     : mapearUrlParaArquivo(req.url);
-  
+
   if (!caminhoArquivo) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Acesso negado');
     return;
   }
-  
+
   if (req.method === 'HEAD') {
     fs.stat(caminhoArquivo, (erro, info) => {
       if (erro || !info.isFile()) {
@@ -462,7 +734,7 @@ const servidor = http.createServer(async (req, res) => {
     });
     return;
   }
-  
+
   servirArquivo(caminhoArquivo, res);
 });
 
@@ -470,24 +742,41 @@ const servidor = http.createServer(async (req, res) => {
 // 13. INICIAR SERVIDOR
 // ═══════════════════════════════════════════════════════════════
 
-servidor.listen(PORTA, '0.0.0.0', () => {
-  console.log(`
+async function iniciar() {
+  try {
+    await pool.query('select 1');
+    console.log('✅ Conectado ao Postgres (Supabase)');
+  } catch (erro) {
+    console.error('❌ Não foi possível conectar ao Postgres. Confira a variável DATABASE_URL.');
+    console.error(erro.message);
+    process.exit(1);
+  }
+
+  await garantirContasFixas();
+
+  servidor.listen(PORTA, '0.0.0.0', () => {
+    console.log(`
 ╔════════════════════════════════════════════════════════╗
 ║    SERVIDOR INICIADO COM SUCESSO!                      ║
 ╠════════════════════════════════════════════════════════╣
 ║                                                        ║
 ║   URL: http://localhost:${PORTA}                           ║
 ║   Pasta: ${PASTA_PROJETO.substring(0, 40)}...   ║
-║   Dados: ${ARQUIVO_USUARIOS.substring(0, 40)}...   ║
+║   Banco: Postgres (Supabase)                           ║
 ║                                                        ║
 ║  Rotas disponíveis:                                    ║
 ║  • GET  /              → index.html                    ║
 ║  • GET  /css/style.css → Arquivos estáticos            ║
 ║  • POST /api/cadastro  → Cadastrar novo usuário        ║
 ║  • POST /api/login     → Login do usuário              ║
+║  • CRUD /api/admin/livros, /promocoes, /emprestimos    ║
+║    (painel da equipe, exige header x-usuario-email)    ║
 ║                                                        ║
 ║  Pressione CTRL+C para parar o servidor                ║
 ║                                                        ║
 ╚════════════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
+
+iniciar();

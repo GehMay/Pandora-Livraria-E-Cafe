@@ -401,6 +401,153 @@ canvas {
     }
 }
 
+/* Painel da Equipe (promoções, biblioteca e empréstimos) */
+.admin-painel {
+    max-width: 1000px;
+    margin: 2.5rem auto;
+    padding: 0 2rem;
+}
+
+.admin-painel > h2 {
+    color: #1a472a;
+    margin-bottom: 1rem;
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-tab {
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    border: 2px solid #1a472a;
+    background-color: #ffffff;
+    color: #1a472a;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-tab:hover {
+    background-color: #e8f0ec;
+}
+
+.admin-tab-ativa,
+.admin-tab-ativa:hover {
+    background-color: #1a472a;
+    color: #ffffff;
+}
+
+.admin-secao {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-tabela-wrap {
+    overflow-x: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tabela-admin {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+}
+
+.tabela-admin th,
+.tabela-admin td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid #e8f0ec;
+}
+
+.tabela-admin th {
+    background-color: #1a472a;
+    color: #ffffff;
+}
+
+.tabela-admin tbody tr:hover {
+    background-color: #e8f0ec;
+}
+
+.admin-acoes {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-admin {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    border: 1px solid #1a472a;
+    background-color: #ffffff;
+    color: #1a472a;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-admin:hover {
+    background-color: #1a472a;
+    color: #ffffff;
+}
+
+.btn-admin-perigo {
+    border-color: #a33;
+    color: #a33;
+}
+
+.btn-admin-perigo:hover {
+    background-color: #a33;
+    color: #ffffff;
+}
+
+.admin-form {
+    max-width: 480px;
+    background-color: #2a623d;
+    padding: 1.5rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border: 2px solid #5d5d5d;
+    color: #ffffff;
+}
+
+.admin-form h3 {
+    margin-bottom: 1rem;
+    color: #c4d4cc;
+}
+
+.admin-acoes-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.admin-acoes-form .btn-submit {
+    margin-top: 0;
+}
+
+.badge-ativo {
+    background-color: #c4d4cc;
+    color: #1a472a;
+}
+
+.badge-atrasado {
+    background-color: #a33;
+    color: #ffffff;
+}
+
+.badge-devolvido {
+    background-color: #1a472a;
+    color: #ffffff;
+}
+
 /* Ajustes leves para telas pequenas (o visual do computador não muda) */
 @media (max-width: 880px) {
     /* Botões saem do canto e ficam embaixo do título, sem cobrir o texto */
@@ -431,6 +578,15 @@ canvas {
 
     .form-container {
         margin: 2rem 1rem;
+    }
+
+    .admin-painel {
+        padding: 0 0.75rem;
+    }
+
+    .admin-form {
+        max-width: 100%;
+        padding: 1.5rem;
     }
 
     .titulo-pagina {

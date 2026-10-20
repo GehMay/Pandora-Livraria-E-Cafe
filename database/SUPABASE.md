@@ -1,17 +1,33 @@
-# Supabase: manter o projeto ativo e limpeza mensal
+# Supabase: banco de dados, manter ativo e limpeza mensal
 
-Preparação para quando o projeto migrar (ou passar a usar, em paralelo) um banco Supabase.
-Hoje o site ainda lê/grava em `dados/*.json` (veja `servidor-estatico.js`); nada aqui está
-conectado a dados reais ainda — é só a automação pronta para quando o projeto Supabase existir.
+O `servidor-estatico.js` guarda usuários, livros, promoções e empréstimos direto no Postgres
+do Supabase (via `DATABASE_URL`) — não usa mais arquivos `.json` em disco.
 
-## Por que isso existe
+## Conectar o servidor ao banco (`DATABASE_URL`)
+
+1. No Supabase, clique em **Connect** (topo do painel) → aba **Connection string** →
+   selecione **Session pooler** (⚠️ não "Direct connection": essa é IPv6-only e não funciona
+   no Render nem em redes sem suporte a IPv6 — veja `database/supabase-schema.sql` pra criar
+   as tabelas antes de usar isso).
+2. Copie a connection string e troque `[YOUR-PASSWORD]` pela senha do banco que você definiu
+   na criação do projeto.
+3. **Local:** copie `.env.example` para `.env` (arquivo já ignorado pelo Git) e cole a
+   connection string em `DATABASE_URL=`. Rode com `npm run dev` (em vez de `npm start`) pra
+   carregar esse `.env` automaticamente.
+4. **Render:** no painel do serviço → **Environment** → adicione a variável `DATABASE_URL`
+   com a mesma connection string. O `npm start` lê `process.env.DATABASE_URL` normalmente,
+   sem precisar de arquivo.
+5. Antes de rodar o servidor pela primeira vez, execute `database/supabase-schema.sql` no
+   **SQL Editor** do Supabase — ele cria as tabelas (`usuarios`, `livros`, `promocoes`,
+   `emprestimos`) e popula `livros`/`promocoes` com o acervo original. Pode rodar esse arquivo
+   de novo sem medo: ele só insere o acervo inicial se as tabelas ainda estiverem vazias.
+
+## Manter o projeto ativo e limpeza mensal
 
 No plano gratuito, um projeto Supabase **pausa depois de ~7 dias sem atividade**. Depois de
 pausado, só volta com um clique manual no painel (nenhuma chamada de API acorda ele de volta).
 Como este é um projeto público com uso imprevisível, a estratégia é **nunca deixar pausar**:
 um ping leve a cada 3 dias, via GitHub Actions.
-
-## O que foi criado
 
 - `.github/workflows/supabase-manutencao.yml` — roda dois jobs agendados:
   - `manter-ativo`: a cada 3 dias, faz uma chamada simples à API do Supabase (`GET /rest/v1/`).
@@ -25,21 +41,20 @@ um ping leve a cada 3 dias, via GitHub Actions.
 > pra "pingar" e manter o projeto ativo) só aceita a **secret key** — a publishable key dá
 > `401 Secret API key required` nele, porque esse endpoint introspecciona o schema inteiro.
 > Por isso o job `manter-ativo` usa `SUPABASE_SERVICE_ROLE_KEY`, não a `anon`. A chave
-> publishable (`SUPABASE_ANON_KEY`) continua guardada como secret pra quando o app em si
-> (front-end) passar a falar com o Supabase — ela é a chave seguro de usar no navegador.
+> publishable (`SUPABASE_ANON_KEY`) fica guardada como secret, sem uso pelo workflow — não é
+> ela que o `servidor-estatico.js` usa pra falar com o banco (ele usa `DATABASE_URL`, a
+> conexão Postgres direta, não a API REST do Supabase).
 
-## Como ativar
+### Como ativar a automação do GitHub Actions
 
-1. Criar o projeto em [supabase.com](https://supabase.com) e copiar, em
-   **Project Settings → API Keys**: a **Project URL**, a **Publishable key** e a **Secret key**.
-2. No GitHub: **Settings → Secrets and variables → Actions → New repository secret** e criar:
+1. No GitHub: **Settings → Secrets and variables → Actions → New repository secret** e criar:
    - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY` → valor da **Publishable key** (ainda não usado pelo workflow, guardado pro futuro)
+   - `SUPABASE_ANON_KEY` → valor da **Publishable key**
    - `SUPABASE_SERVICE_ROLE_KEY` → valor da **Secret key** (⚠️ nunca colocar em código ou commit, só em secret)
-3. No **SQL Editor** do Supabase, rodar o conteúdo de `database/supabase-limpeza-mensal.sql`
+2. No **SQL Editor** do Supabase, rodar o conteúdo de `database/supabase-limpeza-mensal.sql`
    para criar a função `limpeza_mensal()`.
-4. Testar manualmente antes de esperar o agendamento: na aba **Actions** do GitHub, abrir
+3. Testar manualmente antes de esperar o agendamento: na aba **Actions** do GitHub, abrir
    "Manutenção do Supabase" → **Run workflow**. Isso roda os dois jobs na hora.
-5. Quando o critério de limpeza for decidido, editar o `DELETE` comentado em
+4. Quando o critério de limpeza for decidido, editar o `DELETE` comentado em
    `supabase-limpeza-mensal.sql` e rodar de novo no SQL Editor do Supabase (o arquivo no
    repositório é só a referência; a função que vale é a que está salva no banco).
