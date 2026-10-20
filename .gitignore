@@ -2,3 +2,4 @@ node_modules/
 dados/usuarios.json
 dados/lancamentos.json
 .env
+CONTAS.md
