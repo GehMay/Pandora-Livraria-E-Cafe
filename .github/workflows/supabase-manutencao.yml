@@ -7,13 +7,13 @@ name: Manutenção do Supabase
 # Supabase de verdade (ela é a chave segura pra usar no front-end).
 on:
   schedule:
-    - cron: '0 6 */3 * *' # a cada 3 dias, só pra manter ativo
-    - cron: '0 6 1 * *'   # dia 1 de cada mês, pra limpeza
+    - cron: '0 6 * * *' # todo dia, pra manter ativo (antes era a cada 3 dias)
+    - cron: '0 6 1 * *' # dia 1 de cada mês, pra limpeza
   workflow_dispatch: {} # permite rodar manualmente em Actions > Run workflow (testa os dois jobs)
 
 jobs:
   manter-ativo:
-    if: github.event.schedule == '0 6 */3 * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Pingar o Supabase
