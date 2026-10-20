@@ -1,31 +1,28 @@
 // ═══════════════════════════════════════════════════════════════
 // LOGIN, CADASTRO E SESSÃO
-// Sessão simples de demonstração: guarda no navegador quem entrou,
-// só para personalizar a tela. Não protege nenhuma página.
+// A sessão agora vive no servidor: o login grava um cookie HttpOnly
+// (o navegador guarda, mas nenhum script da página consegue ler ou
+// forjar esse cookie). Pra saber quem está logado, a página pergunta
+// pro servidor em /api/sessao — ele é quem decide, não o navegador.
 // ═══════════════════════════════════════════════════════════════
 
-const CHAVE_SESSAO = 'pandoraUsuario';
-
-function lerSessao() {
+async function sessaoAtual() {
     try {
-        return JSON.parse(localStorage.getItem(CHAVE_SESSAO));
+        const resposta = await fetch('/api/sessao', { credentials: 'same-origin' });
+        if (!resposta.ok) return null;
+        const corpo = await resposta.json();
+        return corpo.usuario || null;
     } catch {
         return null;
     }
 }
 
-function salvarSessao(usuario) {
+async function sair() {
     try {
-        localStorage.setItem(CHAVE_SESSAO, JSON.stringify(usuario));
+        await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
     } catch {
-        // Navegador com armazenamento bloqueado: segue sem guardar a sessão
+        // mesmo se a chamada falhar, segue o redirecionamento
     }
-}
-
-function sair() {
-    try {
-        localStorage.removeItem(CHAVE_SESSAO);
-    } catch { /* sem armazenamento, nada a limpar */ }
     window.location.href = 'index.html';
 }
 
@@ -39,6 +36,7 @@ function paginaDaConta(usuario) {
 async function enviarParaApi(rota, dados) {
     const resposta = await fetch(rota, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
     });
@@ -49,80 +47,83 @@ async function enviarParaApi(rota, dados) {
     return corpo;
 }
 
-// ── Formulários de login e cadastro ─────────────────────────────
-const formulario = document.querySelector('form[data-api]');
+(async function iniciar() {
+    // ── Formulários de login e cadastro ─────────────────────────────
+    const formulario = document.querySelector('form[data-api]');
 
-if (formulario) {
-    const mensagem = document.getElementById('mensagem-form');
-    const botao = formulario.querySelector('button[type="submit"]');
-    const textoBotao = botao.textContent;
+    if (formulario) {
+        const mensagem = document.getElementById('mensagem-form');
+        const botao = formulario.querySelector('button[type="submit"]');
+        const textoBotao = botao.textContent;
 
-    function mostrarMensagem(texto, tipo) {
-        mensagem.textContent = texto;
-        mensagem.className = 'form-mensagem form-mensagem-' + tipo;
-        mensagem.hidden = false;
-    }
-
-    formulario.addEventListener('submit', async function (evento) {
-        evento.preventDefault();
-
-        const dados = Object.fromEntries(new FormData(formulario));
-        botao.disabled = true;
-        botao.textContent = 'Aguarde...';
-        mensagem.hidden = true;
-
-        try {
-            const ehCadastro = formulario.dataset.api === '/api/cadastro';
-            let resultado = await enviarParaApi(formulario.dataset.api, dados);
-
-            // Depois de criar a conta, já entra direto
-            if (ehCadastro) {
-                resultado = await enviarParaApi('/api/login', { email: dados.email, senha: dados.senha });
-            }
-
-            salvarSessao(resultado.usuario);
-            mostrarMensagem('Tudo certo! Entrando...', 'ok');
-            setTimeout(() => { window.location.href = paginaDaConta(resultado.usuario); }, 700);
-        } catch (erro) {
-            mostrarMensagem(erro.message, 'erro');
-            botao.disabled = false;
-            botao.textContent = textoBotao;
+        function mostrarMensagem(texto, tipo) {
+            mensagem.textContent = texto;
+            mensagem.className = 'form-mensagem form-mensagem-' + tipo;
+            mensagem.hidden = false;
         }
-    });
-}
 
-// ── Cabeçalho: mostra quem está logado ──────────────────────────
-const usuarioLogado = lerSessao();
-const areaAcoes = document.querySelector('.cabecalho_acoes');
+        formulario.addEventListener('submit', async function (evento) {
+            evento.preventDefault();
 
-if (usuarioLogado && areaAcoes) {
-    const primeiroNome = String(usuarioLogado.nome || '').split(' ')[0];
-    const ehEquipe = usuarioLogado.tipo === 'funcionario' || usuarioLogado.tipo === 'admin';
+            const dados = Object.fromEntries(new FormData(formulario));
+            botao.disabled = true;
+            botao.textContent = 'Aguarde...';
+            mensagem.hidden = true;
 
-    const linkConta = document.createElement('a');
-    linkConta.className = 'cabecalho_saudacao';
-    linkConta.href = paginaDaConta(usuarioLogado);
-    linkConta.textContent = 'Olá, ' + primeiroNome + (ehEquipe ? ' · Equipe' : '');
+            try {
+                const ehCadastro = formulario.dataset.api === '/api/cadastro';
+                let resultado = await enviarParaApi(formulario.dataset.api, dados);
 
-    const botaoSair = document.createElement('button');
-    botaoSair.type = 'button';
-    botaoSair.className = 'btn-login';
-    botaoSair.textContent = 'Sair';
-    botaoSair.addEventListener('click', sair);
+                // Depois de criar a conta, já entra direto (isso grava o cookie de sessão)
+                if (ehCadastro) {
+                    resultado = await enviarParaApi('/api/login', { email: dados.email, senha: dados.senha });
+                }
 
-    areaAcoes.replaceChildren(linkConta, botaoSair);
-}
-
-// ── Guarda de página: só deixa entrar quem tem a sessão certa ───
-// Páginas restritas marcam isso com <body data-requer-sessao="funcionario"> (ou "cliente")
-const tipoExigido = document.body.dataset.requerSessao;
-
-if (tipoExigido) {
-    const tiposPermitidos = tipoExigido === 'funcionario'
-        ? ['funcionario', 'admin']
-        : [tipoExigido];
-
-    if (!usuarioLogado || !tiposPermitidos.includes(usuarioLogado.tipo)) {
-        window.location.href = 'login.html';
+                mostrarMensagem('Tudo certo! Entrando...', 'ok');
+                setTimeout(() => { window.location.href = paginaDaConta(resultado.usuario); }, 700);
+            } catch (erro) {
+                mostrarMensagem(erro.message, 'erro');
+                botao.disabled = false;
+                botao.textContent = textoBotao;
+            }
+        });
     }
-}
+
+    // ── Cabeçalho: mostra quem está logado ──────────────────────────
+    const usuarioLogado = await sessaoAtual();
+    const areaAcoes = document.querySelector('.cabecalho_acoes');
+
+    if (usuarioLogado && areaAcoes) {
+        const primeiroNome = String(usuarioLogado.nome || '').split(' ')[0];
+        const ehEquipe = usuarioLogado.tipo === 'funcionario' || usuarioLogado.tipo === 'admin';
+
+        const linkConta = document.createElement('a');
+        linkConta.className = 'cabecalho_saudacao';
+        linkConta.href = paginaDaConta(usuarioLogado);
+        linkConta.textContent = 'Olá, ' + primeiroNome + (ehEquipe ? ' · Equipe' : '');
+
+        const botaoSair = document.createElement('button');
+        botaoSair.type = 'button';
+        botaoSair.className = 'btn-login';
+        botaoSair.textContent = 'Sair';
+        botaoSair.addEventListener('click', sair);
+
+        areaAcoes.replaceChildren(linkConta, botaoSair);
+    }
+
+    // ── Guarda de página: só deixa entrar quem tem a sessão certa ───
+    // Páginas restritas marcam isso com <body data-requer-sessao="funcionario"> (ou "cliente").
+    // O servidor já bloqueia essas páginas antes de entregá-las (veja servidor-estatico.js);
+    // isso aqui é só uma segunda camada, pro caso da sessão expirar com a página já aberta.
+    const tipoExigido = document.body.dataset.requerSessao;
+
+    if (tipoExigido) {
+        const tiposPermitidos = tipoExigido === 'funcionario'
+            ? ['funcionario', 'admin']
+            : [tipoExigido];
+
+        if (!usuarioLogado || !tiposPermitidos.includes(usuarioLogado.tipo)) {
+            window.location.href = 'login.html';
+        }
+    }
+})();

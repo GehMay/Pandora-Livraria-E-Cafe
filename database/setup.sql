@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS Usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL
+    senha VARCHAR(255) NOT NULL, -- formato "salt:hash" (scrypt), nunca texto puro
+    tipo ENUM('cliente', 'funcionario', 'admin') NOT NULL DEFAULT 'cliente',
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. Tabela de Livros

@@ -44,8 +44,8 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ## 🛠️ Tecnologias Utilizadas
 * **Front-end:** `index.html`, `login.html` e `cadastro.html` usam HTML/CSS/JavaScript. As demais páginas, incluindo ferramentas de desenvolvimento, usam **React + Vite** (`perfil-app/`).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
-* **Armazenamento de dados:** Arquivos JSON (`dados/`), escolhidos para simplificar o deploy do MVP. A modelagem em MySQL está pronta em `database/setup.sql` para uma futura migração.
-* **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
+* **Armazenamento de dados:** **MySQL opcional** — se as variáveis de ambiente do banco estiverem configuradas, usuários, livros e promoções vêm do MySQL (`database/setup.sql`); senão, o servidor cai de volta para os arquivos JSON (`dados/`), sem precisar mudar nada no código. Veja [`database/MYSQL.md`](database/MYSQL.md).
+* **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`). Sessão de login via **cookie `HttpOnly`** (token gerado pelo servidor, inacessível a scripts da página), com páginas restritas checadas no próprio servidor antes de serem entregues.
 * **Hospedagem:** [Render](https://render.com) (plano gratuito), com deploy automático a cada `git push` na branch `master`.
 * **Design:** Logo e favicon em SVG, criados exclusivamente para o projeto.
 
@@ -68,14 +68,14 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código, a pasta `dados/` nem outros arquivos privados pelo navegador.
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
+- [x] **Sessão Segura de Usuário:** O login gera um token guardado só no servidor (`database/sessoes.js`) e entregue ao navegador num cookie `HttpOnly` — scripts da página não conseguem ler nem forjar esse cookie. `GET /api/sessao` informa quem está logado e `POST /api/logout` encerra a sessão. As páginas restritas (`/painel-funcionario.html`, `/perfil/`) são checadas **no servidor**, antes de entregar o HTML, não só na tela.
+- [x] **Persistência dos Dados em MySQL:** Usuários, livros e promoções podem vir de um banco MySQL real (`database/setup.sql`), configurado por variável de ambiente (`database/MYSQL.md`). Sem essa configuração, o site continua funcionando normalmente com os arquivos `dados/*.json`, sem precisar trocar nenhum código.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
-- [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). Falta uma sessão validada pelo servidor para proteger áreas restritas (reservas e painel de admin).
-- [ ] **Persistência dos Dados:** No plano gratuito do Render os arquivos JSON de usuários são apagados a cada novo deploy. Migrar para um MySQL em nuvem (usando o `database/setup.sql`) resolve isso.
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
 - [x] **Migração das páginas funcionais para React:** Perfil e painel da equipe usam React + Vite; início, login e cadastro permanecem em HTML.
-- [ ] **Painel da Equipe Completo:** O painel React ainda é um placeholder. Falta implementar o gerenciamento de estoque e promoções.
+- [ ] **Painel da Equipe Completo:** O painel React ainda é um placeholder visual. O back-end já tem `POST /api/lancamentos` pronto (exige MySQL ativo e sessão de `funcionario`/`admin`); falta só a tela de cadastro de livros/promoções usar essa rota.
 
 ## 🔑 Contas de Teste
 
@@ -109,7 +109,12 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    ├── 📄 usuarios.json          # Contas de usuários (criado automaticamente ao cadastrar)
  │    └── 📄 lancamentos.json       # Lançamentos cadastrados pela API (criado automaticamente)
  ├── 📁 database
- │    └── 📄 setup.sql              # Script guardado para futura migração para MySQL
+ │    ├── 📄 conexao.js             # Detecta e configura o pool de conexão MySQL (opcional)
+ │    ├── 📄 usuarios.js            # Repositório de usuários (MySQL ou dados/usuarios.json)
+ │    ├── 📄 catalogo.js            # Repositório de livros e promoções (MySQL ou dados/banco.json)
+ │    ├── 📄 sessoes.js             # Sessões de login em memória (token → usuário)
+ │    ├── 📄 setup.sql              # Script de criação das tabelas MySQL
+ │    └── 📄 MYSQL.md               # Como ativar o MySQL (passo a passo)
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
@@ -127,7 +132,8 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js e rotas de API)
  ├── 📄 package.json                # Dependências e scripts (npm start, npm run build:perfil)
  ├── 📄 package-lock.json           # Versões exatas das dependências
- ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules)
+ ├── 📄 .env.example                # Modelo das variáveis de ambiente do MySQL
+ ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules, .env)
  ├── 📄 GUIA-SERVIDOR.md            # Documentação técnica de como o Node funciona
  └── 📄 README.md                   # Esta documentação
 ```
@@ -152,6 +158,8 @@ Com a arquitetura em JSON, rodar o projeto é simples e não exige banco de dado
 4. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
 
 > 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela.
+
+> 🐬 Por padrão o site usa os arquivos `dados/*.json`. Para usar um MySQL real (dados que sobrevivem a reinícios), veja [`database/MYSQL.md`](database/MYSQL.md).
 
 ### ⚛️ Mexendo nas páginas em React (`perfil-app/`)
 

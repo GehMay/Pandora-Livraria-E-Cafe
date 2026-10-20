@@ -262,35 +262,58 @@ http://localhost:5500/teste-api.html
 
 ---
 
-## 🚀 PRÓXIMOS PASSOS
+## ✅ ATUALIZAÇÃO: SESSÃO SEGURA E MYSQL
 
-### Melhorias que você pode adicionar:
+As duas melhorias "futuras" que este guia sugeria (token em vez de enviar o
+usuário inteiro, e banco de dados real) já foram implementadas:
 
-1. **Token JWT** (ao invés de enviar usuário inteiro)
-   ```javascript
-   const jwt = require('jsonwebtoken');
-   // Gerar token no login, validar em requisições futuras
-   ```
+### Sessão por cookie (em vez de confiar no navegador)
 
-2. **Banco de dados real** (MySQL, PostgreSQL)
-   ```javascript
-   // Usar `mysql2` ou similar ao invés de JSON
-   ```
+Antes, o navegador guardava o usuário inteiro no `localStorage` — qualquer
+script da página podia ler (ou forjar!) aquele JSON e "virar admin" sem
+precisar de senha nenhuma. Agora:
 
-3. **Email de confirmação**
+- O login gera um **token aleatório** (`crypto.randomBytes`) e guarda, só no
+  servidor, qual usuário é o dono dele (`database/sessoes.js`).
+- O token vai para o navegador dentro de um **cookie `HttpOnly`** — JavaScript
+  da página não consegue ler nem alterar esse cookie, o que bloqueia o roubo
+  de sessão por XSS.
+- Toda página restrita (`/painel-funcionario.html`, `/perfil/`) é checada
+  **no servidor**, antes mesmo de entregar o HTML — ver a seção "Guarda de
+  página" em `servidor-estatico.js`. O cliente (`JS/auth.js`) só confirma de
+  novo por cima, como segunda camada.
+- `GET /api/sessao` devolve quem está logado; `POST /api/logout` apaga a
+  sessão e limpa o cookie.
+
+### Banco de dados real (MySQL, com fallback em JSON)
+
+```javascript
+// database/conexao.js detecta MYSQL_HOST / DATABASE_URL no ambiente.
+// Se existir, database/usuarios.js e database/catalogo.js passam a
+// consultar as tabelas Usuario/Livro/Promocao (database/setup.sql).
+// Se não existir, continuam lendo dados/*.json, como sempre.
+```
+
+Veja **[`database/MYSQL.md`](database/MYSQL.md)** para o passo a passo de
+como ativar.
+
+### O que ainda fica para depois
+
+1. **Email de confirmação**
    ```javascript
    // Enviar email ao cadastrar
    ```
 
-4. **Recuperação de senha**
+2. **Recuperação de senha**
    ```javascript
    // Gerar token temporário, enviar email com link
    ```
 
-5. **Área do admin**
+3. **Painel da equipe completo**
    ```javascript
-   // Verificar se tipo === 'admin'
-   // Bloquear acesso caso contrário
+   // A rota POST /api/lancamentos já existe e já exige tipo
+   // 'funcionario'/'admin' — falta só a tela de verdade no painel
+   // (hoje é um placeholder) para usar essa rota.
    ```
 
 ---

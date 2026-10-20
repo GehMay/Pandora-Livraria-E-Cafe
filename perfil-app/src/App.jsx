@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react';
 
-// Mesma chave e mesmo formato de sessão que o JS/auth.js usa no resto do site,
-// assim as duas partes (HTML puro e React) continuam enxergando o mesmo login.
-const CHAVE_SESSAO = 'pandoraUsuario';
-
-function lerSessao() {
+// A sessão agora vive no servidor (cookie HttpOnly). Essa função só
+// pergunta pro servidor quem está logado — o mesmo endpoint usado
+// pelo resto do site (JS/auth.js), então os dois lados sempre veem
+// a mesma sessão.
+async function sessaoAtual() {
   try {
-    return JSON.parse(localStorage.getItem(CHAVE_SESSAO));
+    const resposta = await fetch('/api/sessao', { credentials: 'same-origin' });
+    if (!resposta.ok) return null;
+    const corpo = await resposta.json();
+    return corpo.usuario || null;
   } catch {
     return null;
   }
 }
 
-function sair() {
+async function sair() {
   try {
-    localStorage.removeItem(CHAVE_SESSAO);
+    await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
   } catch {
-    // sem armazenamento, nada a limpar
+    // mesmo se falhar, segue o redirecionamento
   }
   window.location.href = '/index.html';
 }
@@ -26,20 +29,26 @@ function PaginaPerfil() {
   const [destaques, setDestaques] = useState(null); // null = ainda carregando
 
   useEffect(() => {
-    const sessao = lerSessao();
+    let ativo = true;
 
-    if (!sessao) {
-      window.location.href = '/login.html';
-      return;
-    }
+    sessaoAtual().then((sessao) => {
+      if (!ativo) return;
 
-    // Funcionário/admin não usa essa página, e sim o painel da equipe.
-    if (sessao.tipo === 'funcionario' || sessao.tipo === 'admin') {
-      window.location.href = '/painel-funcionario.html';
-      return;
-    }
+      if (!sessao) {
+        window.location.href = '/login.html';
+        return;
+      }
 
-    setUsuario(sessao);
+      // Funcionário/admin não usa essa página, e sim o painel da equipe.
+      if (sessao.tipo === 'funcionario' || sessao.tipo === 'admin') {
+        window.location.href = '/painel-funcionario.html';
+        return;
+      }
+
+      setUsuario(sessao);
+    });
+
+    return () => { ativo = false; };
   }, []);
 
   useEffect(() => {
@@ -109,13 +118,20 @@ function PaginaPainelEquipe() {
   const [usuario, setUsuario] = useState(null);
 
   useEffect(() => {
-    const sessao = lerSessao();
-    if (!sessao || !['funcionario', 'admin'].includes(sessao.tipo)) {
-      window.location.href = '/login.html';
-      return;
-    }
+    let ativo = true;
 
-    setUsuario(sessao);
+    sessaoAtual().then((sessao) => {
+      if (!ativo) return;
+
+      if (!sessao || !['funcionario', 'admin'].includes(sessao.tipo)) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      setUsuario(sessao);
+    });
+
+    return () => { ativo = false; };
   }, []);
 
   if (!usuario) return null;
