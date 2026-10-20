@@ -27,14 +27,27 @@ do Supabase (via `DATABASE_URL`) — não usa mais arquivos `.json` em disco.
 No plano gratuito, um projeto Supabase **pausa depois de ~7 dias sem atividade**. Depois de
 pausado, só volta com um clique manual no painel (nenhuma chamada de API acorda ele de volta).
 Como este é um projeto público com uso imprevisível, a estratégia é **nunca deixar pausar**:
-um ping leve a cada 3 dias, via GitHub Actions.
+um ping leve **todo dia**, via GitHub Actions (antes era a cada 3 dias; aumentamos a frequência
+depois de uma falha pontual do runner do GitHub — veja "Sobre falhas no ping" abaixo).
 
 - `.github/workflows/supabase-manutencao.yml` — roda dois jobs agendados:
-  - `manter-ativo`: a cada 3 dias, faz uma chamada simples à API do Supabase (`GET /rest/v1/`).
+  - `manter-ativo`: todo dia, faz uma chamada simples à API do Supabase (`GET /rest/v1/`).
   - `limpeza-mensal`: todo dia 1 do mês, chama a função `limpeza_mensal()` do banco via RPC.
 - `database/supabase-limpeza-mensal.sql` — a função `limpeza_mensal()`. Hoje ela só registra
   que rodou; o `DELETE` de exemplo está comentado porque o critério de limpeza (quais tabelas,
   qual prazo) ainda não foi decidido.
+
+## Sobre falhas no ping
+
+Um `manter-ativo` pode falhar de vez em quando por instabilidade passageira do próprio runner
+do GitHub Actions (ex.: erro de DNS "couldn't resolve host" que desaparece ao rodar de novo) —
+isso não significa que o `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` estão errados. Rodando todo
+dia (em vez de a cada 3 dias), uma falha isolada tem bem mais margem antes de chegar nos ~7 dias
+de inatividade que pausam o projeto.
+
+Se o projeto **já pausou**, nenhuma quantidade de pings resolve: é preciso entrar no painel do
+Supabase e clicar em **"Restore project"** manualmente. Depois de restaurado, o workflow volta a
+mantê-lo ativo normalmente.
 
 > ⚠️ **Sobre as chaves novas do Supabase** (`sb_publishable_...` / `sb_secret_...`, que
 > substituíram as antigas `anon`/`service_role` em JWT): o endpoint `GET /rest/v1/` (usado
