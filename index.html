@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pandora</title>
     <link rel="icon" type="image/svg+xml" href="imagens/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 
@@ -42,7 +45,7 @@
         <!-- CARD GIGANTE DE PROMOÇÕES -->
         <div class="secao-vitrine">
             <div class="card card-padding">
-                <h3 class="secao-titulo">🐍 Promoções Mágicas</h3>
+                <h3 class="secao-titulo">Promoções Mágicas</h3>
                 <!-- O JavaScript vai jogar as promoções aqui dentro -->
                 <div class="cards-grid cards-grid-interno" id="minhas-promocoes"></div>
             </div>
@@ -59,7 +62,7 @@
         </div>
         <div class="cards-grid">
             <article class="card" data-categoria="Produtos e Serviços">
-                <div class="card-banner" aria-hidden="true"></div>
+                <div class="card-banner" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></div>
                 <div class="card-body">
                     <h3 class="card-title">Produtos e Serviços</h3>
                     <p class="card-descricao">Catálogo com mais de 3.000 grimórios antigos, pergaminhos e manuais de
@@ -70,47 +73,53 @@
                 </div>
             </article>
             <article class="card" data-categoria="Principais Categorias">
-                <div class="card-banner" aria-hidden="true"></div>
+                <div class="card-banner" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></svg></div>
                 <div class="card-body">
                     <h3 class="card-title">Principais Categorias</h3>
                     <span class="badge">Seções da nossa Biblioteca</span>
-                    <p class="card-descricao">Poções e Alquimia Avançada<br>
-                        Artes das Trevas (Seção Restrita)<br>
-                        História da Magia Antiga<br>
-                        Magizoologia e Criaturas<br>
-                        Biografias de Sangues-Puros</p>
+                    <ul class="lista-info">
+                        <li>Poções e Alquimia Avançada</li>
+                        <li>Artes das Trevas (Seção Restrita)</li>
+                        <li>História da Magia Antiga</li>
+                        <li>Magizoologia e Criaturas</li>
+                        <li>Biografias de Sangues-Puros</li>
+                    </ul>
                 </div>
             </article>
         </div>
         <div class="cards-grid">
             <article class="card" data-categoria="Dados da Loja">
-                <div class="card-banner" aria-hidden="true"></div>
+                <div class="card-banner" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
                 <div class="card-body">
                     <h3 class="card-title">Dados da Loja</h3>
-                    <p class="card-descricao">Nome: Pandora Livraria Mágica & Café <br>
-                        Endereço: Beco Diagonal, Nº 42, Londres Mágica <br>
-                        Contato Mágico: Envio por Coruja (Respostas em até 1 dia útil)<br>
-                        Rede de Flu: Lareira "Pandora, Beco Diagonal"<br>
-                        E-mail (para Trouxas): contato@pandoramagica.com<br>
-                        Instagram: @pandora.magica</p><br>
+                    <ul class="lista-info">
+                        <li><strong>Nome:</strong> Pandora Livraria Mágica &amp; Café</li>
+                        <li><strong>Endereço:</strong> Beco Diagonal, Nº 42, Londres Mágica</li>
+                        <li><strong>Contato Mágico:</strong> Envio por Coruja (Respostas em até 1 dia útil)</li>
+                        <li><strong>Rede de Flu:</strong> Lareira "Pandora, Beco Diagonal"</li>
+                        <li><strong>E-mail (para Trouxas):</strong> contato@pandoramagica.com</li>
+                        <li><strong>Instagram:</strong> @pandora.magica</li>
+                    </ul>
                     <span class="badge">Nossa história</span>
                     <p class="card-descricao">Fundada por dois bruxos de uma antiga e nobre linhagem da Sonserina, a
                         Pandora nasceu da ambição de reunir os
                         grimórios mais raros e poderosos da magia. O que era uma coleção particular tornou-se a livraria
                         mais exclusiva do Beco Diagonal!
                         Com poltronas de couro de dragão, iluminação esmeralda e Cerveja Amanteigada, criamos o ambiente
-                        perfeito para mentes astutas passarem horas folheando.</p><br>
+                        perfeito para mentes astutas passarem horas folheando.</p>
                     <span class="badge">Horário de Funcionamento</span>
-                    <p class="card-descricao">Segunda a sexta: 9h às 20h (Fuso de Londres)<br>
-                        Sábado: 9h às 18h (Dias de lua cheia fechamos às 17h)<br>
-                        Domingo: 10h às 16h</p>
+                    <ul class="lista-info">
+                        <li><strong>Segunda a sexta:</strong> 9h às 20h (Fuso de Londres)</li>
+                        <li><strong>Sábado:</strong> 9h às 18h (Dias de lua cheia fechamos às 17h)</li>
+                        <li><strong>Domingo:</strong> 10h às 16h</li>
+                    </ul>
                 </div>
             </article>
         </div>
         <!-- 3. O MOLDE DO LIVRO (Fica escondido) -->
         <template id="molde-livro">
             <article class="card-interno">
-                <div class="card-banner" aria-hidden="true">📚</div>
+                <div class="card-banner" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5c.83 0 1.5-.67 1.5-1.5v-13Z"/></svg></div>
                 <div class="card-body">
                     <h6 class="book-title"></h6>
                     <span class="badge categoria-livro"></span>
@@ -125,7 +134,7 @@
         <template id="molde-promocao">
             <article class="card-interno">
                 <!-- Olha a faixinha aqui para deixar igual ao livro! -->
-                <div class="card-banner banner-promocao" aria-hidden="true">⚡</div>
+                <div class="card-banner banner-promocao" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></div>
 
                 <div class="card-body">
                     <h6 class="book-title promocao-titulo">Título da Promoção</h6>
@@ -139,6 +148,7 @@
         <p>© 2024 Pandora Livraria Mágica & Café. Todos os direitos reservados.</p>
     </footer>
     <canvas id="meuCanvas"></canvas>
+    <script src="JS/particulas.js"></script>
     <script src="JS/canvas.js"></script>
     <script src="JS/lancamento.js"></script>
     <script src="JS/promocoes.js"></script>

@@ -4,6 +4,38 @@
     box-sizing: border-box;
 }
 
+:root {
+    /* Paleta Sonserina (verde/prata) + dourado como acento de destaque */
+    --verde-900: #12271a;
+    --verde-800: #1a472a;
+    --verde-700: #2a623d;
+    --prata-300: #c4d4cc;
+    --prata-600: #5d5d5d;
+    --dourado: #c4a02c;
+    --fundo: #eef3ef;
+    --texto: #26302a;
+
+    /* Paleta secundária ("joias"): dá variedade de cor sem fugir do clima
+       mágico — usada em categorias, badges e ícones, nunca no cabeçalho/
+       rodapé/botões principais (esses continuam verde/dourado, a identidade). */
+    --roxo: #4a2170;
+    --roxo-claro: #7a4fb0;
+    --azul: #1c3f6e;
+    --azul-claro: #3f6fae;
+    --bronze: #7a5a1a;
+    --bronze-claro: #ad8a35;
+    --carvao: #1f2225;
+    --carvao-claro: #3a3f44;
+
+    --fonte-titulo: 'Cinzel', Georgia, 'Times New Roman', serif;
+    --fonte-corpo: 'Inter', Verdana, Geneva, Tahoma, sans-serif;
+
+    /* Escala de raio única: menos "bolha", mais consistente em tudo */
+    --raio-sm: 8px;
+    --raio-md: 14px;
+    --raio-lg: 22px;
+}
+
 @keyframes flutuar{
     25% {
         transform: translateY(-10px);
@@ -16,27 +48,123 @@
     }
 }
 
+@keyframes deriva-fundo {
+    0%, 100% { background-position: 0 0, 10% 6%, 92% 12%, 88% 96%, 3% 92%, 0 0; }
+    50%      { background-position: 0 0, 18% 16%, 82% 22%, 78% 88%, 11% 84%, 0 0; }
+}
+
+@keyframes brilho-icone {
+    0%, 100% { opacity: 0.9; transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+    50%      { opacity: 1; transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(255,255,255,0.55)); }
+}
+
+@keyframes flutuar-particula {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-110vh) translateX(var(--deriva-x, 20px)); opacity: 0; }
+}
+
 body {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    background-color: #e8f0ec; /* Fundo prata/cinza esverdeado bem claro */
+    font-family: var(--fonte-corpo);
+    color: var(--texto);
+    background-color: #e7ede8;
+    background-image:
+        /* Poeirinha de estrelas, remete ao tema mágico */
+        radial-gradient(circle, rgba(26, 71, 42, 0.16) 1px, transparent 1.4px),
+        /* Nuvens de cor nos mesmos tons usados nos cards (dourado, roxo, azul, verde) */
+        radial-gradient(ellipse at center, rgba(196, 160, 44, 0.16), transparent 60%),
+        radial-gradient(ellipse at center, rgba(74, 33, 112, 0.13), transparent 60%),
+        radial-gradient(ellipse at center, rgba(28, 63, 110, 0.14), transparent 60%),
+        radial-gradient(ellipse at center, rgba(26, 71, 42, 0.15), transparent 60%),
+        linear-gradient(170deg, #eef3ef, #e4ebe5 55%, #e9eee8);
+    background-size: 22px 22px, 70% 60%, 65% 55%, 70% 60%, 75% 60%, auto;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-position: 0 0, 10% 6%, 92% 12%, 88% 96%, 3% 92%, 0 0;
+    background-attachment: fixed;
+    animation: deriva-fundo 45s ease-in-out infinite;
     display: grid;
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
     min-height: 100dvh; /* Celular: considera a barra do navegador. O rodapé fica sempre no fim da tela */
+    position: relative;
+}
+
+/* Partículas mágicas flutuantes (poeira de fada / fagulhas de lareira) */
+.particulas-magicas {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particulas-magicas span {
+    position: absolute;
+    bottom: -20px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--dourado);
+    box-shadow: 0 0 6px 2px rgba(196, 160, 44, 0.6);
+    animation: flutuar-particula linear infinite;
+}
+
+.particulas-magicas span:nth-child(odd) {
+    background: var(--roxo-claro);
+    box-shadow: 0 0 6px 2px rgba(122, 79, 176, 0.5);
+}
+
+.particulas-magicas span:nth-child(3n) {
+    background: var(--azul-claro);
+    box-shadow: 0 0 6px 2px rgba(63, 111, 174, 0.5);
+}
+
+.cabecalho, .container, .rodape {
+    position: relative;
+    z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body, .card-banner svg, .particulas-magicas span, .cabecalho_logo img {
+        animation: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    body {
+        background-attachment: scroll; /* fixed + animação pesa em celular */
+    }
+}
+
+h1, h2, h3, h6,
+.secao-titulo,
+.sobre-livraria-titulo,
+.card-title,
+.book-title,
+.form-container h2,
+.admin-form h3,
+.admin-painel > h2 {
+    font-family: var(--fonte-titulo);
+    letter-spacing: 0.01em;
 }
 
 .cabecalho {
-    background: linear-gradient(135deg, #1a472a, #2a623d); /* Verde escuro Sonserina */
-    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--verde-800), var(--verde-700));
+    padding: 1.4rem 1.2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.3rem;
     color: #ffffff;
-    border-radius: 0 0 50px 50px;
-    border-bottom: 4px solid #5d5d5d; /* Detalhe em Prata */
+    border-radius: 0 0 var(--raio-lg) var(--raio-lg);
+    border-bottom: 3px solid var(--dourado);
     text-align: center;
     position: relative; /* Necessário para posicionar os botões no canto */
+}
+
+.cabecalho > p {
+    font-family: var(--fonte-titulo);
 }
 
 .cabecalho_logo img {
@@ -69,18 +197,18 @@ body {
 .btn-cadastro {
     display: inline-block;
     text-decoration: none;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--raio-sm);
     font-size: 0.85rem;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    border: 2px solid #c4d4cc;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    border: 1.5px solid var(--prata-300);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .btn-login {
     background-color: transparent;
-    color: #c4d4cc;
+    color: var(--prata-300);
 }
 
 .cabecalho_saudacao {
@@ -96,45 +224,50 @@ body {
 }
 
 .btn-login:hover {
-    background-color: #c4d4cc;
-    color: #1a472a;
-    transform: scale(1.03);
+    background-color: var(--prata-300);
+    color: var(--verde-800);
+    transform: translateY(-1px);
 }
 
 .btn-cadastro {
-    background-color: #c4d4cc;
-    color: #1a472a;
+    background-color: var(--prata-300);
+    color: var(--verde-800);
+    border-color: var(--prata-300);
 }
 
 .btn-cadastro:hover {
     background-color: #ffffff;
     border-color: #ffffff;
-    color: #1a472a;
-    transform: scale(1.03);
+    color: var(--verde-800);
+    transform: translateY(-1px);
 }
 
 .titulo-pagina {
     text-align: center;
-    margin: 2rem 0;
-    padding: 0 2px 0 2px;
-    border-radius: 50px;
-    background-color: #2a623d; /* Verde Sonserina secundário */
+    margin: 2rem auto;
+    padding: 0.7rem 2rem;
+    max-width: fit-content;
+    border-radius: var(--raio-md);
+    background-color: var(--verde-700);
     color: #ffffff;
+    font-size: 1.6rem;
+    box-shadow: 0 6px 16px rgba(26, 71, 42, 0.2);
 }
 
 .subtitulo-pagina {
     text-align: center;
     margin-bottom: 2rem;
-    color: #363636;
+    color: #5a6460;
 }
 
 .card {
     background-color: #ffffff;
-    border-radius: 12px;
-    border-top: 4px solid #1a472a; /* Faixa verde Sonserina no topo */
-    box-shadow: 0 4px 16px rgba(26, 71, 42, 0.15); /* Sombra esverdeada suave */
+    border-radius: var(--raio-md);
+    border-top: 3px solid var(--dourado); /* Friso dourado no topo */
+    box-shadow: 0 4px 16px rgba(26, 71, 42, 0.12); /* Sombra esverdeada suave */
     overflow: hidden;
-    transition: box-shadow 0.3s ease;
+    position: relative;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
     display: flex;
     flex-direction: column;
 }
@@ -142,6 +275,26 @@ body {
 .card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(26, 71, 42, 0.25); /* Sombra mais intensa no hover */
+}
+
+/* Brilho mágico que varre o card ao passar o mouse */
+.card::after,
+.card-interno::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(196, 160, 44, 0.35), rgba(255, 255, 255, 0.8), rgba(196, 160, 44, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s ease;
+    pointer-events: none;
+}
+
+.card:hover::after,
+.card-interno:hover::after {
+    left: 130%;
 }
 
 .card-body {
@@ -177,55 +330,107 @@ h3 {
 }
 
 .card-banner {
-    background-color: #1a472a; /* Verde escuro Sonserina */
+    background: linear-gradient(135deg, var(--verde-800), var(--verde-700));
     color: #ffffff;
-    text-align: center;
-    font-size: 2rem;      /* Emoji grande */
-    padding: 1rem 0;      /* Espaço em cima e embaixo do emoji */
-    border-radius: 6px 6px 0 0; /* Arredondado só em cima */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    border-radius: var(--raio-sm) var(--raio-sm) 0 0;
 }
 
+.card-banner svg {
+    width: 28px;
+    height: 28px;
+    stroke: #ffffff;
+    opacity: 0.95;
+    animation: brilho-icone 3.5s ease-in-out infinite;
+}
+
+/* Desalinha o ritmo do brilho entre os cards, pra parecer cintilação e não
+   tudo piscando junto */
+.cards-grid-interno .card-interno:nth-child(2n) .card-banner svg { animation-delay: 0.6s; }
+.cards-grid-interno .card-interno:nth-child(3n) .card-banner svg { animation-delay: 1.2s; }
+.cards-grid-interno .card-interno:nth-child(4n) .card-banner svg { animation-delay: 1.8s; }
+
 .card-interno[data-categoria="Poções"] .card-banner {
-    background-color: #260041;
+    background: linear-gradient(135deg, var(--roxo), var(--roxo-claro));
 }
 
 .card-interno[data-categoria="Transfiguração"] .card-banner {
-    background-color: #271853;
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
 }
 
 .card-interno[data-categoria="Artes das Trevas"] .card-banner {
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, var(--carvao), var(--carvao-claro));
 }
 
 .card-interno[data-categoria="Biografias"] .card-banner {
-    background-color: #7a4e0c;
+    background: linear-gradient(135deg, var(--bronze), var(--bronze-claro));
+}
+
+.card-interno[data-categoria="Feitiços"] .card-banner {
+    background: linear-gradient(135deg, #0e4f4a, #1c7a6e);
+}
+
+.card[data-categoria="Produtos e Serviços"] .card-banner {
+    background: linear-gradient(135deg, var(--bronze), var(--bronze-claro));
+}
+
+.card[data-categoria="Principais Categorias"] .card-banner {
+    background: linear-gradient(135deg, var(--roxo), var(--roxo-claro));
+}
+
+.card[data-categoria="Dados da Loja"] .card-banner {
+    background: linear-gradient(135deg, var(--azul), var(--azul-claro));
 }
 
 .book-title {
     font-size: 1rem;
-    font-weight: bold;
-    color: #1a472a; /* Verde Sonserina no título do livro */
+    font-weight: 600;
+    color: var(--verde-800);
     margin-bottom: 0.25rem;
 }
 
 .badge {
-    background-color: #e8f0ec;
-    color: #1a472a;
-    border: 1px solid #1a472a;
-    border-radius: 20px;
+    background-color: var(--fundo);
+    color: var(--verde-800);
+    border: 1px solid var(--verde-800);
+    border-radius: var(--raio-sm);
     padding: 2px 8px;
     font-size: 0.75rem;
-    font-weight: bold;
+    font-weight: 600;
     align-self: flex-start; /* Para o badge não esticar a largura toda */
+    margin-top: 0.75rem;
+}
+
+.card-body > .badge:first-child {
+    margin-top: 0;
+}
+
+.lista-info {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: #444;
+    margin: 0.4rem 0;
+}
+
+.lista-info strong {
+    color: var(--verde-800);
+    font-weight: 600;
 }
 
 /* Novo estilo para os cartões de dentro (os livros) */
 .card-interno {
-    background: linear-gradient(160deg, #f4f7f6 80%, #d6e8dc); /* Gradiente sutil prateado → verde */
-    border: 1px solid #1a472a;
-    border-radius: 8px;
+    background: linear-gradient(160deg, #f6f9f7 80%, #dfeee4); /* Gradiente sutil prateado → verde */
+    border: 1px solid #d7e2db;
+    border-radius: var(--raio-md);
     padding: 0;
     overflow: hidden;
+    position: relative;
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -276,15 +481,17 @@ h3 {
 
 /* Moldes e Promoções */
 .banner-promocao {
-    background-color: #2a623d;
-    text-align: center;
-    padding: 5px;
-    border-radius: 4px;
+    background: linear-gradient(135deg, #8a6b23, var(--dourado));
+}
+
+.banner-promocao svg {
+    stroke: #ffffff;
 }
 
 .badge-desconto {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
+    border-color: var(--verde-800);
 }
 
 /* Canvas e Efeitos */
@@ -294,31 +501,31 @@ canvas {
 
 /* Rodapé */
 .rodape {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
     text-align: center;
     padding: 1.5rem;
     margin-top: 2rem;
-    border-radius: 50px 50px 0 0;
-    border-top: 4px solid #5d5d5d;
+    border-radius: var(--raio-lg) var(--raio-lg) 0 0;
+    border-top: 3px solid var(--dourado);
 }
 
 /* Estilos para Formulários (Login / Cadastro) */
 .form-container {
     max-width: 400px;
     margin: 4rem auto;
-    background-color: #2a623d; /* Verde Sonserina secundário */
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    border: 2px solid #5d5d5d; /* Prata */
+    background: linear-gradient(170deg, var(--verde-700), var(--verde-800));
+    padding: 2.2rem 2rem;
+    border-radius: var(--raio-md);
+    box-shadow: 0 16px 32px rgba(18, 39, 26, 0.25);
+    border-top: 3px solid var(--dourado);
     color: #ffffff;
     text-align: center;
 }
 
 .form-container h2 {
     margin-bottom: 1.5rem;
-    color: #c4d4cc;
+    color: var(--prata-300);
 }
 
 .form-grupo {
@@ -329,37 +536,44 @@ canvas {
 .form-grupo label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .form-grupo input {
     width: 100%;
-    padding: 0.8rem;
-    border-radius: 8px;
-    border: 1px solid #c4d4cc;
+    padding: 0.75rem 0.9rem;
+    border-radius: var(--raio-sm);
+    border: 1px solid var(--prata-300);
     background-color: #ffffff;
-    color: #1a472a;
+    color: var(--verde-800);
     font-size: 1rem;
+}
+
+.form-grupo input:focus {
+    outline: none;
+    border-color: var(--dourado);
+    box-shadow: 0 0 0 3px rgba(196, 160, 44, 0.25);
 }
 
 .btn-submit {
     width: 100%;
     padding: 0.8rem;
     margin-top: 1rem;
-    border-radius: 20px;
+    border-radius: var(--raio-sm);
     font-size: 1rem;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    border: 2px solid #c4d4cc;
-    background-color: #c4d4cc;
-    color: #1a472a;
-    transition: all 0.3s ease;
+    border: 1.5px solid var(--prata-300);
+    background-color: var(--prata-300);
+    color: var(--verde-800);
+    transition: all 0.25s ease;
 }
 
 .btn-submit:hover {
     background-color: #ffffff;
     border-color: #ffffff;
-    transform: scale(1.03);
+    transform: translateY(-1px);
 }
 
 .form-link {
@@ -409,7 +623,7 @@ canvas {
 }
 
 .admin-painel > h2 {
-    color: #1a472a;
+    color: var(--verde-800);
     margin-bottom: 1rem;
 }
 
@@ -422,22 +636,22 @@ canvas {
 
 .admin-tab {
     padding: 0.6rem 1.2rem;
-    border-radius: 20px;
-    border: 2px solid #1a472a;
+    border-radius: var(--raio-sm);
+    border: 1.5px solid var(--verde-800);
     background-color: #ffffff;
-    color: #1a472a;
-    font-weight: bold;
+    color: var(--verde-800);
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .admin-tab:hover {
-    background-color: #e8f0ec;
+    background-color: var(--fundo);
 }
 
 .admin-tab-ativa,
 .admin-tab-ativa:hover {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
 }
 
@@ -449,8 +663,9 @@ canvas {
 
 .admin-tabela-wrap {
     overflow-x: auto;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-radius: var(--raio-md);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e9e4;
 }
 
 .tabela-admin {
@@ -464,16 +679,18 @@ canvas {
     padding: 0.8rem 1rem;
     text-align: left;
     white-space: nowrap;
-    border-bottom: 1px solid #e8f0ec;
+    border-bottom: 1px solid var(--fundo);
 }
 
 .tabela-admin th {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
+    font-family: var(--fonte-titulo);
+    font-weight: 500;
 }
 
 .tabela-admin tbody tr:hover {
-    background-color: #e8f0ec;
+    background-color: var(--fundo);
 }
 
 .admin-acoes {
@@ -483,18 +700,18 @@ canvas {
 
 .btn-admin {
     padding: 0.4rem 0.8rem;
-    border-radius: 15px;
-    border: 1px solid #1a472a;
+    border-radius: var(--raio-sm);
+    border: 1px solid var(--verde-800);
     background-color: #ffffff;
-    color: #1a472a;
+    color: var(--verde-800);
     font-size: 0.85rem;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .btn-admin:hover {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
 }
 
@@ -510,17 +727,17 @@ canvas {
 
 .admin-form {
     max-width: 480px;
-    background-color: #2a623d;
-    padding: 1.5rem 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    border: 2px solid #5d5d5d;
+    background: linear-gradient(170deg, var(--verde-700), var(--verde-800));
+    padding: 1.6rem 2rem;
+    border-radius: var(--raio-md);
+    box-shadow: 0 16px 32px rgba(18, 39, 26, 0.2);
+    border-top: 3px solid var(--dourado);
     color: #ffffff;
 }
 
 .admin-form h3 {
     margin-bottom: 1rem;
-    color: #c4d4cc;
+    color: var(--prata-300);
 }
 
 .admin-acoes-form {
@@ -534,18 +751,21 @@ canvas {
 }
 
 .badge-ativo {
-    background-color: #c4d4cc;
-    color: #1a472a;
+    background-color: var(--azul);
+    color: #ffffff;
+    border-color: var(--azul);
 }
 
 .badge-atrasado {
     background-color: #a33;
     color: #ffffff;
+    border-color: #a33;
 }
 
 .badge-devolvido {
-    background-color: #1a472a;
+    background-color: var(--verde-800);
     color: #ffffff;
+    border-color: var(--verde-800);
 }
 
 /* Ajustes leves para telas pequenas (o visual do computador não muda) */
@@ -610,8 +830,12 @@ canvas {
     }
 
     .card-banner {
-        padding: 0.5rem 0;
-        font-size: 1.4rem;
+        height: 48px;
+    }
+
+    .card-banner svg {
+        width: 22px;
+        height: 22px;
     }
 
     .card-interno .card-body {
