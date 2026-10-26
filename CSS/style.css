@@ -793,6 +793,12 @@ canvas {
     border-color: var(--carvao-claro);
 }
 
+.badge-cancelado {
+    background-color: var(--fundo);
+    color: #667;
+    border-color: #c9d3cd;
+}
+
 /* Resumo/dashboard no topo do painel da equipe */
 .admin-resumo {
     display: grid;

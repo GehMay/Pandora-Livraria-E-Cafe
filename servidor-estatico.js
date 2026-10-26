@@ -84,12 +84,76 @@ function verificarSenha(senha, senhaArmazenada) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 3.5 SESSÃO: TOKEN ASSINADO (substitui o header x-usuario-email, que
+// qualquer visitante podia forjar pra se passar por outra conta)
+// ═══════════════════════════════════════════════════════════════
+
+if (!process.env.SESSION_SECRET) {
+  console.warn('⚠️  SESSION_SECRET não definida no .env — usando um valor fixo só pra desenvolvimento. Configure uma variável forte em produção (veja .env.example).');
+}
+const SESSION_SECRET = process.env.SESSION_SECRET || 'chave-apenas-para-desenvolvimento-local';
+const DURACAO_TOKEN_MS = 7 * 24 * 60 * 60 * 1000; // 7 dias
+
+/**
+ * Token = base64url(payload) + '.' + assinatura HMAC-SHA256 do payload.
+ * Carrega só o id do usuário e a validade — o tipo/e-mail são sempre
+ * confirmados de novo no banco (buscarUsuarioPorId), então uma mudança de
+ * tipo de conta já vale na próxima requisição, sem precisar de logout.
+ */
+function criarToken(idUsuario) {
+  const payload = JSON.stringify({ id: idUsuario, exp: Date.now() + DURACAO_TOKEN_MS });
+  const payloadBase64 = Buffer.from(payload).toString('base64url');
+  const assinatura = crypto.createHmac('sha256', SESSION_SECRET).update(payloadBase64).digest('base64url');
+  return `${payloadBase64}.${assinatura}`;
+}
+
+function verificarToken(token) {
+  if (!token || typeof token !== 'string' || !token.includes('.')) return null;
+  const [payloadBase64, assinatura] = token.split('.');
+  const assinaturaEsperada = crypto.createHmac('sha256', SESSION_SECRET).update(payloadBase64).digest('base64url');
+
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(assinatura), Buffer.from(assinaturaEsperada))) return null;
+  } catch {
+    return null; // tamanhos diferentes = token forjado/corrompido
+  }
+
+  try {
+    const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString());
+    if (!payload.id || typeof payload.exp !== 'number' || payload.exp < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function lerTokenDoCabecalho(req) {
+  const cabecalho = req.headers['authorization'] || '';
+  return cabecalho.startsWith('Bearer ') ? cabecalho.slice('Bearer '.length) : null;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 4. USUÁRIOS (Postgres)
 // ═══════════════════════════════════════════════════════════════
 
 async function buscarUsuarioPorEmail(email) {
   const { rows } = await pool.query('select * from usuarios where email = $1', [email]);
   return rows[0] || null;
+}
+
+async function buscarUsuarioPorId(id) {
+  const { rows } = await pool.query('select * from usuarios where id = $1', [id]);
+  return rows[0] || null;
+}
+
+/**
+ * Confere o token do cabeçalho Authorization e devolve o usuário atual (já
+ * reconfirmado no banco) ou null se o token não existir/expirou/for inválido.
+ */
+async function usuarioAutenticado(req) {
+  const payload = verificarToken(lerTokenDoCabecalho(req));
+  if (!payload) return null;
+  return await buscarUsuarioPorId(payload.id);
 }
 
 /**
@@ -137,18 +201,15 @@ function usuarioPublico(usuario) {
 }
 
 /**
- * Checagem leve para as rotas de administração: confere se o e-mail informado
- * no cabeçalho 'x-usuario-email' pertence a um funcionário/admin cadastrado.
- * Não é um sistema de sessão seguro (ver roadmap do README), só evita que
- * qualquer visitante anônimo chame as rotas de escrita do painel da equipe.
+ * Checagem pras rotas de administração: confere o token assinado (cabeçalho
+ * 'Authorization: Bearer ...') e se a conta encontrada é funcionário/admin.
+ * Diferente da versão anterior (que só confiava num header sem assinatura),
+ * aqui ninguém consegue se passar por outra conta sem o token real emitido
+ * no login/cadastro.
  */
-async function ehFuncionarioOuAdmin(email) {
-  const usuario = await buscarUsuarioPorEmail(String(email || '').trim().toLowerCase());
-  return !!usuario && ['funcionario', 'admin'].includes(usuario.tipo);
-}
-
 async function exigirFuncionario(req, res) {
-  if (!(await ehFuncionarioOuAdmin(req.headers['x-usuario-email']))) {
+  const usuario = await usuarioAutenticado(req);
+  if (!usuario || !['funcionario', 'admin'].includes(usuario.tipo)) {
     responderJson(res, 403, { erro: 'Acesso restrito à equipe' });
     return false;
   }
@@ -157,11 +218,12 @@ async function exigirFuncionario(req, res) {
 
 /**
  * Mesma ideia de `exigirFuncionario`, mas pras rotas que só um cliente logado
- * pode chamar (solicitar empréstimo, ver os próprios empréstimos). Devolve o
- * usuário encontrado (pra reaproveitar o id sem buscar de novo) ou null.
+ * pode chamar (solicitar empréstimo, ver os próprios empréstimos, cancelar
+ * pedido). Devolve o usuário encontrado (pra reaproveitar o id sem buscar de
+ * novo) ou null.
  */
 async function exigirCliente(req, res) {
-  const usuario = await buscarUsuarioPorEmail(String(req.headers['x-usuario-email'] || '').trim().toLowerCase());
+  const usuario = await usuarioAutenticado(req);
   if (!usuario || usuario.tipo !== 'cliente') {
     responderJson(res, 403, { erro: 'Acesso restrito a clientes logados' });
     return null;
@@ -284,7 +346,8 @@ async function apiLogin(req, res) {
 
     responderJson(res, 200, {
       mensagem: 'Login realizado com sucesso!',
-      usuario: usuarioPublico(usuario)
+      usuario: usuarioPublico(usuario),
+      token: criarToken(usuario.id)
     });
 
   } catch (erro) {
@@ -639,6 +702,30 @@ async function apiMeusEmprestimos(res, usuario) {
   }
 }
 
+async function apiCancelarEmprestimo(res, id, usuario) {
+  try {
+    const { rows } = await pool.query('select * from emprestimos where id_emprestimo = $1', [id]);
+    const emprestimo = rows[0];
+    if (!emprestimo || emprestimo.id_usuario !== usuario.id) {
+      responderJson(res, 404, { erro: 'Empréstimo não encontrado' });
+      return;
+    }
+    if (emprestimo.status !== 'solicitado') {
+      responderJson(res, 409, { erro: 'Esse pedido não está mais aguardando aprovação' });
+      return;
+    }
+
+    const atualizado = await pool.query(
+      `update emprestimos set status = 'cancelado' where id_emprestimo = $1 returning *`,
+      [id]
+    );
+    responderJson(res, 200, { mensagem: 'Pedido cancelado', emprestimo: atualizado.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao cancelar empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar cancelamento' });
+  }
+}
+
 async function apiAprovarEmprestimo(res, id) {
   const cliente = await pool.connect();
   try {
@@ -822,6 +909,14 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
+  const cancelamentoRota = req.url.match(/^\/api\/emprestimos\/(\d+)\/cancelar$/);
+  if (req.method === 'POST' && cancelamentoRota) {
+    const usuario = await exigirCliente(req, res);
+    if (!usuario) return;
+    await apiCancelarEmprestimo(res, Number(cancelamentoRota[1]), usuario);
+    return;
+  }
+
   // APIs do painel da equipe (livros, promoções e empréstimos)
   const idLivroRota = req.url.match(/^\/api\/admin\/livros\/(\d+)$/);
   const idPromocaoRota = req.url.match(/^\/api\/admin\/promocoes\/(\d+)$/);
@@ -1000,7 +1095,7 @@ async function iniciar() {
 ║  • POST /api/cadastro  → Cadastrar novo usuário        ║
 ║  • POST /api/login     → Login do usuário              ║
 ║  • CRUD /api/admin/livros, /promocoes, /emprestimos    ║
-║    (painel da equipe, exige header x-usuario-email)    ║
+║    (exige token de sessão, header Authorization: Bearer) ║
 ║                                                        ║
 ║  Pressione CTRL+C para parar o servidor                ║
 ║                                                        ║

@@ -68,18 +68,20 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
 - [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
-- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, empréstimos ativos/atrasados/pendentes) e quatro abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
+- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, empréstimos ativos/atrasados/pendentes) e quatro abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado`/`cancelado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail).
 - [x] **Catálogo e Página de Livro:** `/catalogo` lista todo o acervo com filtro por categoria; cada livro abre em `/livro/:id` com os detalhes completos.
-- [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel. O cliente acompanha os próprios pedidos em "Meus Empréstimos", dentro de `/perfil`.
+- [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel, e o próprio cliente pode cancelar um pedido ainda não aprovado. Acompanha tudo em "Meus Empréstimos", dentro de `/perfil`.
+- [x] **Destaques na Página Inicial:** A home mostra os livros mais vendidos e mais bem avaliados (`/api/destaques`), com cards clicáveis que levam direto pra página do livro.
+- [x] **Sessão por Token Assinado:** Login e cadastro emitem um token (HMAC-SHA256, assinado com `SESSION_SECRET`, válido por 7 dias). Toda rota restrita (`/api/admin/...`, empréstimos do cliente) exige esse token no header `Authorization: Bearer ...` e reconfirma a conta no banco a cada chamada — substitui o header `x-usuario-email` (que qualquer visitante podia forjar pra se passar por outra conta).
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
-- [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). As rotas de escrita do painel da equipe já conferem o e-mail contra os usuários cadastrados no banco, mas ainda falta uma sessão validada por token para proteger de verdade áreas restritas (reservas e painel de admin).
-- [ ] **Seção de Destaques na Página Inicial:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega (hoje só aparecem em `/perfil`).
-- [ ] **Cancelamento de Solicitação:** Permitir que o próprio cliente cancele um pedido de empréstimo ainda não aprovado.
+- [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
+- [ ] **Notificação de Empréstimo:** Avisar o cliente (e-mail ou na tela) quando a equipe aprovar ou rejeitar um pedido.
 - [x] **Migração completa para React:** Site inteiro virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas só adicionando uma rota, sem mexer no servidor.
 - [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, empréstimos e clientes (veja acima).
 - [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
 - [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
+- [x] **Sessão Segura de Usuário:** veja acima.
 
 ## 🔑 Contas de Teste
 
@@ -109,6 +111,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 database
  │    ├── 📄 supabase-schema.sql                     # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
  │    ├── 📄 migracao-solicitacao-emprestimo.sql     # ALTER TABLE pra bancos já existentes (fluxo de empréstimo solicitado)
+ │    ├── 📄 migracao-cancelamento-emprestimo.sql    # ALTER TABLE pra bancos já existentes (status 'cancelado')
  │    ├── 📄 supabase-limpeza-mensal.sql             # Função de limpeza mensal do banco
  │    └── 📄 SUPABASE.md                             # Como conectar o servidor ao Supabase e ativar a automação
  ├── 📁 imagens
@@ -126,6 +129,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    │    ├── 📄 Rodape.jsx
  │    │    │    ├── 📄 VitrineLivros.jsx    # Grid de livros (/api/lancamentos)
  │    │    │    ├── 📄 VitrinePromocoes.jsx # Grid de promoções (/api/promocoes)
+ │    │    │    ├── 📄 VitrineDestaques.jsx # Mais vendidos/avaliados (/api/destaques)
  │    │    │    ├── 📄 FormularioAuth.jsx   # Formulário de login/cadastro
  │    │    │    └── 📄 RotaProtegida.jsx    # Guarda de rota por tipo de conta
  │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Catalogo, Livro,
@@ -156,15 +160,16 @@ O servidor precisa de um banco Postgres (Supabase) pra rodar — veja [`database
    ```bash
    npm install
    ```
-3. **Configure a conexão com o banco:** copie `.env.example` para `.env` e preencha `DATABASE_URL`
-   com a *connection string* do Supabase (detalhes em `database/SUPABASE.md`).
+3. **Configure as variáveis de ambiente:** copie `.env.example` para `.env` e preencha `DATABASE_URL`
+   com a *connection string* do Supabase (detalhes em `database/SUPABASE.md`) e gere um `SESSION_SECRET`
+   (usado pra assinar os tokens de login — o próprio `.env.example` mostra o comando pra gerar um).
 4. **Inicie o servidor** (usa `npm run dev` em vez de `npm start` pra carregar o `.env`):
    ```bash
    npm run dev
    ```
 5. Abra seu navegador e acesse: [http://localhost:5500](http://localhost:5500)
 
-> 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela. No Render, `DATABASE_URL` é configurada direto no painel (Environment), então lá o comando usado é o `npm start` normal.
+> 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela. No Render, `DATABASE_URL` e `SESSION_SECRET` são configuradas direto no painel (Environment), então lá o comando usado é o `npm start` normal.
 
 ### ⚛️ Mexendo no site em React (`app/`)
 

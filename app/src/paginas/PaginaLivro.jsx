@@ -32,7 +32,7 @@ export default function PaginaLivro() {
     evento.preventDefault();
     setMensagem(null);
     try {
-      await enviarAdmin('/api/emprestimos/solicitar', 'POST', usuario.email, {
+      await enviarAdmin('/api/emprestimos/solicitar', 'POST', usuario.token, {
         id_livro: Number(id),
         data_prevista_devolucao: dataPrevista
       });

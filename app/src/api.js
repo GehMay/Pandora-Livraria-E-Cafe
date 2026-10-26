@@ -12,12 +12,12 @@ export async function enviarParaApi(rota, dados) {
   return corpo;
 }
 
-// Chamadas do painel da equipe que criam/editam/removem dados. O servidor
-// confere no header 'x-usuario-email' se quem está logado é funcionário/admin.
-export async function enviarAdmin(url, metodo, emailUsuario, corpo) {
+// Chamadas autenticadas (painel da equipe, empréstimos do cliente). O servidor
+// confere o token assinado (emitido no login) no header 'Authorization'.
+export async function enviarAdmin(url, metodo, token, corpo) {
   const resposta = await fetch(url, {
     method: metodo,
-    headers: { 'Content-Type': 'application/json', 'x-usuario-email': emailUsuario },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: corpo ? JSON.stringify(corpo) : undefined
   });
   const dados = await resposta.json().catch(() => ({}));

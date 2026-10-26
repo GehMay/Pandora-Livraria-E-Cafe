@@ -3,6 +3,7 @@ import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
 import VitrineLivros from '../componentes/VitrineLivros.jsx';
 import VitrinePromocoes from '../componentes/VitrinePromocoes.jsx';
+import VitrineDestaques from '../componentes/VitrineDestaques.jsx';
 import { lerSessao } from '../sessao.js';
 
 export default function PaginaInicio() {
@@ -33,6 +34,13 @@ export default function PaginaInicio() {
           <div className="card card-padding">
             <h3 className="secao-titulo">Promoções Mágicas</h3>
             <VitrinePromocoes />
+          </div>
+        </div>
+
+        <div className="secao-vitrine">
+          <div className="card card-padding">
+            <h3 className="secao-titulo">Destaques da Loja</h3>
+            <VitrineDestaques />
           </div>
         </div>
 

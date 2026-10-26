@@ -43,8 +43,8 @@ create table if not exists emprestimos (
   data_prevista_devolucao date not null,
   data_devolucao date,
   -- 'solicitado': cliente pediu pelo site, aguardando aprovação da equipe (estoque ainda não baixou).
-  -- 'rejeitado': equipe recusou o pedido (estoque intacto).
-  status text not null default 'ativo' check (status in ('solicitado', 'ativo', 'devolvido', 'rejeitado'))
+  -- 'rejeitado': equipe recusou o pedido. 'cancelado': o próprio cliente desistiu do pedido (estoque intacto nos dois).
+  status text not null default 'ativo' check (status in ('solicitado', 'ativo', 'devolvido', 'rejeitado', 'cancelado'))
 );
 
 -- Seed: mesmo acervo que já existia em dados/banco.json.

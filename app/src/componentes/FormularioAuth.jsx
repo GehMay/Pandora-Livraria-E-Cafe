@@ -31,7 +31,7 @@ export default function FormularioAuth({ tipo }) {
         resultado = await enviarParaApi('/api/login', { email: campos.email, senha: campos.senha });
       }
 
-      salvarSessao(resultado.usuario);
+      salvarSessao({ ...resultado.usuario, token: resultado.token });
       setMensagem({ texto: 'Tudo certo! Entrando...', tipo: 'ok' });
       setTimeout(() => navigate(paginaDaConta(resultado.usuario)), 700);
     } catch (erro) {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
 import { lerSessao } from '../sessao.js';
+import { enviarAdmin } from '../api.js';
 import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
 
 // A sessão/tipo de conta já foi conferida pela <RotaProtegida> que envolve
@@ -11,6 +12,7 @@ export default function PaginaPerfil() {
   const usuario = lerSessao();
   const [destaques, setDestaques] = useState(null);
   const [meusEmprestimos, setMeusEmprestimos] = useState(null);
+  const [mensagemEmprestimo, setMensagemEmprestimo] = useState(null);
 
   useEffect(() => {
     document.title = 'Minha Conta - Pandora Livraria & Café';
@@ -23,12 +25,24 @@ export default function PaginaPerfil() {
       .catch(() => setDestaques([]));
   }, []);
 
-  useEffect(() => {
-    fetch('/api/meus-emprestimos', { headers: { 'x-usuario-email': usuario.email } })
+  function carregarMeusEmprestimos() {
+    fetch('/api/meus-emprestimos', { headers: { 'Authorization': `Bearer ${usuario.token}` } })
       .then((resposta) => resposta.json())
       .then(setMeusEmprestimos)
       .catch(() => setMeusEmprestimos([]));
-  }, [usuario.email]);
+  }
+
+  useEffect(() => { carregarMeusEmprestimos(); }, [usuario.token]);
+
+  async function cancelar(id) {
+    setMensagemEmprestimo(null);
+    try {
+      await enviarAdmin(`/api/emprestimos/${id}/cancelar`, 'POST', usuario.token);
+      carregarMeusEmprestimos();
+    } catch (erro) {
+      setMensagemEmprestimo(erro.message);
+    }
+  }
 
   const primeiroNome = String(usuario.nome || '').split(' ')[0];
 
@@ -45,19 +59,25 @@ export default function PaginaPerfil() {
         <div className="secao-vitrine">
           <div className="card card-padding">
             <h3 className="secao-titulo">Meus Empréstimos</h3>
+            {mensagemEmprestimo && <p className="form-mensagem form-mensagem-erro">{mensagemEmprestimo}</p>}
             <div className="admin-tabela-wrap">
               <table className="tabela-admin">
                 <thead>
-                  <tr><th>Livro</th><th>Devolução prevista</th><th>Status</th></tr>
+                  <tr><th>Livro</th><th>Devolução prevista</th><th>Status</th><th></th></tr>
                 </thead>
                 <tbody>
-                  {meusEmprestimos === null && <tr><td colSpan="3">Carregando...</td></tr>}
-                  {meusEmprestimos?.length === 0 && <tr><td colSpan="3">Você ainda não solicitou nenhum empréstimo.</td></tr>}
+                  {meusEmprestimos === null && <tr><td colSpan="4">Carregando...</td></tr>}
+                  {meusEmprestimos?.length === 0 && <tr><td colSpan="4">Você ainda não solicitou nenhum empréstimo.</td></tr>}
                   {meusEmprestimos?.map((emprestimo) => (
                     <tr key={emprestimo.id_emprestimo}>
                       <td>{emprestimo.titulo_livro}</td>
                       <td>{emprestimo.data_prevista_devolucao}</td>
                       <td><span className={`badge badge-${emprestimo.status}`}>{emprestimo.status}</span></td>
+                      <td className="admin-acoes">
+                        {emprestimo.status === 'solicitado' && (
+                          <button type="button" className="btn-admin btn-admin-perigo" onClick={() => cancelar(emprestimo.id_emprestimo)}>Cancelar</button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

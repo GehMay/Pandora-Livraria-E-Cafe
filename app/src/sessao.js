@@ -1,5 +1,7 @@
-// Sessão simples de demonstração: guarda no navegador quem entrou, só pra
-// personalizar a tela. Não protege nada sozinha — ver <RotaProtegida>.
+// Guarda no navegador quem entrou (inclui o token assinado emitido no
+// login/cadastro, usado em toda chamada autenticada — ver api.js). O
+// <RotaProtegida> só cuida da navegação; quem realmente valida a identidade
+// é o servidor, conferindo a assinatura do token a cada requisição.
 export const CHAVE_SESSAO = 'pandoraUsuario';
 
 export function lerSessao() {

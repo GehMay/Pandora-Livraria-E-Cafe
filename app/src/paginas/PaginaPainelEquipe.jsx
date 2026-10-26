@@ -4,7 +4,7 @@ import Rodape from '../componentes/Rodape.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 
-function AbaPromocoes({ emailUsuario }) {
+function AbaPromocoes({ token }) {
   const [promocoes, setPromocoes] = useState(null);
   const [emEdicao, setEmEdicao] = useState(null);
   const [form, setForm] = useState({ titulo: '', descricao: '', desconto: '' });
@@ -31,10 +31,10 @@ function AbaPromocoes({ emailUsuario }) {
     setMensagem(null);
     try {
       if (emEdicao) {
-        await enviarAdmin(`/api/admin/promocoes/${emEdicao}`, 'PUT', emailUsuario, form);
+        await enviarAdmin(`/api/admin/promocoes/${emEdicao}`, 'PUT', token, form);
         setMensagem({ texto: 'Promoção atualizada!', tipo: 'ok' });
       } else {
-        await enviarAdmin('/api/admin/promocoes', 'POST', emailUsuario, form);
+        await enviarAdmin('/api/admin/promocoes', 'POST', token, form);
         setMensagem({ texto: 'Promoção criada!', tipo: 'ok' });
       }
       cancelarEdicao();
@@ -47,7 +47,7 @@ function AbaPromocoes({ emailUsuario }) {
   async function remover(id) {
     setMensagem(null);
     try {
-      await enviarAdmin(`/api/admin/promocoes/${id}`, 'DELETE', emailUsuario);
+      await enviarAdmin(`/api/admin/promocoes/${id}`, 'DELETE', token);
       carregar();
     } catch (erro) {
       setMensagem({ texto: erro.message, tipo: 'erro' });
@@ -103,7 +103,7 @@ function AbaPromocoes({ emailUsuario }) {
   );
 }
 
-function AbaLivros({ emailUsuario }) {
+function AbaLivros({ token }) {
   const [livros, setLivros] = useState(null);
   const [emEdicao, setEmEdicao] = useState(null);
   const [form, setForm] = useState({ titulo: '', autor: '', categoria: '', preco: '', estoque: '' });
@@ -131,10 +131,10 @@ function AbaLivros({ emailUsuario }) {
     const dados = { ...form, preco: Number(form.preco), estoque: Number(form.estoque) };
     try {
       if (emEdicao) {
-        await enviarAdmin(`/api/admin/livros/${emEdicao}`, 'PUT', emailUsuario, dados);
+        await enviarAdmin(`/api/admin/livros/${emEdicao}`, 'PUT', token, dados);
         setMensagem({ texto: 'Livro atualizado!', tipo: 'ok' });
       } else {
-        await enviarAdmin('/api/admin/livros', 'POST', emailUsuario, dados);
+        await enviarAdmin('/api/admin/livros', 'POST', token, dados);
         setMensagem({ texto: 'Livro cadastrado!', tipo: 'ok' });
       }
       cancelarEdicao();
@@ -147,7 +147,7 @@ function AbaLivros({ emailUsuario }) {
   async function remover(id) {
     setMensagem(null);
     try {
-      await enviarAdmin(`/api/admin/livros/${id}`, 'DELETE', emailUsuario);
+      await enviarAdmin(`/api/admin/livros/${id}`, 'DELETE', token);
       carregar();
     } catch (erro) {
       setMensagem({ texto: erro.message, tipo: 'erro' });
@@ -213,7 +213,7 @@ function AbaLivros({ emailUsuario }) {
   );
 }
 
-function AbaEmprestimos({ emailUsuario }) {
+function AbaEmprestimos({ token }) {
   const [emprestimos, setEmprestimos] = useState(null);
   const [livrosDisponiveis, setLivrosDisponiveis] = useState([]);
   const [form, setForm] = useState({ id_livro: '', nome_cliente: '', contato_cliente: '', data_prevista_devolucao: '' });
@@ -233,7 +233,7 @@ function AbaEmprestimos({ emailUsuario }) {
     evento.preventDefault();
     setMensagem(null);
     try {
-      await enviarAdmin('/api/admin/emprestimos', 'POST', emailUsuario, { ...form, id_livro: Number(form.id_livro) });
+      await enviarAdmin('/api/admin/emprestimos', 'POST', token, { ...form, id_livro: Number(form.id_livro) });
       setMensagem({ texto: 'Empréstimo registrado!', tipo: 'ok' });
       setForm({ id_livro: '', nome_cliente: '', contato_cliente: '', data_prevista_devolucao: '' });
       carregar();
@@ -245,7 +245,7 @@ function AbaEmprestimos({ emailUsuario }) {
   async function devolver(id) {
     setMensagem(null);
     try {
-      await enviarAdmin(`/api/admin/emprestimos/${id}/devolver`, 'POST', emailUsuario);
+      await enviarAdmin(`/api/admin/emprestimos/${id}/devolver`, 'POST', token);
       carregar();
     } catch (erro) {
       setMensagem({ texto: erro.message, tipo: 'erro' });
@@ -255,7 +255,7 @@ function AbaEmprestimos({ emailUsuario }) {
   async function aprovar(id) {
     setMensagem(null);
     try {
-      await enviarAdmin(`/api/admin/emprestimos/${id}/aprovar`, 'POST', emailUsuario);
+      await enviarAdmin(`/api/admin/emprestimos/${id}/aprovar`, 'POST', token);
       carregar();
     } catch (erro) {
       setMensagem({ texto: erro.message, tipo: 'erro' });
@@ -265,7 +265,7 @@ function AbaEmprestimos({ emailUsuario }) {
   async function rejeitar(id) {
     setMensagem(null);
     try {
-      await enviarAdmin(`/api/admin/emprestimos/${id}/rejeitar`, 'POST', emailUsuario);
+      await enviarAdmin(`/api/admin/emprestimos/${id}/rejeitar`, 'POST', token);
       carregar();
     } catch (erro) {
       setMensagem({ texto: erro.message, tipo: 'erro' });
@@ -336,16 +336,16 @@ function AbaEmprestimos({ emailUsuario }) {
   );
 }
 
-function AbaClientes({ emailUsuario }) {
+function AbaClientes({ token }) {
   const [clientes, setClientes] = useState(null);
   const [busca, setBusca] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/usuarios', { headers: { 'x-usuario-email': emailUsuario } })
+    fetch('/api/admin/usuarios', { headers: { 'Authorization': `Bearer ${token}` } })
       .then((r) => r.json())
       .then(setClientes)
       .catch(() => setClientes([]));
-  }, [emailUsuario]);
+  }, [token]);
 
   const buscaNormalizada = busca.trim().toLowerCase();
   const clientesFiltrados = clientes?.filter((cliente) =>
@@ -474,10 +474,10 @@ export default function PaginaPainelEquipe() {
             ))}
           </nav>
 
-          {abaAtiva === 'promocoes' && <AbaPromocoes emailUsuario={usuario.email} />}
-          {abaAtiva === 'livros' && <AbaLivros emailUsuario={usuario.email} />}
-          {abaAtiva === 'emprestimos' && <AbaEmprestimos emailUsuario={usuario.email} />}
-          {abaAtiva === 'clientes' && <AbaClientes emailUsuario={usuario.email} />}
+          {abaAtiva === 'promocoes' && <AbaPromocoes token={usuario.token} />}
+          {abaAtiva === 'livros' && <AbaLivros token={usuario.token} />}
+          {abaAtiva === 'emprestimos' && <AbaEmprestimos token={usuario.token} />}
+          {abaAtiva === 'clientes' && <AbaClientes token={usuario.token} />}
         </div>
       </main>
 
