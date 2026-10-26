@@ -252,6 +252,26 @@ function AbaEmprestimos({ emailUsuario }) {
     }
   }
 
+  async function aprovar(id) {
+    setMensagem(null);
+    try {
+      await enviarAdmin(`/api/admin/emprestimos/${id}/aprovar`, 'POST', emailUsuario);
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
+
+  async function rejeitar(id) {
+    setMensagem(null);
+    try {
+      await enviarAdmin(`/api/admin/emprestimos/${id}/rejeitar`, 'POST', emailUsuario);
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
+
   return (
     <div className="admin-secao">
       <div className="admin-tabela-wrap">
@@ -266,11 +286,17 @@ function AbaEmprestimos({ emailUsuario }) {
               <tr key={emprestimo.id_emprestimo}>
                 <td>{emprestimo.titulo_livro}</td>
                 <td>{emprestimo.nome_cliente}{emprestimo.contato_cliente ? ` (${emprestimo.contato_cliente})` : ''}</td>
-                <td>{emprestimo.data_emprestimo}</td>
+                <td>{emprestimo.status === 'solicitado' ? '—' : emprestimo.data_emprestimo}</td>
                 <td>{emprestimo.data_prevista_devolucao}</td>
                 <td><span className={`badge badge-${emprestimo.status}`}>{emprestimo.status}</span></td>
                 <td className="admin-acoes">
-                  {emprestimo.status !== 'devolvido' && (
+                  {emprestimo.status === 'solicitado' && (
+                    <>
+                      <button type="button" className="btn-admin" onClick={() => aprovar(emprestimo.id_emprestimo)}>Aprovar</button>
+                      <button type="button" className="btn-admin btn-admin-perigo" onClick={() => rejeitar(emprestimo.id_emprestimo)}>Rejeitar</button>
+                    </>
+                  )}
+                  {(emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') && (
                     <button type="button" className="btn-admin" onClick={() => devolver(emprestimo.id_emprestimo)}>Marcar devolvido</button>
                   )}
                 </td>
@@ -310,10 +336,109 @@ function AbaEmprestimos({ emailUsuario }) {
   );
 }
 
+function AbaClientes({ emailUsuario }) {
+  const [clientes, setClientes] = useState(null);
+  const [busca, setBusca] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/usuarios', { headers: { 'x-usuario-email': emailUsuario } })
+      .then((r) => r.json())
+      .then(setClientes)
+      .catch(() => setClientes([]));
+  }, [emailUsuario]);
+
+  const buscaNormalizada = busca.trim().toLowerCase();
+  const clientesFiltrados = clientes?.filter((cliente) =>
+    !buscaNormalizada ||
+    cliente.nome.toLowerCase().includes(buscaNormalizada) ||
+    cliente.email.toLowerCase().includes(buscaNormalizada)
+  );
+
+  return (
+    <div className="admin-secao">
+      <div className="form-grupo" style={{ maxWidth: '360px' }}>
+        <label htmlFor="busca-clientes">Buscar por nome ou e-mail</label>
+        <input id="busca-clientes" value={busca} onChange={(e) => setBusca(e.target.value)} />
+      </div>
+
+      <div className="admin-tabela-wrap">
+        <table className="tabela-admin">
+          <thead>
+            <tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Cadastrado em</th></tr>
+          </thead>
+          <tbody>
+            {clientes === null && <tr><td colSpan="4">Carregando...</td></tr>}
+            {clientes?.length > 0 && clientesFiltrados?.length === 0 && <tr><td colSpan="4">Nenhuma conta encontrada.</td></tr>}
+            {clientesFiltrados?.map((cliente) => (
+              <tr key={cliente.id}>
+                <td>{cliente.nome}</td>
+                <td>{cliente.email}</td>
+                <td>{cliente.tipo}</td>
+                <td>{new Date(cliente.criado_em).toLocaleDateString('pt-BR')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AbaResumo() {
+  const [livros, setLivros] = useState(null);
+  const [promocoes, setPromocoes] = useState(null);
+  const [emprestimos, setEmprestimos] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/admin/livros').then((r) => r.json()).then(setLivros).catch(() => setLivros([]));
+    fetch('/api/admin/promocoes').then((r) => r.json()).then(setPromocoes).catch(() => setPromocoes([]));
+    fetch('/api/admin/emprestimos').then((r) => r.json()).then(setEmprestimos).catch(() => setEmprestimos([]));
+  }, []);
+
+  if (livros === null || promocoes === null || emprestimos === null) {
+    return <p>Carregando resumo...</p>;
+  }
+
+  const estoqueBaixo = livros.filter((livro) => (livro.estoque ?? 0) < 5).length;
+  const ativos = emprestimos.filter((e) => e.status === 'ativo').length;
+  const atrasados = emprestimos.filter((e) => e.status === 'atrasado').length;
+  const pendentes = emprestimos.filter((e) => e.status === 'solicitado').length;
+
+  return (
+    <div className="admin-resumo">
+      <div className="admin-resumo-cartao">
+        <strong>{livros.length}</strong>
+        <span>Livros no catálogo</span>
+      </div>
+      <div className={`admin-resumo-cartao${estoqueBaixo > 0 ? ' admin-resumo-alerta' : ''}`}>
+        <strong>{estoqueBaixo}</strong>
+        <span>Com estoque baixo (&lt;5)</span>
+      </div>
+      <div className="admin-resumo-cartao">
+        <strong>{promocoes.length}</strong>
+        <span>Promoções ativas</span>
+      </div>
+      <div className="admin-resumo-cartao">
+        <strong>{ativos}</strong>
+        <span>Empréstimos ativos</span>
+      </div>
+      <div className={`admin-resumo-cartao${atrasados > 0 ? ' admin-resumo-alerta' : ''}`}>
+        <strong>{atrasados}</strong>
+        <span>Empréstimos atrasados</span>
+      </div>
+      <div className={`admin-resumo-cartao${pendentes > 0 ? ' admin-resumo-alerta' : ''}`}>
+        <strong>{pendentes}</strong>
+        <span>Pedidos aguardando aprovação</span>
+      </div>
+    </div>
+  );
+}
+
 const ABAS_PAINEL = [
   { id: 'promocoes', rotulo: 'Promoções' },
   { id: 'livros', rotulo: 'Biblioteca' },
-  { id: 'emprestimos', rotulo: 'Empréstimos' }
+  { id: 'emprestimos', rotulo: 'Empréstimos' },
+  { id: 'clientes', rotulo: 'Clientes' }
 ];
 
 // A sessão/tipo de conta já foi conferida pela <RotaProtegida> que envolve
@@ -334,6 +459,8 @@ export default function PaginaPainelEquipe() {
         <div className="admin-painel">
           <h2>Painel da Equipe</h2>
 
+          <AbaResumo />
+
           <nav className="admin-tabs">
             {ABAS_PAINEL.map((aba) => (
               <button
@@ -350,6 +477,7 @@ export default function PaginaPainelEquipe() {
           {abaAtiva === 'promocoes' && <AbaPromocoes emailUsuario={usuario.email} />}
           {abaAtiva === 'livros' && <AbaLivros emailUsuario={usuario.email} />}
           {abaAtiva === 'emprestimos' && <AbaEmprestimos emailUsuario={usuario.email} />}
+          {abaAtiva === 'clientes' && <AbaClientes emailUsuario={usuario.email} />}
         </div>
       </main>
 

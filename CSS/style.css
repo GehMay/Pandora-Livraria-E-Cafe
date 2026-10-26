@@ -183,6 +183,19 @@ h1, h2, h3, h6,
     color: #c4d4cc; /* Prata esverdeado */
 }
 
+.cabecalho_link-catalogo {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dourado);
+    text-decoration: none;
+    margin-bottom: 0.2rem;
+}
+
+.cabecalho_link-catalogo:hover {
+    text-decoration: underline;
+}
+
 /* Botões de Login e Cadastro no canto superior direito */
 .cabecalho_acoes {
     position: absolute;
@@ -766,6 +779,115 @@ canvas {
     background-color: var(--verde-800);
     color: #ffffff;
     border-color: var(--verde-800);
+}
+
+.badge-solicitado {
+    background-color: var(--dourado);
+    color: #ffffff;
+    border-color: var(--dourado);
+}
+
+.badge-rejeitado {
+    background-color: var(--carvao-claro);
+    color: #ffffff;
+    border-color: var(--carvao-claro);
+}
+
+/* Resumo/dashboard no topo do painel da equipe */
+.admin-resumo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-resumo-cartao {
+    background: #ffffff;
+    border: 1px solid #e2e9e4;
+    border-radius: var(--raio-md);
+    padding: 1rem 1.2rem;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    border-top: 3px solid var(--verde-800);
+}
+
+.admin-resumo-cartao strong {
+    display: block;
+    font-family: var(--fonte-titulo);
+    font-size: 1.8rem;
+    color: var(--verde-800);
+}
+
+.admin-resumo-cartao span {
+    font-size: 0.8rem;
+    color: #556;
+}
+
+.admin-resumo-cartao.admin-resumo-alerta {
+    border-top-color: #a33;
+}
+
+.admin-resumo-cartao.admin-resumo-alerta strong {
+    color: #a33;
+}
+
+/* Catálogo público */
+.catalogo-filtros {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.catalogo-filtro {
+    padding: 0.5rem 1rem;
+    border-radius: var(--raio-sm);
+    border: 1.5px solid var(--verde-800);
+    background-color: #ffffff;
+    color: var(--verde-800);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.catalogo-filtro:hover {
+    background-color: var(--fundo);
+}
+
+.catalogo-filtro-ativo,
+.catalogo-filtro-ativo:hover {
+    background-color: var(--verde-800);
+    color: #ffffff;
+}
+
+.card-interno-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Página de detalhe do livro */
+.livro-detalhe {
+    display: grid;
+    grid-template-columns: minmax(220px, 320px) 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.livro-detalhe-banner {
+    aspect-ratio: 3 / 4;
+    border-radius: var(--raio-md);
+}
+
+.livro-detalhe-banner svg {
+    width: 45%;
+    height: 45%;
+}
+
+@media (max-width: 720px) {
+    .livro-detalhe {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Ajustes leves para telas pequenas (o visual do computador não muda) */

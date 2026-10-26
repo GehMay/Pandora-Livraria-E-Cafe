@@ -5,6 +5,8 @@ import PaginaLogin from './paginas/PaginaLogin.jsx';
 import PaginaCadastro from './paginas/PaginaCadastro.jsx';
 import PaginaPerfil from './paginas/PaginaPerfil.jsx';
 import PaginaPainelEquipe from './paginas/PaginaPainelEquipe.jsx';
+import PaginaCatalogo from './paginas/PaginaCatalogo.jsx';
+import PaginaLivro from './paginas/PaginaLivro.jsx';
 import { PaginaTesteMagica, PaginaTesteCanvas } from './paginas/PaginaTeste.jsx';
 import PaginaNaoEncontrada from './paginas/PaginaNaoEncontrada.jsx';
 
@@ -14,6 +16,8 @@ export default function App() {
       <Route path="/" element={<PaginaInicio />} />
       <Route path="/login" element={<PaginaLogin />} />
       <Route path="/cadastro" element={<PaginaCadastro />} />
+      <Route path="/catalogo" element={<PaginaCatalogo />} />
+      <Route path="/livro/:id" element={<PaginaLivro />} />
       <Route
         path="/perfil"
         element={

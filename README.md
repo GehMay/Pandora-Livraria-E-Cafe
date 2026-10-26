@@ -42,7 +42,7 @@ Começou do zero, **sem frameworks**, com o objetivo de aprender e consolidar os
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
-* **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
+* **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/catalogo`, `/livro/:id`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico). Serve a build do React como "SPA shell": qualquer URL que não seja API nem arquivo estático real cai no `dist/index.html`, e o React Router decide o que mostrar.
 * **Armazenamento de dados:** PostgreSQL hospedado no [Supabase](https://supabase.com) (schema em `database/supabase-schema.sql`), acessado via `pg` (driver nativo, sem ORM).
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
@@ -68,15 +68,18 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
 - [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
-- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com três abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover) e **Empréstimos** (registrar empréstimo com data prevista de devolução, marcar devolução, status `ativo`/`atrasado`/`devolvido` calculado automaticamente). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
+- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, empréstimos ativos/atrasados/pendentes) e quatro abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
+- [x] **Catálogo e Página de Livro:** `/catalogo` lista todo o acervo com filtro por categoria; cada livro abre em `/livro/:id` com os detalhes completos.
+- [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel. O cliente acompanha os próprios pedidos em "Meus Empréstimos", dentro de `/perfil`.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
 - [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). As rotas de escrita do painel da equipe já conferem o e-mail contra os usuários cadastrados no banco, mas ainda falta uma sessão validada por token para proteger de verdade áreas restritas (reservas e painel de admin).
-- [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
-- [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
-- [x] **Migração completa para React:** Site inteiro (início, login, cadastro, perfil e painel da equipe) virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas (livro, campanha, etc.) só adicionando uma rota, sem mexer no servidor.
-- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca e empréstimos (veja acima).
+- [ ] **Seção de Destaques na Página Inicial:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega (hoje só aparecem em `/perfil`).
+- [ ] **Cancelamento de Solicitação:** Permitir que o próprio cliente cancele um pedido de empréstimo ainda não aprovado.
+- [x] **Migração completa para React:** Site inteiro virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas só adicionando uma rota, sem mexer no servidor.
+- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, empréstimos e clientes (veja acima).
 - [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
+- [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
 
 ## 🔑 Contas de Teste
 
@@ -104,9 +107,10 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    ├── 📄 magica.js              # Lógica das partículas e estrelas interativas (rota /testes)
  │    └── 📄 particulas.js          # Fagulhas mágicas flutuando pela tela (decorativo)
  ├── 📁 database
- │    ├── 📄 supabase-schema.sql           # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
- │    ├── 📄 supabase-limpeza-mensal.sql   # Função de limpeza mensal do banco
- │    └── 📄 SUPABASE.md                   # Como conectar o servidor ao Supabase e ativar a automação
+ │    ├── 📄 supabase-schema.sql                     # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
+ │    ├── 📄 migracao-solicitacao-emprestimo.sql     # ALTER TABLE pra bancos já existentes (fluxo de empréstimo solicitado)
+ │    ├── 📄 supabase-limpeza-mensal.sql             # Função de limpeza mensal do banco
+ │    └── 📄 SUPABASE.md                             # Como conectar o servidor ao Supabase e ativar a automação
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
@@ -124,8 +128,8 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    │    ├── 📄 VitrinePromocoes.jsx # Grid de promoções (/api/promocoes)
  │    │    │    ├── 📄 FormularioAuth.jsx   # Formulário de login/cadastro
  │    │    │    └── 📄 RotaProtegida.jsx    # Guarda de rota por tipo de conta
- │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Perfil,
- │    │                                     # PainelEquipe, Teste, NaoEncontrada
+ │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Catalogo, Livro,
+ │    │                                     # Perfil, PainelEquipe, Teste, NaoEncontrada
  │    ├── 📄 index.html              # HTML base usado pelo Vite (carrega canvas.js/particulas.js)
  │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /dist)
  │    └── 📄 package.json            # Dependências do app React (react, react-router-dom, vite)
@@ -171,6 +175,8 @@ O site inteiro é gerado na pasta `/dist`. Rodar `npm run dev` na raiz (passo 4 
 | `/` | `app/src/paginas/PaginaInicio.jsx` |
 | `/login` | `app/src/paginas/PaginaLogin.jsx` |
 | `/cadastro` | `app/src/paginas/PaginaCadastro.jsx` |
+| `/catalogo` | `app/src/paginas/PaginaCatalogo.jsx` |
+| `/livro/:id` | `app/src/paginas/PaginaLivro.jsx` |
 | `/perfil` | `app/src/paginas/PaginaPerfil.jsx` |
 | `/painel-funcionario` | `app/src/paginas/PaginaPainelEquipe.jsx` |
 

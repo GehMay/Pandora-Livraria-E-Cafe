@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
 import { lerSessao } from '../sessao.js';
@@ -9,6 +10,7 @@ import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
 export default function PaginaPerfil() {
   const usuario = lerSessao();
   const [destaques, setDestaques] = useState(null);
+  const [meusEmprestimos, setMeusEmprestimos] = useState(null);
 
   useEffect(() => {
     document.title = 'Minha Conta - Pandora Livraria & Café';
@@ -21,6 +23,13 @@ export default function PaginaPerfil() {
       .catch(() => setDestaques([]));
   }, []);
 
+  useEffect(() => {
+    fetch('/api/meus-emprestimos', { headers: { 'x-usuario-email': usuario.email } })
+      .then((resposta) => resposta.json())
+      .then(setMeusEmprestimos)
+      .catch(() => setMeusEmprestimos([]));
+  }, [usuario.email]);
+
   const primeiroNome = String(usuario.nome || '').split(' ')[0];
 
   return (
@@ -29,6 +38,33 @@ export default function PaginaPerfil() {
 
       <main className="container">
         <h1 className="titulo-pagina">Olá, {primeiroNome}!</h1>
+        <p style={{ marginBottom: '1.5rem' }}>
+          <Link to="/catalogo">Ver catálogo completo</Link>
+        </p>
+
+        <div className="secao-vitrine">
+          <div className="card card-padding">
+            <h3 className="secao-titulo">Meus Empréstimos</h3>
+            <div className="admin-tabela-wrap">
+              <table className="tabela-admin">
+                <thead>
+                  <tr><th>Livro</th><th>Devolução prevista</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {meusEmprestimos === null && <tr><td colSpan="3">Carregando...</td></tr>}
+                  {meusEmprestimos?.length === 0 && <tr><td colSpan="3">Você ainda não solicitou nenhum empréstimo.</td></tr>}
+                  {meusEmprestimos?.map((emprestimo) => (
+                    <tr key={emprestimo.id_emprestimo}>
+                      <td>{emprestimo.titulo_livro}</td>
+                      <td>{emprestimo.data_prevista_devolucao}</td>
+                      <td><span className={`badge badge-${emprestimo.status}`}>{emprestimo.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         <div className="secao-vitrine">
           <div className="card card-padding">

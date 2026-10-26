@@ -155,6 +155,20 @@ async function exigirFuncionario(req, res) {
   return true;
 }
 
+/**
+ * Mesma ideia de `exigirFuncionario`, mas pras rotas que só um cliente logado
+ * pode chamar (solicitar empréstimo, ver os próprios empréstimos). Devolve o
+ * usuário encontrado (pra reaproveitar o id sem buscar de novo) ou null.
+ */
+async function exigirCliente(req, res) {
+  const usuario = await buscarUsuarioPorEmail(String(req.headers['x-usuario-email'] || '').trim().toLowerCase());
+  if (!usuario || usuario.tipo !== 'cliente') {
+    responderJson(res, 403, { erro: 'Acesso restrito a clientes logados' });
+    return null;
+  }
+  return usuario;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // 6. LER CORPO DA REQUISIÇÃO
 // ═══════════════════════════════════════════════════════════════
@@ -548,6 +562,160 @@ async function apiDevolverEmprestimo(res, id) {
   }
 }
 
+async function apiBuscarLivro(res, id) {
+  try {
+    const { rows } = await pool.query('select * from livros where id_livro = $1', [id]);
+    if (!rows[0]) {
+      responderJson(res, 404, { erro: 'Livro não encontrado' });
+      return;
+    }
+    responderJson(res, 200, rows[0]);
+  } catch (erro) {
+    console.error('Erro ao buscar livro:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar livro' });
+  }
+}
+
+async function apiSolicitarEmprestimo(req, res, usuario) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const idLivro = Number(corpo.id_livro);
+    const dataPrevistaDevolucao = String(corpo.data_prevista_devolucao || '').trim();
+
+    if (!idLivro || !dataPrevistaDevolucao) {
+      responderJson(res, 400, { erro: 'Livro e data prevista de devolução são obrigatórios' });
+      return;
+    }
+
+    const { rows } = await pool.query('select estoque from livros where id_livro = $1', [idLivro]);
+    if (!rows[0]) {
+      responderJson(res, 404, { erro: 'Livro não encontrado' });
+      return;
+    }
+    if (rows[0].estoque <= 0) {
+      responderJson(res, 409, { erro: 'Livro sem estoque disponível para empréstimo' });
+      return;
+    }
+
+    const inserido = await pool.query(
+      `insert into emprestimos (id_livro, id_usuario, nome_cliente, contato_cliente, data_prevista_devolucao, status)
+       values ($1, $2, $3, $4, $5, 'solicitado')
+       returning *`,
+      [idLivro, usuario.id, usuario.nome, usuario.email, dataPrevistaDevolucao]
+    );
+
+    responderJson(res, 201, { mensagem: 'Empréstimo solicitado! Aguarde a aprovação da equipe.', emprestimo: inserido.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao solicitar empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar solicitação' });
+  }
+}
+
+async function apiMeusEmprestimos(res, usuario) {
+  try {
+    const { rows } = await pool.query(`
+      select
+        e.*,
+        coalesce(l.titulo, 'Livro removido') as titulo_livro,
+        coalesce(l.autor, '') as autor_livro
+      from emprestimos e
+      left join livros l on l.id_livro = e.id_livro
+      where e.id_usuario = $1
+      order by e.id_emprestimo desc
+    `, [usuario.id]);
+
+    const hoje = new Date().toISOString().slice(0, 10);
+    const lista = rows.map((emprestimo) => ({
+      ...emprestimo,
+      status: emprestimo.status === 'ativo' && emprestimo.data_prevista_devolucao < hoje
+        ? 'atrasado'
+        : emprestimo.status
+    }));
+
+    responderJson(res, 200, lista);
+  } catch (erro) {
+    console.error('Erro ao listar meus empréstimos:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar empréstimos' });
+  }
+}
+
+async function apiAprovarEmprestimo(res, id) {
+  const cliente = await pool.connect();
+  try {
+    await cliente.query('begin');
+
+    const { rows } = await cliente.query('select * from emprestimos where id_emprestimo = $1 for update', [id]);
+    const emprestimo = rows[0];
+    if (!emprestimo) {
+      await cliente.query('rollback');
+      responderJson(res, 404, { erro: 'Empréstimo não encontrado' });
+      return;
+    }
+    if (emprestimo.status !== 'solicitado') {
+      await cliente.query('rollback');
+      responderJson(res, 409, { erro: 'Esse empréstimo não está mais aguardando aprovação' });
+      return;
+    }
+
+    const livro = await cliente.query('select estoque from livros where id_livro = $1 for update', [emprestimo.id_livro]);
+    if (!livro.rows[0] || livro.rows[0].estoque <= 0) {
+      await cliente.query('rollback');
+      responderJson(res, 409, { erro: 'Livro sem estoque disponível para aprovar esse empréstimo' });
+      return;
+    }
+
+    await cliente.query('update livros set estoque = estoque - 1 where id_livro = $1', [emprestimo.id_livro]);
+    const atualizado = await cliente.query(
+      `update emprestimos set status = 'ativo', data_emprestimo = current_date
+       where id_emprestimo = $1
+       returning *`,
+      [id]
+    );
+    await cliente.query('commit');
+
+    responderJson(res, 200, { mensagem: 'Empréstimo aprovado', emprestimo: atualizado.rows[0] });
+  } catch (erro) {
+    await cliente.query('rollback').catch(() => {});
+    console.error('Erro ao aprovar empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar aprovação' });
+  } finally {
+    cliente.release();
+  }
+}
+
+async function apiRejeitarEmprestimo(res, id) {
+  try {
+    const { rows } = await pool.query('select * from emprestimos where id_emprestimo = $1', [id]);
+    if (!rows[0]) {
+      responderJson(res, 404, { erro: 'Empréstimo não encontrado' });
+      return;
+    }
+    if (rows[0].status !== 'solicitado') {
+      responderJson(res, 409, { erro: 'Esse empréstimo não está mais aguardando aprovação' });
+      return;
+    }
+
+    const atualizado = await pool.query(
+      `update emprestimos set status = 'rejeitado' where id_emprestimo = $1 returning *`,
+      [id]
+    );
+    responderJson(res, 200, { mensagem: 'Empréstimo rejeitado', emprestimo: atualizado.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao rejeitar empréstimo:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar rejeição' });
+  }
+}
+
+async function apiListarUsuarios(res) {
+  try {
+    const { rows } = await pool.query('select id, nome, email, tipo, criado_em from usuarios order by criado_em desc');
+    responderJson(res, 200, rows);
+  } catch (erro) {
+    console.error('Erro ao listar usuários:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar usuários' });
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // 10. MAPEAR URL PARA ARQUIVO
 // ═══════════════════════════════════════════════════════════════
@@ -634,10 +802,32 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
+  const idLivroPublicoRota = req.url.match(/^\/api\/livros\/(\d+)$/);
+  if (req.method === 'GET' && idLivroPublicoRota) {
+    await apiBuscarLivro(res, Number(idLivroPublicoRota[1]));
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/emprestimos/solicitar') {
+    const usuario = await exigirCliente(req, res);
+    if (!usuario) return;
+    await apiSolicitarEmprestimo(req, res, usuario);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/meus-emprestimos') {
+    const usuario = await exigirCliente(req, res);
+    if (!usuario) return;
+    await apiMeusEmprestimos(res, usuario);
+    return;
+  }
+
   // APIs do painel da equipe (livros, promoções e empréstimos)
   const idLivroRota = req.url.match(/^\/api\/admin\/livros\/(\d+)$/);
   const idPromocaoRota = req.url.match(/^\/api\/admin\/promocoes\/(\d+)$/);
   const devolucaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/devolver$/);
+  const aprovacaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/aprovar$/);
+  const rejeicaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/rejeitar$/);
 
   if (req.method === 'GET' && req.url === '/api/admin/livros') {
     const { rows } = await pool.query('select * from livros order by id_livro');
@@ -701,6 +891,24 @@ const servidor = http.createServer(async (req, res) => {
   if (req.method === 'POST' && devolucaoRota) {
     if (!(await exigirFuncionario(req, res))) return;
     await apiDevolverEmprestimo(res, Number(devolucaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'POST' && aprovacaoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiAprovarEmprestimo(res, Number(aprovacaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'POST' && rejeicaoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiRejeitarEmprestimo(res, Number(rejeicaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/admin/usuarios') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiListarUsuarios(res);
     return;
   }
 

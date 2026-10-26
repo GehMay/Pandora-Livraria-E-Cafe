@@ -17,6 +17,7 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
         <p>Pandora Livraria & Café</p>
       </Link>
       <nav className="cabecalho_nav">
+        <Link to="/catalogo" className="cabecalho_link-catalogo">Catálogo</Link>
         <p>{subtitulo}</p>
       </nav>
       {(usuario || mostrarAcoesPublicas) && (

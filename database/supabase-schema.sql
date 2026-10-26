@@ -34,12 +34,17 @@ create table if not exists emprestimos (
   -- 'on delete set null' (e coluna sem not null): apagar o livro não pode apagar
   -- o histórico de empréstimos já devolvidos, só desvincula o id_livro.
   id_livro integer references livros (id_livro) on delete set null,
+  -- Preenchido quando o pedido vem do próprio site (cliente logado); nulo quando
+  -- é a equipe registrando um empréstimo pra alguém sem conta no sistema.
+  id_usuario uuid references usuarios (id) on delete set null,
   nome_cliente text not null,
   contato_cliente text,
   data_emprestimo date not null default current_date,
   data_prevista_devolucao date not null,
   data_devolucao date,
-  status text not null default 'ativo' check (status in ('ativo', 'devolvido'))
+  -- 'solicitado': cliente pediu pelo site, aguardando aprovação da equipe (estoque ainda não baixou).
+  -- 'rejeitado': equipe recusou o pedido (estoque intacto).
+  status text not null default 'ativo' check (status in ('solicitado', 'ativo', 'devolvido', 'rejeitado'))
 );
 
 -- Seed: mesmo acervo que já existia em dados/banco.json.
