@@ -2,7 +2,7 @@
   "scripts": {
     "start": "node servidor-estatico.js",
     "dev": "node --env-file-if-exists=.env servidor-estatico.js",
-    "build:perfil": "cd perfil-app && npm install && npm run build"
+    "build": "cd app && npm install && npm run build"
   },
   "dependencies": {
     "pg": "^8.13.0"

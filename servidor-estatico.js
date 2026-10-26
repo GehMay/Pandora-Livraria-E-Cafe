@@ -552,16 +552,18 @@ async function apiDevolverEmprestimo(res, id) {
 // 10. MAPEAR URL PARA ARQUIVO
 // ═══════════════════════════════════════════════════════════════
 
+// Pastas que só devem conter arquivos estáticos de verdade (CSS/JS/imagens/build do React).
+// Pedido pra algo dentro delas que não existe é 404 de verdade, nunca cai no SPA.
+const PREFIXOS_SO_ARQUIVO = ['/CSS/', '/JS/', '/imagens/', '/dist/'];
+
 function mapearUrlParaArquivo(urlPath) {
   const caminhoUrl = decodeURIComponent(urlPath.split('?')[0]);
-  // Pasta (termina em "/", como "/" ou "/perfil/") serve o index.html dela
-  let caminhoRelativo = caminhoUrl.endsWith('/') ? caminhoUrl + 'index.html' : caminhoUrl;
-  const caminhoCompleto = path.resolve(PASTA_PROJETO, `.${caminhoRelativo}`);
+  const caminhoCompleto = path.resolve(PASTA_PROJETO, `.${caminhoUrl}`);
 
-  // Arquivos internos não podem ser baixados pelo navegador (código do servidor, etc.)
+  // Arquivos internos não podem ser baixados pelo navegador (código do servidor, fonte do React, etc.)
   const relativo = '/' + path.relative(PASTA_PROJETO, caminhoCompleto).split(path.sep).join('/');
   const ARQUIVOS_PRIVADOS = ['/servidor-estatico.js', '/package.json', '/package-lock.json'];
-  const PASTAS_PRIVADAS = ['/database', '/node_modules', '/.git'];
+  const PASTAS_PRIVADAS = ['/database', '/node_modules', '/.git', '/app'];
   if (ARQUIVOS_PRIVADOS.includes(relativo) ||
       PASTAS_PRIVADAS.some(p => relativo === p || relativo.startsWith(p + '/'))) {
     return null;
@@ -702,18 +704,15 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
-  // Arquivos estáticos
+  // Arquivos estáticos + SPA (React Router decide o resto no navegador)
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.writeHead(405, { 'Allow': 'GET, HEAD, POST' });
+    res.writeHead(405, { 'Allow': 'GET, HEAD, POST, PUT, DELETE' });
     res.end('Método não permitido');
     return;
   }
 
   const caminhoUrl = decodeURIComponent(req.url.split('?')[0]);
-  const rotasReact = ['/painel-funcionario.html', '/testes.html', '/teste-canvas.html'];
-  const caminhoArquivo = rotasReact.includes(caminhoUrl)
-    ? path.join(PASTA_PROJETO, 'perfil', 'index.html')
-    : mapearUrlParaArquivo(req.url);
+  const caminhoArquivo = mapearUrlParaArquivo(req.url);
 
   if (!caminhoArquivo) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -721,21 +720,44 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'HEAD') {
-    fs.stat(caminhoArquivo, (erro, info) => {
-      if (erro || !info.isFile()) {
-        res.writeHead(404);
-      } else {
-        const extensao = path.extname(caminhoArquivo).toLowerCase();
-        const tipoMime = TIPOS_MIME[extensao] || 'application/octet-stream';
-        res.writeHead(200, { 'Content-Type': tipoMime });
-      }
-      res.end();
-    });
-    return;
-  }
+  fs.stat(caminhoArquivo, (erro, info) => {
+    const existe = !erro && info.isFile();
 
-  servirArquivo(caminhoArquivo, res);
+    // Existe de verdade (CSS, JS, imagem, asset do build): serve ele.
+    if (existe) {
+      if (req.method === 'HEAD') {
+        const extensao = path.extname(caminhoArquivo).toLowerCase();
+        res.writeHead(200, { 'Content-Type': TIPOS_MIME[extensao] || 'application/octet-stream' });
+        res.end();
+        return;
+      }
+      servirArquivo(caminhoArquivo, res);
+      return;
+    }
+
+    // Pastas só-de-arquivo (CSS/JS/imagens/dist): se não existe, é 404 de verdade.
+    const ehPastaSoArquivo = PREFIXOS_SO_ARQUIVO.some((prefixo) => caminhoUrl.startsWith(prefixo));
+    if (ehPastaSoArquivo) {
+      if (req.method === 'HEAD') {
+        res.writeHead(404);
+        res.end();
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<h1>404 - Arquivo não encontrado</h1>');
+      }
+      return;
+    }
+
+    // Qualquer outra URL (/, /login, /perfil, /livro/123, etc.) é uma rota do React:
+    // serve o HTML do app, que decide o que mostrar no navegador.
+    const indexApp = path.join(PASTA_PROJETO, 'dist', 'index.html');
+    if (req.method === 'HEAD') {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end();
+      return;
+    }
+    servirArquivo(indexApp, res);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -765,8 +787,8 @@ async function iniciar() {
 ║   Banco: Postgres (Supabase)                           ║
 ║                                                        ║
 ║  Rotas disponíveis:                                    ║
-║  • GET  /              → index.html                    ║
-║  • GET  /css/style.css → Arquivos estáticos            ║
+║  • GET  /*             → app React (dist/index.html)   ║
+║  • GET  /CSS, /JS, /imagens, /dist → arquivos estáticos ║
 ║  • POST /api/cadastro  → Cadastrar novo usuário        ║
 ║  • POST /api/login     → Login do usuário              ║
 ║  • CRUD /api/admin/livros, /promocoes, /emprestimos    ║

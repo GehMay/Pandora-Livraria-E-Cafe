@@ -15,9 +15,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Node.js-sem_frameworks-2a623d?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js sem frameworks">
-  <img src="https://img.shields.io/badge/Front--end-HTML%20%7C%20CSS%20%7C%20JS-2a623d?style=flat-square" alt="HTML, CSS e JavaScript">
-  <img src="https://img.shields.io/badge/React-em_migração-2a623d?style=flat-square&logo=react&logoColor=white" alt="React em migração">
+  <img src="https://img.shields.io/badge/Backend-Node.js_sem_frameworks-2a623d?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js sem frameworks">
+  <img src="https://img.shields.io/badge/Front--end-React_%2B_Vite-2a623d?style=flat-square&logo=react&logoColor=white" alt="React + Vite">
+  <img src="https://img.shields.io/badge/Banco-PostgreSQL_(Supabase)-2a623d?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL via Supabase">
   <img src="https://img.shields.io/badge/Hospedagem-Render-2a623d?style=flat-square&logo=render&logoColor=white" alt="Hospedado no Render">
   <img src="https://img.shields.io/badge/Licen%C3%A7a-CC%20BY--SA%204.0-c4a02c?style=flat-square" alt="Licença CC BY-SA 4.0">
 </p>
@@ -36,14 +36,14 @@
 
 Um projeto de estudo Full-Stack focado no desenvolvimento de um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
 
-Este projeto foi construído do zero, **sem o uso de frameworks complexos**, com o objetivo principal de aprender e consolidar os fundamentos da web (Manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização estrutural). Agora que os fundamentos estão consolidados, o front-end está migrando aos poucos para **React**, página por página.
+Começou do zero, **sem frameworks**, com o objetivo de aprender e consolidar os fundamentos da web (manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização). Com os fundamentos consolidados, o front-end inteiro foi migrado para **React + React Router** — uma SPA de verdade, com rotas reais em vez de arquivos `.html` soltos — pra deixar mais rápido criar cada página nova (ex.: a página de um livro específico, uma campanha/anúncio). O back-end continua em Node.js puro (`http`, `fs`, `crypto`, sem Express), por escolha, pra aprofundamento técnico.
 
 ## 🎯 Objetivo do Projeto (Produto Final)
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
-* **Front-end:** `index.html`, `login.html` e `cadastro.html` usam HTML/CSS/JavaScript. As demais páginas, incluindo ferramentas de desenvolvimento, usam **React + Vite** (`perfil-app/`).
-* **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico).
+* **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
+* **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico). Serve a build do React como "SPA shell": qualquer URL que não seja API nem arquivo estático real cai no `dist/index.html`, e o React Router decide o que mostrar.
 * **Armazenamento de dados:** PostgreSQL hospedado no [Supabase](https://supabase.com) (schema em `database/supabase-schema.sql`), acessado via `pg` (driver nativo, sem ORM).
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
 * **Hospedagem:** [Render](https://render.com) (plano gratuito), com deploy automático a cada `git push` na branch `master`.
@@ -52,29 +52,29 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ## 🚀 Funcionalidades do Sistema
 
 ### 🟢 O que já está implementado (MVP)
-- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo Postgres (tabela `livros`), usando a tag `<template>` do HTML e manipulação segura via JavaScript.
+- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo Postgres (tabela `livros`), via componente React (`<VitrineLivros>`).
 - [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do banco em tempo real.
 - [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
-- [x] **Interface Gráfica Temática:** Design baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata).
+- [x] **Interface Gráfica Temática:** Design baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata) como identidade principal, mais uma paleta secundária de tons "joia" (roxo, azul, bronze, carvão) usada nas categorias e badges, pra dar variedade sem perder o tema. Títulos em `Cinzel` (serifa) e corpo em `Inter`.
 - [x] **Layout Responsivo:** Adaptado para computador, tablet e celular: no celular os livros e promoções aparecem em duas colunas compactas, os botões do cabeçalho passam para baixo do título e o rodapé fica sempre no fim da tela.
-- [x] **Efeitos Visuais Mágicos:** Uso avançado de JavaScript para criar um brilho luminoso interativo (HTML5 Canvas) e partículas estelares, que reagem aos elementos da página. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque.
+- [x] **Efeitos Visuais Mágicos:** Brilho luminoso interativo que segue o cursor (HTML5 Canvas, `JS/canvas.js`), partículas estelares reagindo aos elementos (`JS/magica.js`), fagulhas mágicas flutuando pela tela (`JS/particulas.js`), ícones com brilho pulsante e um reflexo dourado que varre os cards ao passar o mouse. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque; as animações respeitam a preferência do sistema por "reduzir movimento".
 - [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
 - [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
-- [x] **Páginas de Login e Cadastro:** Telas (`login.html` e `cadastro.html`) no mesmo tema visual da loja.
+- [x] **Páginas de Login e Cadastro:** Telas (`/login` e `/cadastro`, React) no mesmo tema visual da loja, compartilhando o mesmo componente de formulário (`<FormularioAuth>`).
 - [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `funcionario`), definidos automaticamente pelo domínio do e-mail no cadastro.
 - [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
-- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para a página de perfil (`perfil/`, em React) e funcionário/admin vai para o painel da equipe (React, endereço `/painel-funcionario.html`), cada um protegido para aceitar só o tipo de conta certo.
+- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para `/perfil` e funcionário/admin vai para `/painel-funcionario` — cada rota protegida por um componente `<RotaProtegida>` que só deixa passar o tipo de conta certo (e manda quem está no tipo errado pro lugar certo, não pra fora do site).
 - [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
 - [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
-- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario.html`) com três abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover) e **Empréstimos** (registrar empréstimo com data prevista de devolução, marcar devolução, status `ativo`/`atrasado`/`devolvido` calculado automaticamente). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
+- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com três abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover) e **Empréstimos** (registrar empréstimo com data prevista de devolução, marcar devolução, status `ativo`/`atrasado`/`devolvido` calculado automaticamente). As rotas de escrita (`/api/admin/...`) exigem que o e-mail de quem está logado pertença a um funcionário/admin cadastrado.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
 - [ ] **Sessão Segura de Usuário:** Hoje o login só guarda no navegador quem entrou (para mostrar "Olá, ..." no cabeçalho). As rotas de escrita do painel da equipe já conferem o e-mail contra os usuários cadastrados no banco, mas ainda falta uma sessão validada por token para proteger de verdade áreas restritas (reservas e painel de admin).
 - [ ] **Seção de Destaques na Página:** Exibir na tela inicial os dados que a rota `/api/destaques` já entrega.
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
-- [x] **Migração das páginas funcionais para React:** Perfil e painel da equipe usam React + Vite; início, login e cadastro permanecem em HTML.
+- [x] **Migração completa para React:** Site inteiro (início, login, cadastro, perfil e painel da equipe) virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas (livro, campanha, etc.) só adicionando uma rota, sem mexer no servidor.
 - [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca e empréstimos (veja acima).
 - [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
 
@@ -99,12 +99,10 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
 📁 Raiz
  ├── 📁 CSS
  │    └── 📄 style.css              # Estilos visuais (tema Sonserina e UI)
- ├── 📁 JS
- │    ├── 📄 lancamento.js          # Busca e renderiza os lançamentos
- │    ├── 📄 promocoes.js           # Busca e renderiza as promoções ativas
- │    ├── 📄 auth.js                # Login, cadastro e saudação do usuário no cabeçalho
+ ├── 📁 JS                          # Scripts soltos: só efeitos visuais, sem estado de aplicação
  │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
- │    └── 📄 magica.js              # Lógica das partículas e estrelas interativas
+ │    ├── 📄 magica.js              # Lógica das partículas e estrelas interativas (rota /testes)
+ │    └── 📄 particulas.js          # Fagulhas mágicas flutuando pela tela (decorativo)
  ├── 📁 database
  │    ├── 📄 supabase-schema.sql           # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
  │    ├── 📄 supabase-limpeza-mensal.sql   # Função de limpeza mensal do banco
@@ -112,19 +110,28 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  ├── 📁 imagens
  │    ├── 📄 logo.svg               # Logo do projeto (cabeçalho, favicon e README)
  │    └── 📄 preview.png            # Print do site usado no README
- ├── 📁 perfil-app                  # Código-fonte React (Vite) das páginas restantes
+ ├── 📁 app                         # Código-fonte React (Vite) do site inteiro
  │    ├── 📁 src
- │    │    ├── 📄 main.jsx           # Ponto de entrada do React
- │    │    └── 📄 App.jsx            # Perfil, painel da equipe e ferramentas de teste
- │    ├── 📄 index.html              # HTML base usado pelo Vite
- │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /perfil)
- │    └── 📄 package.json            # Dependências do app React (react, vite)
- ├── 📁 perfil                      # Build gerado do perfil-app (gerado por `npm run build:perfil`, servido em /perfil)
- ├── 📄 index.html                  # Página inicial da loja
- ├── 📄 login.html                  # Tela de login
- ├── 📄 cadastro.html               # Tela de criação de conta
- ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js, conexão Postgres e rotas de API)
- ├── 📄 package.json                # Dependências e scripts (npm start, npm run dev, npm run build:perfil)
+ │    │    ├── 📄 main.jsx                  # Ponto de entrada (monta o <BrowserRouter>)
+ │    │    ├── 📄 App.jsx                   # Define as rotas (React Router)
+ │    │    ├── 📄 sessao.js                 # Ler/salvar sessão, sair, decidir página por tipo de conta
+ │    │    ├── 📄 icones.js                 # Ícones SVG por categoria de livro (compartilhado)
+ │    │    ├── 📄 api.js                    # Chamadas fetch compartilhadas (login/cadastro, admin)
+ │    │    ├── 📁 componentes
+ │    │    │    ├── 📄 Cabecalho.jsx        # Cabeçalho único de todo o site
+ │    │    │    ├── 📄 Rodape.jsx
+ │    │    │    ├── 📄 VitrineLivros.jsx    # Grid de livros (/api/lancamentos)
+ │    │    │    ├── 📄 VitrinePromocoes.jsx # Grid de promoções (/api/promocoes)
+ │    │    │    ├── 📄 FormularioAuth.jsx   # Formulário de login/cadastro
+ │    │    │    └── 📄 RotaProtegida.jsx    # Guarda de rota por tipo de conta
+ │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Perfil,
+ │    │                                     # PainelEquipe, Teste, NaoEncontrada
+ │    ├── 📄 index.html              # HTML base usado pelo Vite (carrega canvas.js/particulas.js)
+ │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /dist)
+ │    └── 📄 package.json            # Dependências do app React (react, react-router-dom, vite)
+ ├── 📁 dist                        # Build gerada do app/ (gerado por `npm run build`, servida como SPA)
+ ├── 📄 servidor-estatico.js        # Backend (Servidor Node.js, conexão Postgres, rotas de API e SPA shell)
+ ├── 📄 package.json                # Dependências e scripts (npm start, npm run dev, npm run build)
  ├── 📄 package-lock.json           # Versões exatas das dependências
  ├── 📄 .env.example                # Modelo da variável DATABASE_URL (copiar para .env)
  ├── 📄 .gitignore                  # Arquivos ignorados pelo Git (node_modules, .env)
@@ -155,19 +162,29 @@ O servidor precisa de um banco Postgres (Supabase) pra rodar — veja [`database
 
 > 💡 A porta padrão é a `5500`. Se a variável de ambiente `PORT` estiver definida (como acontece no Render), o servidor usa o valor dela. No Render, `DATABASE_URL` é configurada direto no painel (Environment), então lá o comando usado é o `npm start` normal.
 
-### ⚛️ Mexendo nas páginas em React (`perfil-app/`)
+### ⚛️ Mexendo no site em React (`app/`)
 
-As páginas de perfil, painel da equipe e ferramentas de teste são geradas na pasta `/perfil`. Rodar `npm start` sozinho já é suficiente para navegar no site inteiro. Altere o `perfil-app/` para editar qualquer uma dessas telas:
+O site inteiro é gerado na pasta `/dist`. Rodar `npm run dev` na raiz (passo 4 acima) sozinho já é suficiente pra navegar em tudo. Altere o `app/` para editar qualquer página — veja a tabela de rotas abaixo pra saber onde mexer:
+
+| Rota | Arquivo |
+|---|---|
+| `/` | `app/src/paginas/PaginaInicio.jsx` |
+| `/login` | `app/src/paginas/PaginaLogin.jsx` |
+| `/cadastro` | `app/src/paginas/PaginaCadastro.jsx` |
+| `/perfil` | `app/src/paginas/PaginaPerfil.jsx` |
+| `/painel-funcionario` | `app/src/paginas/PaginaPainelEquipe.jsx` |
+
+**Pra criar uma página nova** (ex.: a página de um livro específico): crie o componente em `app/src/paginas/`, adicione uma `<Route>` em `app/src/App.jsx` — nada no servidor precisa mudar, o `servidor-estatico.js` já serve qualquer rota nova através da SPA.
 
 1. **Modo desenvolvimento** (com hot reload, mas ainda precisa do servidor Node rodando em outro terminal pra API/CSS/imagens funcionarem):
    ```bash
-   cd perfil-app
+   cd app
    npm install
    npm run dev
    ```
-2. **Gerar o build de novo** depois de editar o React (o servidor Node serve as telas React a partir da pasta `/perfil`, então esse passo é obrigatório antes de commitar):
+2. **Gerar o build de novo** depois de editar o React (o servidor Node serve o site a partir da pasta `/dist`, então esse passo é obrigatório antes de commitar):
    ```bash
-   npm run build:perfil
+   npm run build
    ```
 
 ---
