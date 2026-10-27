@@ -507,6 +507,104 @@ async function apiRemoverPromocao(res, id) {
   }
 }
 
+async function apiBuscarPromocao(res, id) {
+  try {
+    const { rows } = await pool.query('select * from promocoes where id_promocao = $1', [id]);
+    if (!rows[0]) {
+      responderJson(res, 404, { erro: 'Promoção não encontrada' });
+      return;
+    }
+    responderJson(res, 200, rows[0]);
+  } catch (erro) {
+    console.error('Erro ao buscar promoção:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar promoção' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9.6 API: PRODUTOS DO CAFÉ (vitrine + CRUD do painel da equipe)
+// ═══════════════════════════════════════════════════════════════
+
+async function apiCriarProduto(req, res) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const nome = String(corpo.nome || '').trim();
+    const categoria = String(corpo.categoria || '').trim();
+    const preco = Number(corpo.preco);
+    const descricao = String(corpo.descricao || '').trim();
+
+    if (!nome || !categoria || !Number.isFinite(preco) || preco < 0 || !descricao) {
+      responderJson(res, 400, { erro: 'Nome, categoria, preço e descrição válidos são obrigatórios' });
+      return;
+    }
+
+    const { rows } = await pool.query(
+      `insert into produtos (nome, categoria, preco, descricao) values ($1, $2, $3, $4) returning *`,
+      [nome, categoria, preco, descricao]
+    );
+
+    responderJson(res, 201, { mensagem: 'Produto cadastrado', produto: rows[0] });
+  } catch (erro) {
+    console.error('Erro ao criar produto:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar produto' });
+  }
+}
+
+async function apiEditarProduto(req, res, id) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const { rows } = await pool.query('select * from produtos where id_produto = $1', [id]);
+    const produto = rows[0];
+    if (!produto) {
+      responderJson(res, 404, { erro: 'Produto não encontrado' });
+      return;
+    }
+
+    const nome = corpo.nome !== undefined ? String(corpo.nome).trim() : produto.nome;
+    const categoria = corpo.categoria !== undefined ? String(corpo.categoria).trim() : produto.categoria;
+    const preco = corpo.preco !== undefined ? Number(corpo.preco) : produto.preco;
+    const descricao = corpo.descricao !== undefined ? String(corpo.descricao).trim() : produto.descricao;
+
+    const atualizado = await pool.query(
+      `update produtos set nome = $1, categoria = $2, preco = $3, descricao = $4 where id_produto = $5 returning *`,
+      [nome, categoria, preco, descricao, id]
+    );
+
+    responderJson(res, 200, { mensagem: 'Produto atualizado', produto: atualizado.rows[0] });
+  } catch (erro) {
+    console.error('Erro ao editar produto:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar produto' });
+  }
+}
+
+async function apiRemoverProduto(res, id) {
+  try {
+    const resultado = await pool.query('delete from produtos where id_produto = $1', [id]);
+    if (resultado.rowCount === 0) {
+      responderJson(res, 404, { erro: 'Produto não encontrado' });
+      return;
+    }
+    responderJson(res, 200, { mensagem: 'Produto removido' });
+  } catch (erro) {
+    console.error('Erro ao remover produto:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar produto' });
+  }
+}
+
+async function apiBuscarProduto(res, id) {
+  try {
+    const { rows } = await pool.query('select * from produtos where id_produto = $1', [id]);
+    if (!rows[0]) {
+      responderJson(res, 404, { erro: 'Produto não encontrado' });
+      return;
+    }
+    responderJson(res, 200, rows[0]);
+  } catch (erro) {
+    console.error('Erro ao buscar produto:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar produto' });
+  }
+}
+
 async function apiListarEmprestimos(res) {
   try {
     const { rows } = await pool.query(`
@@ -895,6 +993,24 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
+  const idPromocaoPublicaRota = req.url.match(/^\/api\/promocoes\/(\d+)$/);
+  if (req.method === 'GET' && idPromocaoPublicaRota) {
+    await apiBuscarPromocao(res, Number(idPromocaoPublicaRota[1]));
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/produtos') {
+    const { rows } = await pool.query('select * from produtos order by id_produto');
+    responderJson(res, 200, rows);
+    return;
+  }
+
+  const idProdutoPublicoRota = req.url.match(/^\/api\/produtos\/(\d+)$/);
+  if (req.method === 'GET' && idProdutoPublicoRota) {
+    await apiBuscarProduto(res, Number(idProdutoPublicoRota[1]));
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/api/emprestimos/solicitar') {
     const usuario = await exigirCliente(req, res);
     if (!usuario) return;
@@ -917,9 +1033,10 @@ const servidor = http.createServer(async (req, res) => {
     return;
   }
 
-  // APIs do painel da equipe (livros, promoções e empréstimos)
+  // APIs do painel da equipe (livros, promoções, produtos e empréstimos)
   const idLivroRota = req.url.match(/^\/api\/admin\/livros\/(\d+)$/);
   const idPromocaoRota = req.url.match(/^\/api\/admin\/promocoes\/(\d+)$/);
+  const idProdutoRota = req.url.match(/^\/api\/admin\/produtos\/(\d+)$/);
   const devolucaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/devolver$/);
   const aprovacaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/aprovar$/);
   const rejeicaoRota = req.url.match(/^\/api\/admin\/emprestimos\/(\d+)\/rejeitar$/);
@@ -969,6 +1086,30 @@ const servidor = http.createServer(async (req, res) => {
   if (req.method === 'DELETE' && idPromocaoRota) {
     if (!(await exigirFuncionario(req, res))) return;
     await apiRemoverPromocao(res, Number(idPromocaoRota[1]));
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/admin/produtos') {
+    const { rows } = await pool.query('select * from produtos order by id_produto');
+    responderJson(res, 200, rows);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/admin/produtos') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiCriarProduto(req, res);
+    return;
+  }
+
+  if (req.method === 'PUT' && idProdutoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiEditarProduto(req, res, Number(idProdutoRota[1]));
+    return;
+  }
+
+  if (req.method === 'DELETE' && idProdutoRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiRemoverProduto(res, Number(idProdutoRota[1]));
     return;
   }
 

@@ -5,6 +5,13 @@ export const ICONE_LIVRO_PADRAO = '<svg viewBox="0 0 24 24" fill="none" stroke="
 
 export const ICONE_PROMOCAO = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>';
 
+export const ICONE_PRODUTO_PADRAO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+
+export const ICONES_POR_CATEGORIA_PRODUTO = {
+  'Bebidas': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l-1 6.5A4.5 4.5 0 0 1 10.6 14h-.2A4.5 4.5 0 0 1 6 9.5L5 3Z"/><path d="M8 14v3M12 14v3M7 20h6"/><path d="M16 6h1.5a2.5 2.5 0 0 1 0 5H16"/></svg>',
+  'Doces': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1.1 0 2 .9 2 2 0 .74-.4 1.39-1 1.73V8h3a3 3 0 0 1 0 6h-.17A4 4 0 0 1 12 20a4 4 0 0 1-3.83-6H8a3 3 0 0 1 0-6h3V6.73A2 2 0 0 1 10 5c0-1.1.9-2 2-2Z"/></svg>'
+};
+
 export const ICONES_POR_CATEGORIA = {
   'Poções': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v5.5L5.5 16A3 3 0 0 0 8.2 20.5h7.6A3 3 0 0 0 18.5 16L14 8.5V3"/><path d="M8 15h8"/></svg>',
   'Transfiguração': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l10-10"/><path d="M18 3l1 2.5L21.5 6.5 19 7.5 18 10l-1-2.5L14.5 6.5 17 5.5z" fill="currentColor" stroke="none"/></svg>',

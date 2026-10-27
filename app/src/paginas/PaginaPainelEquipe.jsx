@@ -235,6 +235,122 @@ function AbaLivros({ token }) {
   );
 }
 
+function AbaProdutos({ token }) {
+  const [produtos, setProdutos] = useState(null);
+  const [emEdicao, setEmEdicao] = useState(null);
+  const [form, setForm] = useState({ nome: '', categoria: '', preco: '', descricao: '' });
+  const [mensagem, setMensagem] = useState(null);
+
+  function carregar() {
+    fetch('/api/admin/produtos').then((r) => r.json()).then(setProdutos).catch(() => setProdutos([]));
+  }
+
+  useEffect(() => { carregar(); }, []);
+
+  function iniciarEdicao(produto) {
+    setEmEdicao(produto.id_produto);
+    setForm({ nome: produto.nome, categoria: produto.categoria, preco: produto.preco, descricao: produto.descricao });
+  }
+
+  function cancelarEdicao() {
+    setEmEdicao(null);
+    setForm({ nome: '', categoria: '', preco: '', descricao: '' });
+  }
+
+  async function salvar(evento) {
+    evento.preventDefault();
+    setMensagem(null);
+    const dados = { ...form, preco: Number(form.preco) };
+    try {
+      if (emEdicao) {
+        await enviarAdmin(`/api/admin/produtos/${emEdicao}`, 'PUT', token, dados);
+        setMensagem({ texto: 'Produto atualizado!', tipo: 'ok' });
+      } else {
+        await enviarAdmin('/api/admin/produtos', 'POST', token, dados);
+        setMensagem({ texto: 'Produto cadastrado!', tipo: 'ok' });
+      }
+      cancelarEdicao();
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
+
+  async function remover(id) {
+    setMensagem(null);
+    try {
+      await enviarAdmin(`/api/admin/produtos/${id}`, 'DELETE', token);
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
+
+  return (
+    <div className="admin-secao">
+      <div className="admin-tabela-wrap">
+        <table className="tabela-admin">
+          <thead>
+            <tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>Descrição</th><th></th></tr>
+          </thead>
+          <tbody>
+            {produtos === null && <tr><td colSpan="5">Carregando...</td></tr>}
+            {produtos?.length === 0 && <tr><td colSpan="5">Nenhum produto cadastrado.</td></tr>}
+            {produtos?.map((produto) => (
+              <tr key={produto.id_produto}>
+                <td>{produto.nome}</td>
+                <td>{produto.categoria}</td>
+                <td>R$ {Number(produto.preco).toFixed(2)}</td>
+                <td>{produto.descricao}</td>
+                <td className="admin-acoes">
+                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(produto)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>Editar
+                  </button>
+                  <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(produto.id_produto)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">delete</span>Remover
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <form className="admin-form" onSubmit={salvar}>
+        <h3>{emEdicao ? 'Editar produto' : 'Adicionar produto'}</h3>
+        <div className="form-grupo">
+          <label htmlFor="produto-nome">Nome</label>
+          <input id="produto-nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
+        </div>
+        <div className="form-grupo">
+          <label htmlFor="produto-categoria">Categoria</label>
+          <input id="produto-categoria" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} required />
+        </div>
+        <div className="form-grupo">
+          <label htmlFor="produto-preco">Preço (R$)</label>
+          <input id="produto-preco" type="number" step="0.01" min="0" value={form.preco} onChange={(e) => setForm({ ...form, preco: e.target.value })} required />
+        </div>
+        <div className="form-grupo">
+          <label htmlFor="produto-descricao">Descrição</label>
+          <input id="produto-descricao" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} required />
+        </div>
+        {mensagem && <p className={`form-mensagem form-mensagem-${mensagem.tipo}`}>{mensagem.texto}</p>}
+        <div className="admin-acoes-form">
+          <button type="submit" className="btn-submit">
+            <span className="material-symbols-outlined" aria-hidden="true">save</span>
+            {emEdicao ? 'Salvar alterações' : 'Cadastrar produto'}
+          </button>
+          {emEdicao && (
+            <button type="button" className="btn-admin" onClick={cancelarEdicao}>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>Cancelar
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}
+
 function AbaEmprestimos({ token }) {
   const [emprestimos, setEmprestimos] = useState(null);
   const [livrosDisponiveis, setLivrosDisponiveis] = useState([]);
@@ -418,14 +534,16 @@ function AbaResumo() {
   const [livros, setLivros] = useState(null);
   const [promocoes, setPromocoes] = useState(null);
   const [emprestimos, setEmprestimos] = useState(null);
+  const [produtos, setProdutos] = useState(null);
 
   useEffect(() => {
     fetch('/api/admin/livros').then((r) => r.json()).then(setLivros).catch(() => setLivros([]));
     fetch('/api/admin/promocoes').then((r) => r.json()).then(setPromocoes).catch(() => setPromocoes([]));
     fetch('/api/admin/emprestimos').then((r) => r.json()).then(setEmprestimos).catch(() => setEmprestimos([]));
+    fetch('/api/admin/produtos').then((r) => r.json()).then(setProdutos).catch(() => setProdutos([]));
   }, []);
 
-  if (livros === null || promocoes === null || emprestimos === null) {
+  if (livros === null || promocoes === null || emprestimos === null || produtos === null) {
     return <p>Carregando resumo...</p>;
   }
 
@@ -449,6 +567,10 @@ function AbaResumo() {
         <span>Promoções ativas</span>
       </div>
       <div className="admin-resumo-cartao">
+        <strong>{produtos.length}</strong>
+        <span>Itens no cardápio</span>
+      </div>
+      <div className="admin-resumo-cartao">
         <strong>{ativos}</strong>
         <span>Empréstimos ativos</span>
       </div>
@@ -467,6 +589,7 @@ function AbaResumo() {
 const ABAS_PAINEL = [
   { id: 'promocoes', rotulo: 'Promoções', icone: 'sell' },
   { id: 'livros', rotulo: 'Biblioteca', icone: 'menu_book' },
+  { id: 'produtos', rotulo: 'Cardápio', icone: 'local_cafe' },
   { id: 'emprestimos', rotulo: 'Empréstimos', icone: 'import_contacts' },
   { id: 'clientes', rotulo: 'Clientes', icone: 'group' }
 ];
@@ -507,6 +630,7 @@ export default function PaginaPainelEquipe() {
 
           {abaAtiva === 'promocoes' && <AbaPromocoes token={usuario.token} />}
           {abaAtiva === 'livros' && <AbaLivros token={usuario.token} />}
+          {abaAtiva === 'produtos' && <AbaProdutos token={usuario.token} />}
           {abaAtiva === 'emprestimos' && <AbaEmprestimos token={usuario.token} />}
           {abaAtiva === 'clientes' && <AbaClientes token={usuario.token} />}
         </div>

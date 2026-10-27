@@ -22,6 +22,10 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
           <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
           Catálogo
         </Link>
+        <Link to="/cardapio" className="cabecalho_link-catalogo">
+          <span className="material-symbols-outlined" aria-hidden="true">local_cafe</span>
+          Cardápio
+        </Link>
         <p>{subtitulo}</p>
       </nav>
       {(usuario || mostrarAcoesPublicas) && (

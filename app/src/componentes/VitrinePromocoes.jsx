@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ICONE_PROMOCAO } from '../icones.js';
 
 // Busca e mostra as promoções ativas (/api/promocoes) — mesma lógica que
@@ -19,18 +20,20 @@ export default function VitrinePromocoes() {
   return (
     <div className="cards-grid cards-grid-interno">
       {promocoes.map((promocao) => (
-        <article className="card-interno" key={promocao.id_promocao}>
-          <div
-            className="card-banner banner-promocao"
-            aria-hidden="true"
-            dangerouslySetInnerHTML={{ __html: ICONE_PROMOCAO }}
-          />
-          <div className="card-body">
-            <h6 className="book-title">{promocao.titulo}</h6>
-            <span className="badge badge-desconto">{promocao.desconto}</span>
-            <p className="card-descricao">{promocao.descricao}</p>
-          </div>
-        </article>
+        <Link to={`/promocao/${promocao.id_promocao}`} className="card-interno-link" key={promocao.id_promocao}>
+          <article className="card-interno">
+            <div
+              className="card-banner banner-promocao"
+              aria-hidden="true"
+              dangerouslySetInnerHTML={{ __html: ICONE_PROMOCAO }}
+            />
+            <div className="card-body">
+              <h6 className="book-title">{promocao.titulo}</h6>
+              <span className="badge badge-desconto">{promocao.desconto}</span>
+              <p className="card-descricao">{promocao.descricao}</p>
+            </div>
+          </article>
+        </Link>
       ))}
     </div>
   );

@@ -42,7 +42,7 @@ Começou do zero, **sem frameworks**, com o objetivo de aprender e consolidar os
 O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
 
 ## 🛠️ Tecnologias Utilizadas
-* **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/catalogo`, `/livro/:id`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
+* **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/catalogo`, `/livro/:id`, `/cardapio`, `/produto/:id`, `/promocao/:id`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
 * **Back-end:** Node.js (utilizando apenas os módulos nativos como `http`, `fs` e `crypto`, sem frameworks como Express, para aprofundamento técnico). Serve a build do React como "SPA shell": qualquer URL que não seja API nem arquivo estático real cai no `dist/index.html`, e o React Router decide o que mostrar.
 * **Armazenamento de dados:** PostgreSQL hospedado no [Supabase](https://supabase.com) (schema em `database/supabase-schema.sql`), acessado via `pg` (driver nativo, sem ORM).
 * **Segurança:** Senhas protegidas com hash `scrypt` e *salt* aleatório (módulo nativo `crypto`).
@@ -55,7 +55,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo Postgres (tabela `livros`), via componente React (`<VitrineLivros>`).
 - [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do banco em tempo real.
 - [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
-- [x] **Interface Gráfica Temática:** Design baseado em *Cards* com paleta de cores da casa **Sonserina** (verde esmeralda e prata) como identidade principal, mais uma paleta secundária de tons "joia" (roxo, azul, bronze, carvão) usada nas categorias e badges, pra dar variedade sem perder o tema. Títulos em `Cinzel` (serifa) e corpo em `Inter`.
+- [x] **Interface Gráfica Temática:** Design baseado em *Cards* no tema **"Serpentine Parchment & Brass"** (dark academia): fundo verde-tinta quase preto, acentos dourados/latão, bordas em fio douradas, cantos quase retos. Títulos e corpo em `EB Garamond` (serifa), rótulos/botões/tabelas em `Manrope` com caixa alta rastreada, ícones `Material Symbols`.
 - [x] **Layout Responsivo:** Adaptado para computador, tablet e celular: no celular os livros e promoções aparecem em duas colunas compactas, os botões do cabeçalho passam para baixo do título e o rodapé fica sempre no fim da tela.
 - [x] **Efeitos Visuais Mágicos:** Brilho luminoso interativo que segue o cursor (HTML5 Canvas, `JS/canvas.js`), partículas estelares reagindo aos elementos (`JS/magica.js`), fagulhas mágicas flutuando pela tela (`JS/particulas.js`), ícones com brilho pulsante e um reflexo dourado que varre os cards ao passar o mouse. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque; as animações respeitam a preferência do sistema por "reduzir movimento".
 - [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
@@ -68,8 +68,10 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
 - [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
-- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, empréstimos ativos/atrasados/pendentes) e quatro abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado`/`cancelado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail).
+- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, itens no cardápio, empréstimos ativos/atrasados/pendentes) e cinco abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Cardápio** (cadastrar/editar/remover produtos do café), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado`/`cancelado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail).
 - [x] **Catálogo e Página de Livro:** `/catalogo` lista todo o acervo com filtro por categoria; cada livro abre em `/livro/:id` com os detalhes completos.
+- [x] **Cardápio e Página de Produto:** `/cardapio` lista os produtos do café (bebidas, doces) com filtro por categoria; cada item abre em `/produto/:id`.
+- [x] **Página de Promoção:** cada promoção (na home ou no painel) abre em `/promocao/:id` com os detalhes completos.
 - [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel, e o próprio cliente pode cancelar um pedido ainda não aprovado. Acompanha tudo em "Meus Empréstimos", dentro de `/perfil`.
 - [x] **Destaques na Página Inicial:** A home mostra os livros mais vendidos e mais bem avaliados (`/api/destaques`), com cards clicáveis que levam direto pra página do livro.
 - [x] **Sessão por Token Assinado:** Login e cadastro emitem um token (HMAC-SHA256, assinado com `SESSION_SECRET`, válido por 7 dias). Toda rota restrita (`/api/admin/...`, empréstimos do cliente) exige esse token no header `Authorization: Bearer ...` e reconfirma a conta no banco a cada chamada — substitui o header `x-usuario-email` (que qualquer visitante podia forjar pra se passar por outra conta).
@@ -77,10 +79,12 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 ### 🟡 O que está no Roadmap (Próximos Passos)
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
 - [ ] **Notificação de Empréstimo:** Avisar o cliente (e-mail ou na tela) quando a equipe aprovar ou rejeitar um pedido.
+- [ ] **Compra de verdade:** carrinho, checkout e histórico de pedidos pro cardápio do café (hoje é só vitrine/detalhe, sem compra).
 - [x] **Migração completa para React:** Site inteiro virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas só adicionando uma rota, sem mexer no servidor.
-- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, empréstimos e clientes (veja acima).
+- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, cardápio, empréstimos e clientes (veja acima).
 - [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
 - [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
+- [x] **Cardápio, Página de Produto e Página de Promoção:** veja acima.
 - [x] **Sessão Segura de Usuário:** veja acima.
 
 ## 🔑 Contas de Teste
@@ -103,7 +107,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
 ```text
 📁 Raiz
  ├── 📁 CSS
- │    └── 📄 style.css              # Estilos visuais (tema Sonserina e UI)
+ │    └── 📄 style.css              # Estilos visuais (tema "Serpentine Parchment & Brass")
  ├── 📁 JS                          # Scripts soltos: só efeitos visuais, sem estado de aplicação
  │    ├── 📄 canvas.js              # Lógica da varinha mágica luminosa (Canvas 2D)
  │    ├── 📄 magica.js              # Lógica das partículas e estrelas interativas (rota /testes)
@@ -112,6 +116,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    ├── 📄 supabase-schema.sql                     # Schema Postgres (tabelas + acervo inicial), roda no SQL Editor do Supabase
  │    ├── 📄 migracao-solicitacao-emprestimo.sql     # ALTER TABLE pra bancos já existentes (fluxo de empréstimo solicitado)
  │    ├── 📄 migracao-cancelamento-emprestimo.sql    # ALTER TABLE pra bancos já existentes (status 'cancelado')
+ │    ├── 📄 migracao-produtos.sql                   # CREATE TABLE pra bancos já existentes (cardápio do café)
  │    ├── 📄 supabase-limpeza-mensal.sql             # Função de limpeza mensal do banco
  │    └── 📄 SUPABASE.md                             # Como conectar o servidor ao Supabase e ativar a automação
  ├── 📁 imagens
@@ -122,7 +127,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    ├── 📄 main.jsx                  # Ponto de entrada (monta o <BrowserRouter>)
  │    │    ├── 📄 App.jsx                   # Define as rotas (React Router)
  │    │    ├── 📄 sessao.js                 # Ler/salvar sessão, sair, decidir página por tipo de conta
- │    │    ├── 📄 icones.js                 # Ícones SVG por categoria de livro (compartilhado)
+ │    │    ├── 📄 icones.js                 # Ícones SVG por categoria (livro e produto do café)
  │    │    ├── 📄 api.js                    # Chamadas fetch compartilhadas (login/cadastro, admin)
  │    │    ├── 📁 componentes
  │    │    │    ├── 📄 Cabecalho.jsx        # Cabeçalho único de todo o site
@@ -130,10 +135,12 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    │    ├── 📄 VitrineLivros.jsx    # Grid de livros (/api/lancamentos)
  │    │    │    ├── 📄 VitrinePromocoes.jsx # Grid de promoções (/api/promocoes)
  │    │    │    ├── 📄 VitrineDestaques.jsx # Mais vendidos/avaliados (/api/destaques)
+ │    │    │    ├── 📄 VitrineProdutos.jsx  # Grid de produtos do café (/api/produtos)
  │    │    │    ├── 📄 FormularioAuth.jsx   # Formulário de login/cadastro
  │    │    │    └── 📄 RotaProtegida.jsx    # Guarda de rota por tipo de conta
  │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Catalogo, Livro,
- │    │                                     # Perfil, PainelEquipe, Teste, NaoEncontrada
+ │    │                                     # CatalogoProdutos, Produto, Promocao, Perfil,
+ │    │                                     # PainelEquipe, Teste, NaoEncontrada
  │    ├── 📄 index.html              # HTML base usado pelo Vite (carrega canvas.js/particulas.js)
  │    ├── 📄 vite.config.js          # Configuração de build (gera a pasta /dist)
  │    └── 📄 package.json            # Dependências do app React (react, react-router-dom, vite)
@@ -182,6 +189,9 @@ O site inteiro é gerado na pasta `/dist`. Rodar `npm run dev` na raiz (passo 4 
 | `/cadastro` | `app/src/paginas/PaginaCadastro.jsx` |
 | `/catalogo` | `app/src/paginas/PaginaCatalogo.jsx` |
 | `/livro/:id` | `app/src/paginas/PaginaLivro.jsx` |
+| `/cardapio` | `app/src/paginas/PaginaCatalogoProdutos.jsx` |
+| `/produto/:id` | `app/src/paginas/PaginaProduto.jsx` |
+| `/promocao/:id` | `app/src/paginas/PaginaPromocao.jsx` |
 | `/perfil` | `app/src/paginas/PaginaPerfil.jsx` |
 | `/painel-funcionario` | `app/src/paginas/PaginaPainelEquipe.jsx` |
 
