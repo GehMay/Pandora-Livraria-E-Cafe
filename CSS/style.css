@@ -51,20 +51,20 @@
    sobre o fundo claro; os botões sólidos (--dourado-forte + --dourado-texto) não
    precisam mudar, o contraste deles já é interno (texto escuro sobre preenchido). */
 :root[data-theme="light"] {
-    --bg: #f3ecd9;
-    --bg-fundo2: #e8dcc0;
-    --superficie: #fbf7ec;
-    --superficie-alta: #efe6cf;
-    --superficie-mais-alta: #e6dab3;
-    --superficie-borda: #e0d2a8;
+    --bg: #eef3ef;
+    --bg-fundo2: #e2ebe4;
+    --superficie: #ffffff;
+    --superficie-alta: #eef3ef;
+    --superficie-mais-alta: #dfe9e2;
+    --superficie-borda: #d7e2db;
 
-    --contorno: rgba(138, 90, 18, 0.3);
-    --contorno-forte: #8a5a12;
-    --contorno-neutro: #cbb98f;
+    --contorno: rgba(193, 154, 73, 0.35);
+    --contorno-forte: #c19a49;
+    --contorno-neutro: #c7d6cc;
 
-    --texto: #1c1811;
-    --texto-esmaecido: #4a3f2f;
-    --texto-sutil: #7a6b52;
+    --texto: #16291c;
+    --texto-esmaecido: #3d4f42;
+    --texto-sutil: #6b7a70;
 
     --dourado: #8a5a12;
 }
