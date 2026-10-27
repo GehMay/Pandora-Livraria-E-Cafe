@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
 import EditarConta from '../componentes/EditarConta.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
@@ -50,6 +51,7 @@ export default function PaginaPerfil() {
   return (
     <>
       <Cabecalho subtitulo="Sua conta mágica" usuario={usuario} />
+      <Breadcrumb itens={[{ rotulo: 'Início', href: '/' }, { rotulo: 'Minha Conta' }]} />
 
       <main className="container">
         <h1 className="titulo-pagina">Olá, {primeiroNome}!</h1>

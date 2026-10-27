@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
 import EditarConta from '../componentes/EditarConta.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 
@@ -688,6 +689,7 @@ export default function PaginaPainelEquipe() {
   return (
     <>
       <Cabecalho subtitulo="Painel da equipe" usuario={usuario} />
+      <Breadcrumb itens={[{ rotulo: 'Início', href: '/' }, { rotulo: 'Painel da Equipe' }]} />
 
       <main className="container">
         <div className="admin-painel">

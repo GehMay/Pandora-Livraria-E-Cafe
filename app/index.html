@@ -1,6 +1,22 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <script>
+      // Aplica tema/efeitos salvos antes da 1ª pintura, pra não piscar o padrão
+      // (escuro/efeitos ligados) e só depois trocar pro que a pessoa escolheu.
+      (function () {
+        try {
+          if (localStorage.getItem('pandoraTema') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+          if (localStorage.getItem('pandoraEfeitos') === 'off') {
+            document.documentElement.setAttribute('data-efeitos', 'off');
+          }
+        } catch (erro) {
+          // sem localStorage (modo privado restrito etc.): segue com o padrão
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pandora Livraria & Café</title>
