@@ -90,7 +90,7 @@ endereço existe). Por exemplo, `visitante@teste.com` já é aceito.
 > `@pandoralivraria.com.br` vira funcionário/admin (acesso ao painel da equipe), qualquer outro
 > domínio (Gmail, Outlook, `.com` genérico, etc.) vira cliente.
 
-> O tipo da conta é definido pelo domínio do e-mail no cadastro: quem usa `@pandoralivraria.com.br` vira funcionário/admin, qualquer outro domínio (Gmail, Outlook, etc.) vira cliente.
+> Qualquer domínio (Gmail, Outlook, etc.) vira cliente.
 
 > ⚠️ São contas públicas de demonstração, então nunca use nelas uma senha real. Diferente de antes (quando o site usava JSON), contas criadas pelo formulário de cadastro agora ficam salvas no Postgres e sobrevivem a reinícios/deploys do Render.
 
