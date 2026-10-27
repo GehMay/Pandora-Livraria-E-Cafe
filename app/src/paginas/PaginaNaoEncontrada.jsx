@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 
 export default function PaginaNaoEncontrada() {
@@ -14,6 +15,7 @@ export default function PaginaNaoEncontrada() {
   return (
     <>
       <Cabecalho subtitulo="Essa página se perdeu no Beco Diagonal" usuario={usuario} />
+      <Breadcrumb itens={[{ rotulo: 'Início', href: '/' }, { rotulo: 'Página não encontrada' }]} />
       <main className="container">
         <div className="form-container">
           <h2>404</h2>

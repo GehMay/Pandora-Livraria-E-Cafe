@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
 
@@ -29,6 +30,7 @@ export default function PaginaCatalogo() {
   return (
     <>
       <Cabecalho subtitulo="Catálogo completo" usuario={usuario} />
+      <Breadcrumb itens={[{ rotulo: 'Início', href: '/' }, { rotulo: 'Catálogo' }]} />
 
       <main className="container">
         <h1 className="titulo-pagina">Catálogo</h1>

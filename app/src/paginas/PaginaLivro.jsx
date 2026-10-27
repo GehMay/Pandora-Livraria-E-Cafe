@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
@@ -46,6 +47,11 @@ export default function PaginaLivro() {
   return (
     <>
       <Cabecalho subtitulo="Detalhes do livro" usuario={usuario} />
+      <Breadcrumb itens={[
+        { rotulo: 'Início', href: '/' },
+        { rotulo: 'Catálogo', href: '/catalogo' },
+        { rotulo: livro?.titulo || (naoEncontrado ? 'Não encontrado' : 'Carregando...') }
+      ]} />
 
       <main className="container">
         {naoEncontrado && (

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sair } from '../sessao.js';
+import { lerTema, salvarTema, lerEfeitos, salvarEfeitos } from '../preferencias.js';
 
 // Cabeçalho único do site inteiro. `usuario` nulo = visitante (mostra
 // Entrar/Criar Conta, a menos que `mostrarAcoesPublicas` seja false — usado
@@ -7,6 +9,20 @@ import { sair } from '../sessao.js';
 export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPublicas = true }) {
   const ehEquipe = usuario && ['funcionario', 'admin'].includes(usuario.tipo);
   const primeiroNome = usuario ? String(usuario.nome || '').split(' ')[0] : '';
+  const [tema, setTema] = useState(lerTema);
+  const [efeitos, setEfeitos] = useState(lerEfeitos);
+
+  function alternarTema() {
+    const novoTema = tema === 'dark' ? 'light' : 'dark';
+    salvarTema(novoTema);
+    setTema(novoTema);
+  }
+
+  function alternarEfeitos() {
+    const novoValor = efeitos === 'on' ? 'off' : 'on';
+    salvarEfeitos(novoValor);
+    setEfeitos(novoValor);
+  }
 
   return (
     <header className="cabecalho">
@@ -28,6 +44,26 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
         </Link>
         <p>{subtitulo}</p>
       </nav>
+      <div className="cabecalho_preferencias">
+        <button
+          type="button"
+          className="btn-icone"
+          onClick={alternarTema}
+          title={tema === 'dark' ? 'Mudar para o modo claro' : 'Mudar para o modo escuro'}
+          aria-pressed={tema === 'light'}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">{tema === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+        </button>
+        <button
+          type="button"
+          className={`btn-icone${efeitos === 'off' ? ' btn-icone-inativo' : ''}`}
+          onClick={alternarEfeitos}
+          title={efeitos === 'on' ? 'Desligar efeitos mágicos' : 'Ligar efeitos mágicos'}
+          aria-pressed={efeitos === 'off'}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+        </button>
+      </div>
       {(usuario || mostrarAcoesPublicas) && (
         <div className="cabecalho_acoes">
           {usuario ? (

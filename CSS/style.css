@@ -46,16 +46,27 @@
     --raio-lg: 0.5rem;
 }
 
-@keyframes flutuar{
-    25% {
-        transform: translateY(-10px);
-    }
-    50% {
-        transform: translateY(0px);
-    }
-    75% {
-        transform: translateY(10px);
-    }
+/* Modo claro: mesma estrutura, paleta "pergaminho" (fundo creme, tinta escura).
+   --dourado fica mais escuro aqui só pra manter contraste de leitura em título/link
+   sobre o fundo claro; os botões sólidos (--dourado-forte + --dourado-texto) não
+   precisam mudar, o contraste deles já é interno (texto escuro sobre preenchido). */
+:root[data-theme="light"] {
+    --bg: #eef3ef;
+    --bg-fundo2: #e2ebe4;
+    --superficie: #ffffff;
+    --superficie-alta: #eef3ef;
+    --superficie-mais-alta: #dfe9e2;
+    --superficie-borda: #d7e2db;
+
+    --contorno: rgba(193, 154, 73, 0.35);
+    --contorno-forte: #c19a49;
+    --contorno-neutro: #c7d6cc;
+
+    --texto: #16291c;
+    --texto-esmaecido: #3d4f42;
+    --texto-sutil: #6b7a70;
+
+    --dourado: #8a5a12;
 }
 
 @keyframes deriva-fundo {
@@ -86,7 +97,7 @@ body {
         radial-gradient(ellipse at center, rgba(193, 154, 73, 0.14), transparent 60%),
         radial-gradient(ellipse at center, rgba(31, 92, 56, 0.22), transparent 60%),
         radial-gradient(ellipse at center, rgba(193, 154, 73, 0.08), transparent 60%),
-        linear-gradient(170deg, #0e1510, #0b120d 55%, #0e1510);
+        linear-gradient(170deg, var(--bg), var(--bg-fundo2) 55%, var(--bg));
     background-size: 22px 22px, 70% 60%, 65% 55%, 75% 60%, auto;
     background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
     background-position: 0 0, 10% 6%, 92% 12%, 88% 96%, 0 0;
@@ -145,7 +156,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body, .card-banner svg, .particulas-magicas span, .cabecalho_logo img {
+    body, .card-banner svg, .particulas-magicas span {
         animation: none !important;
     }
 }
@@ -204,7 +215,6 @@ h1, h2, h3, h6,
 .cabecalho_logo img {
     width: 40px;
     height: 40px;
-    animation: flutuar 4s ease-in-out infinite;
 }
 
 .link-home > p:first-child {
@@ -254,6 +264,39 @@ h1, h2, h3, h6,
 .cabecalho_link-catalogo:hover {
     text-decoration: none;
     color: var(--dourado);
+}
+
+/* Botões de preferência (tema claro/escuro, ligar/desligar efeitos) */
+.cabecalho_preferencias {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+    border-radius: var(--raio-sm);
+    border: 1px solid var(--contorno);
+    background-color: var(--superficie);
+    color: var(--texto-esmaecido);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-icone:hover {
+    border-color: var(--contorno-forte);
+    color: var(--dourado);
+    background-color: var(--superficie-mais-alta);
+}
+
+.btn-icone-inativo {
+    color: var(--texto-sutil);
+    opacity: 0.6;
 }
 
 /* Botões de Login e Cadastro (hoje no canto direito do cabeçalho) */
@@ -319,6 +362,51 @@ h1, h2, h3, h6,
     border-color: var(--dourado-claro);
     color: var(--dourado-texto);
     box-shadow: 0 0 10px rgba(193, 154, 73, 0.35);
+}
+
+/* ═══════════════════════════ TRILHA DE NAVEGAÇÃO (BREADCRUMB) ═══════════════════════════ */
+
+.breadcrumb {
+    background: var(--bg-fundo2);
+    border-bottom: 1px solid var(--contorno);
+    padding: 0.55rem 1.5rem;
+}
+
+.breadcrumb ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    font-family: var(--fonte-label);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+}
+
+.breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.breadcrumb a {
+    color: var(--texto-esmaecido);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--dourado);
+    text-decoration: underline;
+}
+
+.breadcrumb span[aria-current="page"] {
+    color: var(--dourado);
+    font-weight: 600;
+}
+
+.breadcrumb_separador {
+    color: var(--texto-sutil);
 }
 
 /* ═══════════════════════════ TÍTULOS DE PÁGINA ═══════════════════════════ */
@@ -1194,4 +1282,22 @@ canvas {
     font-size: 1.15em;
     vertical-align: middle;
     line-height: 1;
+}
+
+/* ═══════════════════════════ DESLIGAR EFEITOS MÁGICOS ═══════════════════════════
+   Botão no cabeçalho (preferencias.js). O fundo animado (body, deriva-fundo) fica
+   de fora de propósito — só os efeitos "extras": fagulhas, brilho dos ícones, o
+   brilho que varre os cards ao passar o mouse, e o brilho do cursor (esse último é
+   desligado em JS/canvas.js, lendo o mesmo atributo). */
+[data-efeitos="off"] .particulas-magicas {
+    display: none;
+}
+
+[data-efeitos="off"] .card-banner svg {
+    animation: none;
+}
+
+[data-efeitos="off"] .card::after,
+[data-efeitos="off"] .card-interno::after {
+    content: none;
 }

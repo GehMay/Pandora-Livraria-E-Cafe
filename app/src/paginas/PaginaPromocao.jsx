@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { ICONE_PROMOCAO } from '../icones.js';
 
@@ -28,6 +29,10 @@ export default function PaginaPromocao() {
   return (
     <>
       <Cabecalho subtitulo="Detalhes da promoção" usuario={usuario} />
+      <Breadcrumb itens={[
+        { rotulo: 'Início', href: '/' },
+        { rotulo: promocao?.titulo || (naoEncontrada ? 'Não encontrada' : 'Carregando...') }
+      ]} />
 
       <main className="container">
         {naoEncontrada && (
