@@ -52,50 +52,31 @@ Os clientes navegam pelo acervo de grimórios e livros mágicos, veem os lançam
 
 ## 🚀 Funcionalidades do Sistema
 
-### 🟢 O que já está implementado (MVP)
-- [x] **Vitrine Dinâmica de Lançamentos:** Renderização de livros alimentados diretamente pelo Postgres (tabela `livros`), via componente React (`<VitrineLivros>`).
-- [x] **Vitrine de Promoções Ativas:** Exibe apenas as promoções cadastradas, buscadas do banco em tempo real.
-- [x] **API Backend:** Servidor próprio capaz de hospedar arquivos estáticos e prover rotas RESTful de dados (`/api/lancamentos`, `/api/promocoes`, `/api/destaques`).
-- [x] **Interface Gráfica Temática:** Design baseado em *Cards* no tema **"Serpentine Parchment & Brass"** (dark academia): fundo verde-tinta quase preto, acentos dourados/latão, bordas em fio douradas, cantos quase retos. Títulos e corpo em `EB Garamond` (serifa), rótulos/botões/tabelas em `Manrope` com caixa alta rastreada, ícones `Material Symbols`.
-- [x] **Layout Responsivo:** Adaptado para computador, tablet e celular: no celular os livros e promoções aparecem em duas colunas compactas, os botões do cabeçalho passam para baixo do título e o rodapé fica sempre no fim da tela.
-- [x] **Efeitos Visuais Mágicos:** Brilho luminoso interativo que segue o cursor (HTML5 Canvas, `JS/canvas.js`), partículas estelares reagindo aos elementos (`JS/magica.js`), fagulhas mágicas flutuando pela tela (`JS/particulas.js`), ícones com brilho pulsante e um reflexo dourado que varre os cards ao passar o mouse. O brilho que segue o cursor só aparece para quem usa mouse (inclusive no celular ou tablet com mouse conectado) e fica desligado em telas de toque; as animações respeitam a preferência do sistema por "reduzir movimento".
-- [x] **Deploy no Ar:** Projeto publicado no Render, com atualização automática a cada `git push`.
-- [x] **Identidade Visual:** Logo em SVG fixa no cabeçalho (com link para a página inicial) e favicon na aba do navegador.
-- [x] **Páginas de Login e Cadastro:** Telas (`/login` e `/cadastro`, React) no mesmo tema visual da loja, compartilhando o mesmo componente de formulário (`<FormularioAuth>`).
-- [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `funcionario`), definidos automaticamente pelo domínio do e-mail no cadastro.
-- [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
-- [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para `/perfil` e funcionário/admin vai para `/painel-funcionario` — cada rota protegida por um componente `<RotaProtegida>` que só deixa passar o tipo de conta certo (e manda quem está no tipo errado pro lugar certo, não pra fora do site).
-- [x] **Cadastro Livre:** Qualquer pessoa cria a própria conta em `/cadastro` — não precisa de e-mail real, só um formato de e-mail válido (veja a seção "Criando sua conta" abaixo).
-- [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
-- [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
-- [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
-- [x] **Painel da Equipe:** Área restrita a funcionário/admin (`/painel-funcionario`) com um resumo (total de livros, estoque baixo, promoções, itens no cardápio, empréstimos ativos/atrasados/pendentes) e cinco abas: **Promoções** (criar, editar, remover), **Biblioteca** (cadastrar livro, editar dados e estoque, remover), **Cardápio** (cadastrar/editar/remover produtos do café), **Empréstimos** (registrar empréstimo manualmente, aprovar/rejeitar pedidos feitos pelo site, marcar devolução, status `solicitado`/`ativo`/`atrasado`/`devolvido`/`rejeitado`/`cancelado` calculado automaticamente) e **Clientes** (lista de contas cadastradas, com busca por nome/e-mail).
-- [x] **Catálogo e Página de Livro:** `/catalogo` lista todo o acervo com filtro por categoria; cada livro abre em `/livro/:id` com os detalhes completos.
-- [x] **Cardápio e Página de Produto:** `/cardapio` lista os produtos do café (bebidas, doces) com filtro por categoria; cada item abre em `/produto/:id`.
-- [x] **Página de Promoção:** cada promoção (na home ou no painel) abre em `/promocao/:id` com os detalhes completos.
-- [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel, e o próprio cliente pode cancelar um pedido ainda não aprovado. Acompanha tudo em "Meus Empréstimos", dentro de `/perfil`.
-- [x] **Destaques na Página Inicial:** A home mostra os livros mais vendidos e mais bem avaliados (`/api/destaques`), com cards clicáveis que levam direto pra página do livro.
-- [x] **Sessão por Token Assinado:** Login e cadastro emitem um token (HMAC-SHA256, assinado com `SESSION_SECRET`, válido por 7 dias). Toda rota restrita (`/api/admin/...`, empréstimos do cliente) exige esse token no header `Authorization: Bearer ...` e reconfirma a conta no banco a cada chamada — substitui o header `x-usuario-email` (que qualquer visitante podia forjar pra se passar por outra conta).
-- [x] **Editar Perfil e Trocar Senha:** Qualquer conta logada (cliente ou equipe) edita nome/e-mail e troca a própria senha (pede a senha atual) em "Meus Dados" — no perfil do cliente e numa aba própria no painel da equipe. Trocar o e-mail nunca muda o tipo da conta (evita autopromoção pra funcionário mudando pra um e-mail do domínio da loja).
-- [x] **Gestão de Contas pelo Admin:** Na aba Clientes do painel, a equipe edita nome/e-mail/tipo de qualquer conta e remove contas — com uma trava no servidor pra impedir remover a própria conta por ali.
-- [x] **Validação de E-mail mais Rigorosa:** O formato aceito no cadastro (e na edição de conta) agora rejeita domínios com TLD de 1 letra, pontos duplicados e rótulos começando/terminando com hífen — antes só exigia ter um "@" e um ".".
-- [x] **Modo Claro/Escuro:** Botão no cabeçalho troca entre o tema escuro padrão e uma paleta clara ("pergaminho"), preferência salva no navegador e aplicada antes da 1ª pintura da página (sem piscar o tema errado).
-- [x] **Desligar Efeitos Mágicos:** Botão no cabeçalho desliga o brilho que segue o cursor, as fagulhas flutuantes, o brilho pulsante dos ícones e o brilho que varre os cards — sem desligar o fundo animado da página.
-- [x] **Trilha de Navegação:** Toda página (exceto a inicial) mostra um caminho tipo `Início › Catálogo › Poções Muito Malignas` logo abaixo do cabeçalho.
+### Pra quem visita o site
+- **Catálogo de livros** (`/catalogo`), com filtro por categoria e página de detalhe pra cada um (`/livro/:id`).
+- **Cardápio do café** (`/cardapio`), com filtro por categoria e página de detalhe (`/produto/:id`).
+- **Promoções**, cada uma com página própria (`/promocao/:id`).
+- **Destaques** na home: livros mais vendidos e mais bem avaliados.
+- **Cadastro livre e login** — não precisa de e-mail real, só um formato válido (veja "Criando sua conta" abaixo).
+- **Modo claro/escuro** e **botão pra desligar efeitos visuais** (brilho do cursor, fagulhas), no cabeçalho.
+- **Trilha de navegação** em todas as páginas.
+- **Layout responsivo**, adaptado pra computador, tablet e celular.
 
-### 🟡 Possíveis Expansões Futuras (fora do escopo finalizado)
-- [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
-- [ ] **Notificação de Empréstimo:** Avisar o cliente (e-mail ou na tela) quando a equipe aprovar ou rejeitar um pedido.
-- [ ] **Compra de verdade:** carrinho, checkout e histórico de pedidos pro cardápio do café (hoje é só vitrine/detalhe, sem compra).
-- [ ] **Confirmação Real de E-mail:** hoje a validação é só de formato; confirmar que o e-mail existe de verdade exigiria um serviço de envio (ex.: Resend) com link de ativação.
-- [x] **Migração completa para React:** Site inteiro virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas só adicionando uma rota, sem mexer no servidor.
-- [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, cardápio, empréstimos e clientes (veja acima).
-- [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
-- [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
-- [x] **Cardápio, Página de Produto e Página de Promoção:** veja acima.
-- [x] **Editar Perfil, Gestão de Contas e Validação de E-mail:** veja acima.
-- [x] **Modo Claro/Escuro, Desligar Efeitos e Trilha de Navegação:** veja acima.
-- [x] **Sessão Segura de Usuário:** veja acima.
+### Pra quem tem conta
+- **Editar perfil e trocar senha**, em "Meus Dados".
+- **Cliente:** solicita empréstimo de um livro direto na página dele, acompanha e cancela pedidos em "Meus Empréstimos".
+- **Equipe (funcionário/admin):** painel próprio (`/painel-funcionario`) com resumo de números-chave e gestão completa de **biblioteca**, **cardápio**, **promoções**, **empréstimos** (aprovar, rejeitar, marcar devolução) e **contas de clientes**.
+
+### Segurança e dados
+- Senhas protegidas com hash (`scrypt` + *salt*), nunca guardadas em texto puro.
+- Sessão por token assinado, validado em toda ação restrita.
+- Dados persistidos no Postgres (Supabase), com automação que mantém o banco ativo e faz limpeza mensal (veja `database/SUPABASE.md`).
+
+### 🟡 Possíveis Expansões Futuras
+- [ ] **Sistema de Reservas:** retirada presencial de livros já reservados pelo site.
+- [ ] **Notificação de Empréstimo:** avisar o cliente quando um pedido for aprovado/rejeitado.
+- [ ] **Compra de verdade:** carrinho e checkout pro cardápio do café (hoje é só vitrine/detalhe).
+- [ ] **Confirmação Real de E-mail:** hoje só o formato é validado, não se o e-mail existe de fato.
 
 ## 🔑 Criando sua conta
 
