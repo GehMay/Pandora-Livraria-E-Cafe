@@ -20,6 +20,7 @@
   <img src="https://img.shields.io/badge/Banco-PostgreSQL_(Supabase)-2a623d?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL via Supabase">
   <img src="https://img.shields.io/badge/Hospedagem-Render-2a623d?style=flat-square&logo=render&logoColor=white" alt="Hospedado no Render">
   <img src="https://img.shields.io/badge/Licen%C3%A7a-CC%20BY--SA%204.0-c4a02c?style=flat-square" alt="Licença CC BY-SA 4.0">
+  <img src="https://img.shields.io/badge/Status-Finalizado-c4a02c?style=flat-square" alt="Projeto finalizado">
 </p>
 
 <p align="center">
@@ -34,12 +35,12 @@
 
 ---
 
-Um projeto de estudo Full-Stack focado no desenvolvimento de um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
+Um projeto de estudo Full-Stack **finalizado**, um sistema web completo para uma livraria mágica fictícia do universo de **Harry Potter**, localizada no **Beco Diagonal**.
 
 Começou do zero, **sem frameworks**, com o objetivo de aprender e consolidar os fundamentos da web (manipulação do DOM, requisições HTTP, modelagem de banco de dados e estilização). Com os fundamentos consolidados, o front-end inteiro foi migrado para **React + React Router** — uma SPA de verdade, com rotas reais em vez de arquivos `.html` soltos — pra deixar mais rápido criar cada página nova (ex.: a página de um livro específico, uma campanha/anúncio). O back-end continua em Node.js puro (`http`, `fs`, `crypto`, sem Express), por escolha, pra aprofundamento técnico.
 
 ## 🎯 Objetivo do Projeto (Produto Final)
-O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e livros mágicos, vejam os lançamentos, descubram promoções (de livros e do café) e façam login para reservar obras e retirar na loja física. Além disso, contará com um painel administrativo para controle interno do estoque e cadastro de novas campanhas.
+Os clientes navegam pelo acervo de grimórios e livros mágicos, veem os lançamentos, descobrem promoções (de livros e do café) e fazem login para solicitar empréstimo de obras e retirar na loja física. O painel administrativo cobre a gestão interna: estoque, cardápio do café, promoções, empréstimos e contas de clientes.
 
 ## 🛠️ Tecnologias Utilizadas
 * **Front-end:** SPA em **React + Vite** (`app/`), com **React Router** cuidando de todas as rotas (`/`, `/login`, `/cadastro`, `/catalogo`, `/livro/:id`, `/cardapio`, `/produto/:id`, `/promocao/:id`, `/perfil`, `/painel-funcionario`). `JS/canvas.js`, `JS/particulas.js` e `JS/magica.js` continuam como scripts soltos (efeitos visuais, sem estado de aplicação).
@@ -64,7 +65,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Back-end de Autenticação:** Rotas `POST /api/cadastro` e `POST /api/login` com senhas criptografadas (`scrypt` + *salt*) e dois tipos de usuário (`cliente` e `funcionario`), definidos automaticamente pelo domínio do e-mail no cadastro.
 - [x] **Login e Cadastro Funcionando:** Os formulários enviam os dados à API, mostram mensagens de erro e, ao entrar, o cabeçalho exibe um link "Olá, ..." com o botão "Sair".
 - [x] **Redirecionamento por Tipo de Conta:** Depois de entrar, cliente vai para `/perfil` e funcionário/admin vai para `/painel-funcionario` — cada rota protegida por um componente `<RotaProtegida>` que só deixa passar o tipo de conta certo (e manda quem está no tipo errado pro lugar certo, não pra fora do site).
-- [x] **Contas de Teste Fixas:** Um cliente e um funcionário/admin sempre disponíveis para demonstração (veja a seção abaixo).
+- [x] **Cadastro Livre:** Qualquer pessoa cria a própria conta em `/cadastro` — não precisa de e-mail real, só um formato de e-mail válido (veja a seção "Criando sua conta" abaixo).
 - [x] **Proteção de Arquivos Internos:** O servidor não entrega o código nem outros arquivos privados pelo navegador.
 - [x] **Persistência de Dados:** Usuários, livros, promoções e empréstimos ficam no Postgres (Supabase) — não somem mais a cada deploy/reinício do Render. Automação em `.github/workflows/supabase-manutencao.yml` mantém o projeto Supabase ativo e roda uma limpeza mensal (veja `database/SUPABASE.md`).
 - [x] **API de Destaques:** Rota `/api/destaques` que retorna os livros mais bem avaliados e os mais vendidos.
@@ -79,7 +80,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Gestão de Contas pelo Admin:** Na aba Clientes do painel, a equipe edita nome/e-mail/tipo de qualquer conta e remove contas — com uma trava no servidor pra impedir remover a própria conta por ali.
 - [x] **Validação de E-mail mais Rigorosa:** O formato aceito no cadastro (e na edição de conta) agora rejeita domínios com TLD de 1 letra, pontos duplicados e rótulos começando/terminando com hífen — antes só exigia ter um "@" e um ".".
 
-### 🟡 O que está no Roadmap (Próximos Passos)
+### 🟡 Possíveis Expansões Futuras (fora do escopo finalizado)
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
 - [ ] **Notificação de Empréstimo:** Avisar o cliente (e-mail ou na tela) quando a equipe aprovar ou rejeitar um pedido.
 - [ ] **Compra de verdade:** carrinho, checkout e histórico de pedidos pro cardápio do café (hoje é só vitrine/detalhe, sem compra).
@@ -92,14 +93,17 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Editar Perfil, Gestão de Contas e Validação de E-mail:** veja acima.
 - [x] **Sessão Segura de Usuário:** veja acima.
 
-## 🔑 Contas de Teste
+## 🔑 Criando sua conta
 
-Para experimentar o site sem precisar cadastrar nada, use uma destas contas (recriadas sempre que o servidor liga):
+Não existem mais contas fixas de demonstração — qualquer pessoa cria a própria conta em
+[`/cadastro`](https://pandora-livraria-e-cafe.onrender.com/cadastro). Não precisa ser um e-mail
+real nem receber confirmação nenhuma: o servidor só confere se o **formato** é válido (tem que
+parecer um e-mail de verdade — algo como `nome@dominio.com` — mas ninguém verifica se esse
+endereço existe). Por exemplo, `visitante@teste.com` já é aceito.
 
-| Tipo | E-mail | Senha |
-|---|---|---|
-| Cliente | `cliente@gmail.com` | `cliente123` |
-| Funcionário / Admin | `funcionario@pandoralivraria.com.br` | `equipe123` |
+> O tipo da conta é definido pelo domínio do e-mail no cadastro: quem usa
+> `@pandoralivraria.com.br` vira funcionário/admin (acesso ao painel da equipe), qualquer outro
+> domínio (Gmail, Outlook, `.com` genérico, etc.) vira cliente.
 
 > O tipo da conta é definido pelo domínio do e-mail no cadastro: quem usa `@pandoralivraria.com.br` vira funcionário/admin, qualquer outro domínio (Gmail, Outlook, etc.) vira cliente.
 
@@ -219,6 +223,11 @@ O site inteiro é gerado na pasta `/dist`. Rodar `npm run dev` na raiz (passo 4 
 ## 👩‍💻 Autoria
 
 Desenvolvido com dedicação por **Geovanna** como projeto prático de aprimoramento em Desenvolvimento Web Full-Stack.
+
+Assistentes de IA (Claude Code) foram usados como ferramenta de apoio — só em tarefas repetitivas
+(ex.: replicar o mesmo padrão de CRUD em várias abas do painel) ou em mudanças muito grandes pra
+fazer manualmente em tempo hábil (ex.: a reforma visual completa do tema). As decisões de produto,
+arquitetura e design continuam sendo da autora.
 
 ---
 

@@ -1,5 +1,7 @@
 # 📚 GUIA: SERVIDOR PROFISSIONAL COM LOGIN E CADASTRO
 
+> ⚠️ **Documento histórico/didático.** Este guia descreve uma fase bem antiga do projeto (armazenamento em `dados/usuarios.json`, sem React, sem painel da equipe) — serve como material de aprendizado sobre os fundamentos (streaming de arquivo, hash de senha, APIs), não como descrição do site atual. **Para a arquitetura e funcionalidades de hoje, veja o [`README.md`](README.md)** (projeto finalizado: React + Postgres/Supabase, painel completo, sessão por token, etc.) e [`database/SUPABASE.md`](database/SUPABASE.md).
+
 ## ✨ Principais Melhorias
 
 ### 1️⃣ **Streaming de Arquivos**
@@ -262,36 +264,15 @@ http://localhost:5500/teste-api.html
 
 ---
 
-## 🚀 PRÓXIMOS PASSOS
+## 🚀 PRÓXIMOS PASSOS (como eram vistos nessa fase do projeto)
 
-### Melhorias que você pode adicionar:
+### Dessa lista, o que já foi feito depois (veja o README):
 
-1. **Token JWT** (ao invés de enviar usuário inteiro)
-   ```javascript
-   const jwt = require('jsonwebtoken');
-   // Gerar token no login, validar em requisições futuras
-   ```
-
-2. **Banco de dados real** (MySQL, PostgreSQL)
-   ```javascript
-   // Usar `mysql2` ou similar ao invés de JSON
-   ```
-
-3. **Email de confirmação**
-   ```javascript
-   // Enviar email ao cadastrar
-   ```
-
-4. **Recuperação de senha**
-   ```javascript
-   // Gerar token temporário, enviar email com link
-   ```
-
-5. **Área do admin**
-   ```javascript
-   // Verificar se tipo === 'admin'
-   // Bloquear acesso caso contrário
-   ```
+1. ~~**Token de sessão**~~ ✅ feito — `SESSION_SECRET` assina um token HMAC-SHA256 no login, validado em toda rota restrita.
+2. ~~**Banco de dados real**~~ ✅ feito — PostgreSQL no Supabase, acessado via `pg`.
+3. **Email de confirmação** — ainda não existe; cadastro aceita qualquer formato de e-mail válido, sem confirmar que existe de verdade.
+4. **Recuperação de senha** — ainda não existe.
+5. ~~**Área do admin**~~ ✅ feito — painel completo em `/painel-funcionario`.
 
 ---
 

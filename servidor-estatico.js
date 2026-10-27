@@ -156,27 +156,6 @@ async function usuarioAutenticado(req) {
   return await buscarUsuarioPorId(payload.id);
 }
 
-/**
- * Contas de teste fixas (demonstração): um cliente e um funcionário/admin.
- * Garantidas (criadas ou atualizadas) toda vez que o servidor liga, pra sempre
- * existirem pra quem quiser testar.
- */
-const CONTAS_FIXAS = [
-  { nome: 'Cliente Teste', email: 'cliente@gmail.com', senha: 'cliente123', tipo: 'cliente' },
-  { nome: 'Funcionário Teste', email: `funcionario@${DOMINIO_LOJA}`, senha: 'equipe123', tipo: 'funcionario' }
-];
-
-async function garantirContasFixas() {
-  for (const conta of CONTAS_FIXAS) {
-    await pool.query(
-      `insert into usuarios (nome, email, senha, tipo)
-       values ($1, $2, $3, $4)
-       on conflict (email) do update set nome = excluded.nome, senha = excluded.senha, tipo = excluded.tipo`,
-      [conta.nome, conta.email, criarHashSenha(conta.senha), conta.tipo]
-    );
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════
 // 5. FUNÇÕES DE VALIDAÇÃO
 // ═══════════════════════════════════════════════════════════════
@@ -1397,8 +1376,6 @@ async function iniciar() {
     console.error(erro.message);
     process.exit(1);
   }
-
-  await garantirContasFixas();
 
   servidor.listen(PORTA, '0.0.0.0', () => {
     console.log(`
