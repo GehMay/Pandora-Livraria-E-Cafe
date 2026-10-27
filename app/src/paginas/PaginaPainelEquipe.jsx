@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import EditarConta from '../componentes/EditarConta.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 
@@ -482,16 +483,54 @@ function AbaEmprestimos({ token }) {
   );
 }
 
-function AbaClientes({ token }) {
+function AbaClientes({ token, idProprio }) {
   const [clientes, setClientes] = useState(null);
   const [busca, setBusca] = useState('');
+  const [emEdicao, setEmEdicao] = useState(null);
+  const [form, setForm] = useState({ nome: '', email: '', tipo: 'cliente' });
+  const [mensagem, setMensagem] = useState(null);
 
-  useEffect(() => {
+  function carregar() {
     fetch('/api/admin/usuarios', { headers: { 'Authorization': `Bearer ${token}` } })
       .then((r) => r.json())
       .then(setClientes)
       .catch(() => setClientes([]));
-  }, [token]);
+  }
+
+  useEffect(() => { carregar(); }, [token]);
+
+  function iniciarEdicao(cliente) {
+    setEmEdicao(cliente.id);
+    setForm({ nome: cliente.nome, email: cliente.email, tipo: cliente.tipo });
+  }
+
+  function cancelarEdicao() {
+    setEmEdicao(null);
+    setForm({ nome: '', email: '', tipo: 'cliente' });
+  }
+
+  async function salvar(evento) {
+    evento.preventDefault();
+    setMensagem(null);
+    try {
+      await enviarAdmin(`/api/admin/usuarios/${emEdicao}`, 'PUT', token, form);
+      setMensagem({ texto: 'Conta atualizada!', tipo: 'ok' });
+      cancelarEdicao();
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
+
+  async function remover(id) {
+    setMensagem(null);
+    try {
+      await enviarAdmin(`/api/admin/usuarios/${id}`, 'DELETE', token);
+      carregar();
+    } catch (erro) {
+      setMensagem({ texto: erro.message, tipo: 'erro' });
+    }
+  }
 
   const buscaNormalizada = busca.trim().toLowerCase();
   const clientesFiltrados = clientes?.filter((cliente) =>
@@ -510,22 +549,63 @@ function AbaClientes({ token }) {
       <div className="admin-tabela-wrap">
         <table className="tabela-admin">
           <thead>
-            <tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Cadastrado em</th></tr>
+            <tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Cadastrado em</th><th></th></tr>
           </thead>
           <tbody>
-            {clientes === null && <tr><td colSpan="4">Carregando...</td></tr>}
-            {clientes?.length > 0 && clientesFiltrados?.length === 0 && <tr><td colSpan="4">Nenhuma conta encontrada.</td></tr>}
+            {clientes === null && <tr><td colSpan="5">Carregando...</td></tr>}
+            {clientes?.length > 0 && clientesFiltrados?.length === 0 && <tr><td colSpan="5">Nenhuma conta encontrada.</td></tr>}
             {clientesFiltrados?.map((cliente) => (
               <tr key={cliente.id}>
                 <td>{cliente.nome}</td>
                 <td>{cliente.email}</td>
                 <td>{cliente.tipo}</td>
                 <td>{new Date(cliente.criado_em).toLocaleDateString('pt-BR')}</td>
+                <td className="admin-acoes">
+                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(cliente)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>Editar
+                  </button>
+                  {cliente.id !== idProprio && (
+                    <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(cliente.id)}>
+                      <span className="material-symbols-outlined" aria-hidden="true">delete</span>Remover
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {emEdicao && (
+        <form className="admin-form" onSubmit={salvar}>
+          <h3>Editar conta</h3>
+          <div className="form-grupo">
+            <label htmlFor="cliente-nome">Nome</label>
+            <input id="cliente-nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
+          </div>
+          <div className="form-grupo">
+            <label htmlFor="cliente-email">E-mail</label>
+            <input id="cliente-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+          </div>
+          <div className="form-grupo">
+            <label htmlFor="cliente-tipo">Tipo de conta</label>
+            <select id="cliente-tipo" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}>
+              <option value="cliente">Cliente</option>
+              <option value="funcionario">Funcionário</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          {mensagem && <p className={`form-mensagem form-mensagem-${mensagem.tipo}`}>{mensagem.texto}</p>}
+          <div className="admin-acoes-form">
+            <button type="submit" className="btn-submit">
+              <span className="material-symbols-outlined" aria-hidden="true">save</span>Salvar alterações
+            </button>
+            <button type="button" className="btn-admin" onClick={cancelarEdicao}>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>Cancelar
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
@@ -591,7 +671,8 @@ const ABAS_PAINEL = [
   { id: 'livros', rotulo: 'Biblioteca', icone: 'menu_book' },
   { id: 'produtos', rotulo: 'Cardápio', icone: 'local_cafe' },
   { id: 'emprestimos', rotulo: 'Empréstimos', icone: 'import_contacts' },
-  { id: 'clientes', rotulo: 'Clientes', icone: 'group' }
+  { id: 'clientes', rotulo: 'Clientes', icone: 'group' },
+  { id: 'conta', rotulo: 'Minha Conta', icone: 'account_circle' }
 ];
 
 // A sessão/tipo de conta já foi conferida pela <RotaProtegida> que envolve
@@ -632,7 +713,8 @@ export default function PaginaPainelEquipe() {
           {abaAtiva === 'livros' && <AbaLivros token={usuario.token} />}
           {abaAtiva === 'produtos' && <AbaProdutos token={usuario.token} />}
           {abaAtiva === 'emprestimos' && <AbaEmprestimos token={usuario.token} />}
-          {abaAtiva === 'clientes' && <AbaClientes token={usuario.token} />}
+          {abaAtiva === 'clientes' && <AbaClientes token={usuario.token} idProprio={usuario.id} />}
+          {abaAtiva === 'conta' && <EditarConta usuario={usuario} />}
         </div>
       </main>
 

@@ -181,8 +181,12 @@ async function garantirContasFixas() {
 // 5. FUNÇÕES DE VALIDAÇÃO
 // ═══════════════════════════════════════════════════════════════
 
+// Mais rigorosa que um simples "tem @ e um ponto": cada rótulo do domínio não
+// pode começar/terminar com hífen nem ficar vazio (rejeita "a@.co", "a@b..c",
+// "a@-b.com") e o TLD final precisa ter 2+ letras (rejeita "a@b.c"). Ainda
+// aceita TLDs curtos de verdade como .co, .io etc.
 function emailValido(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
   return email.length <= 254 && regex.test(email);
 }
 
@@ -226,6 +230,19 @@ async function exigirCliente(req, res) {
   const usuario = await usuarioAutenticado(req);
   if (!usuario || usuario.tipo !== 'cliente') {
     responderJson(res, 403, { erro: 'Acesso restrito a clientes logados' });
+    return null;
+  }
+  return usuario;
+}
+
+/**
+ * Qualquer conta logada (cliente, funcionário ou admin) — usado nas rotas de
+ * "minha conta" (editar perfil, trocar senha), que não são específicas de um tipo.
+ */
+async function exigirUsuario(req, res) {
+  const usuario = await usuarioAutenticado(req);
+  if (!usuario) {
+    responderJson(res, 401, { erro: 'Sessão inválida ou expirada, entre de novo' });
     return null;
   }
   return usuario;
@@ -902,6 +919,136 @@ async function apiListarUsuarios(res) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 9.7 API: MINHA CONTA (editar perfil e trocar senha, qualquer tipo de conta)
+// ═══════════════════════════════════════════════════════════════
+
+async function apiAtualizarConta(req, res, usuario) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const nome = String(corpo.nome || '').trim();
+    const email = String(corpo.email || '').trim().toLowerCase();
+
+    if (!nome || !email) {
+      responderJson(res, 400, { erro: 'Nome e email são obrigatórios' });
+      return;
+    }
+    if (!emailValido(email)) {
+      responderJson(res, 400, { erro: 'Email inválido' });
+      return;
+    }
+
+    if (email !== usuario.email) {
+      const existente = await buscarUsuarioPorEmail(email);
+      if (existente) {
+        responderJson(res, 409, { erro: 'Este email já está em uso' });
+        return;
+      }
+    }
+
+    // O tipo da conta nunca muda por aqui (só o admin pode promover/rebaixar
+    // alguém, pelo painel) — evita que trocar de email pra um domínio da loja
+    // vire um jeito de a pessoa se autopromover a funcionário.
+    const atualizado = await pool.query(
+      `update usuarios set nome = $1, email = $2 where id = $3 returning *`,
+      [nome, email, usuario.id]
+    );
+
+    responderJson(res, 200, { mensagem: 'Perfil atualizado', usuario: usuarioPublico(atualizado.rows[0]) });
+  } catch (erro) {
+    console.error('Erro ao atualizar conta:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar perfil' });
+  }
+}
+
+async function apiAtualizarSenha(req, res, usuario) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const senhaAtual = String(corpo.senhaAtual || '').trim();
+    const novaSenha = String(corpo.novaSenha || '').trim();
+
+    if (!senhaAtual || !novaSenha) {
+      responderJson(res, 400, { erro: 'Senha atual e nova senha são obrigatórias' });
+      return;
+    }
+    if (!verificarSenha(senhaAtual, usuario.senha)) {
+      responderJson(res, 401, { erro: 'Senha atual incorreta' });
+      return;
+    }
+    if (!senhaValida(novaSenha)) {
+      responderJson(res, 400, { erro: 'A nova senha deve ter pelo menos 6 caracteres' });
+      return;
+    }
+
+    await pool.query('update usuarios set senha = $1 where id = $2', [criarHashSenha(novaSenha), usuario.id]);
+    responderJson(res, 200, { mensagem: 'Senha atualizada' });
+  } catch (erro) {
+    console.error('Erro ao atualizar senha:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar senha' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9.8 API: GESTÃO DE CONTAS PELO ADMIN (editar tipo, remover)
+// ═══════════════════════════════════════════════════════════════
+
+async function apiEditarUsuarioAdmin(req, res, id) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+    const usuario = await buscarUsuarioPorId(id);
+    if (!usuario) {
+      responderJson(res, 404, { erro: 'Conta não encontrada' });
+      return;
+    }
+
+    const nome = corpo.nome !== undefined ? String(corpo.nome).trim() : usuario.nome;
+    const email = corpo.email !== undefined ? String(corpo.email).trim().toLowerCase() : usuario.email;
+    const tipo = corpo.tipo !== undefined ? String(corpo.tipo).trim() : usuario.tipo;
+
+    if (!nome || !emailValido(email) || !['cliente', 'funcionario', 'admin'].includes(tipo)) {
+      responderJson(res, 400, { erro: 'Nome, email e tipo válidos são obrigatórios' });
+      return;
+    }
+
+    if (email !== usuario.email) {
+      const existente = await buscarUsuarioPorEmail(email);
+      if (existente) {
+        responderJson(res, 409, { erro: 'Este email já está em uso' });
+        return;
+      }
+    }
+
+    const atualizado = await pool.query(
+      `update usuarios set nome = $1, email = $2, tipo = $3 where id = $4 returning *`,
+      [nome, email, tipo, id]
+    );
+
+    responderJson(res, 200, { mensagem: 'Conta atualizada', usuario: usuarioPublico(atualizado.rows[0]) });
+  } catch (erro) {
+    console.error('Erro ao editar conta:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar conta' });
+  }
+}
+
+async function apiRemoverUsuarioAdmin(res, id, usuarioLogado) {
+  try {
+    if (id === usuarioLogado.id) {
+      responderJson(res, 409, { erro: 'Você não pode remover a própria conta por aqui' });
+      return;
+    }
+
+    const resultado = await pool.query('delete from usuarios where id = $1', [id]);
+    if (resultado.rowCount === 0) {
+      responderJson(res, 404, { erro: 'Conta não encontrada' });
+      return;
+    }
+    responderJson(res, 200, { mensagem: 'Conta removida' });
+  } catch (erro) {
+    console.error('Erro ao remover conta:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar remoção' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 10. MAPEAR URL PARA ARQUIVO
 // ═══════════════════════════════════════════════════════════════
 
@@ -1145,6 +1292,39 @@ const servidor = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/api/admin/usuarios') {
     if (!(await exigirFuncionario(req, res))) return;
     await apiListarUsuarios(res);
+    return;
+  }
+
+  // Contas (usuarios.id) são uuid, não serial — regex diferente da usada pra livros/promoções/produtos.
+  const idUsuarioRota = req.url.match(/^\/api\/admin\/usuarios\/([0-9a-fA-F-]{36})$/);
+
+  if (req.method === 'PUT' && idUsuarioRota) {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiEditarUsuarioAdmin(req, res, idUsuarioRota[1]);
+    return;
+  }
+
+  if (req.method === 'DELETE' && idUsuarioRota) {
+    const usuarioLogado = await usuarioAutenticado(req);
+    if (!usuarioLogado || !['funcionario', 'admin'].includes(usuarioLogado.tipo)) {
+      responderJson(res, 403, { erro: 'Acesso restrito à equipe' });
+      return;
+    }
+    await apiRemoverUsuarioAdmin(res, idUsuarioRota[1], usuarioLogado);
+    return;
+  }
+
+  if (req.method === 'PUT' && req.url === '/api/conta') {
+    const usuario = await exigirUsuario(req, res);
+    if (!usuario) return;
+    await apiAtualizarConta(req, res, usuario);
+    return;
+  }
+
+  if (req.method === 'PUT' && req.url === '/api/conta/senha') {
+    const usuario = await exigirUsuario(req, res);
+    if (!usuario) return;
+    await apiAtualizarSenha(req, res, usuario);
     return;
   }
 

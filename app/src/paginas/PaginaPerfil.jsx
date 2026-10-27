@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import EditarConta from '../componentes/EditarConta.jsx';
 import { lerSessao } from '../sessao.js';
 import { enviarAdmin } from '../api.js';
 import { ICONES_POR_CATEGORIA, ICONE_LIVRO_PADRAO } from '../icones.js';
@@ -83,6 +84,13 @@ export default function PaginaPerfil() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+
+        <div className="secao-vitrine">
+          <div className="card card-padding">
+            <h3 className="secao-titulo">Meus Dados</h3>
+            <EditarConta usuario={usuario} />
           </div>
         </div>
 

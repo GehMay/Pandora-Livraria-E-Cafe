@@ -75,16 +75,21 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Empréstimo pelo Site:** Cliente logado solicita o empréstimo direto na página do livro (vira um pedido com status `solicitado`, sem baixar o estoque ainda); a equipe aprova (baixa o estoque, status `ativo`) ou rejeita pelo painel, e o próprio cliente pode cancelar um pedido ainda não aprovado. Acompanha tudo em "Meus Empréstimos", dentro de `/perfil`.
 - [x] **Destaques na Página Inicial:** A home mostra os livros mais vendidos e mais bem avaliados (`/api/destaques`), com cards clicáveis que levam direto pra página do livro.
 - [x] **Sessão por Token Assinado:** Login e cadastro emitem um token (HMAC-SHA256, assinado com `SESSION_SECRET`, válido por 7 dias). Toda rota restrita (`/api/admin/...`, empréstimos do cliente) exige esse token no header `Authorization: Bearer ...` e reconfirma a conta no banco a cada chamada — substitui o header `x-usuario-email` (que qualquer visitante podia forjar pra se passar por outra conta).
+- [x] **Editar Perfil e Trocar Senha:** Qualquer conta logada (cliente ou equipe) edita nome/e-mail e troca a própria senha (pede a senha atual) em "Meus Dados" — no perfil do cliente e numa aba própria no painel da equipe. Trocar o e-mail nunca muda o tipo da conta (evita autopromoção pra funcionário mudando pra um e-mail do domínio da loja).
+- [x] **Gestão de Contas pelo Admin:** Na aba Clientes do painel, a equipe edita nome/e-mail/tipo de qualquer conta e remove contas — com uma trava no servidor pra impedir remover a própria conta por ali.
+- [x] **Validação de E-mail mais Rigorosa:** O formato aceito no cadastro (e na edição de conta) agora rejeita domínios com TLD de 1 letra, pontos duplicados e rótulos começando/terminando com hífen — antes só exigia ter um "@" e um ".".
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
 - [ ] **Notificação de Empréstimo:** Avisar o cliente (e-mail ou na tela) quando a equipe aprovar ou rejeitar um pedido.
 - [ ] **Compra de verdade:** carrinho, checkout e histórico de pedidos pro cardápio do café (hoje é só vitrine/detalhe, sem compra).
+- [ ] **Confirmação Real de E-mail:** hoje a validação é só de formato; confirmar que o e-mail existe de verdade exigiria um serviço de envio (ex.: Resend) com link de ativação.
 - [x] **Migração completa para React:** Site inteiro virou uma SPA em React + Vite + React Router, substituindo os arquivos `.html` soltos e os scripts de página (`lancamento.js`, `promocoes.js`, `auth.js`). Deixa criar páginas novas só adicionando uma rota, sem mexer no servidor.
 - [x] **Painel da Equipe Completo:** Gerenciamento de promoções, estoque/biblioteca, cardápio, empréstimos e clientes (veja acima).
 - [x] **Persistência dos Dados:** Migrado de arquivos JSON para Postgres no Supabase (veja acima).
 - [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
 - [x] **Cardápio, Página de Produto e Página de Promoção:** veja acima.
+- [x] **Editar Perfil, Gestão de Contas e Validação de E-mail:** veja acima.
 - [x] **Sessão Segura de Usuário:** veja acima.
 
 ## 🔑 Contas de Teste
@@ -137,6 +142,7 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    │    ├── 📄 VitrineDestaques.jsx # Mais vendidos/avaliados (/api/destaques)
  │    │    │    ├── 📄 VitrineProdutos.jsx  # Grid de produtos do café (/api/produtos)
  │    │    │    ├── 📄 FormularioAuth.jsx   # Formulário de login/cadastro
+ │    │    │    ├── 📄 EditarConta.jsx      # Editar perfil + trocar senha (cliente e equipe)
  │    │    │    └── 📄 RotaProtegida.jsx    # Guarda de rota por tipo de conta
  │    │    └── 📁 paginas                   # Uma por rota: Inicio, Login, Cadastro, Catalogo, Livro,
  │    │                                     # CatalogoProdutos, Produto, Promocao, Perfil,
