@@ -70,8 +70,12 @@ function AbaPromocoes({ token }) {
                 <td><span className="badge badge-desconto">{promocao.desconto}</span></td>
                 <td>{promocao.descricao}</td>
                 <td className="admin-acoes">
-                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(promocao)}>Editar</button>
-                  <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(promocao.id_promocao)}>Remover</button>
+                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(promocao)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>Editar
+                  </button>
+                  <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(promocao.id_promocao)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">delete</span>Remover
+                  </button>
                 </td>
               </tr>
             ))}
@@ -95,8 +99,15 @@ function AbaPromocoes({ token }) {
         </div>
         {mensagem && <p className={`form-mensagem form-mensagem-${mensagem.tipo}`}>{mensagem.texto}</p>}
         <div className="admin-acoes-form">
-          <button type="submit" className="btn-submit">{emEdicao ? 'Salvar alterações' : 'Criar promoção'}</button>
-          {emEdicao && <button type="button" className="btn-admin" onClick={cancelarEdicao}>Cancelar</button>}
+          <button type="submit" className="btn-submit">
+            <span className="material-symbols-outlined" aria-hidden="true">save</span>
+            {emEdicao ? 'Salvar alterações' : 'Criar promoção'}
+          </button>
+          {emEdicao && (
+            <button type="button" className="btn-admin" onClick={cancelarEdicao}>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>Cancelar
+            </button>
+          )}
         </div>
       </form>
     </div>
@@ -172,8 +183,12 @@ function AbaLivros({ token }) {
                 <td>R$ {Number(livro.preco).toFixed(2)}</td>
                 <td>{livro.estoque ?? 0}</td>
                 <td className="admin-acoes">
-                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(livro)}>Editar</button>
-                  <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(livro.id_livro)}>Remover</button>
+                  <button type="button" className="btn-admin" onClick={() => iniciarEdicao(livro)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">edit</span>Editar
+                  </button>
+                  <button type="button" className="btn-admin btn-admin-perigo" onClick={() => remover(livro.id_livro)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">delete</span>Remover
+                  </button>
                 </td>
               </tr>
             ))}
@@ -205,8 +220,15 @@ function AbaLivros({ token }) {
         </div>
         {mensagem && <p className={`form-mensagem form-mensagem-${mensagem.tipo}`}>{mensagem.texto}</p>}
         <div className="admin-acoes-form">
-          <button type="submit" className="btn-submit">{emEdicao ? 'Salvar alterações' : 'Cadastrar livro'}</button>
-          {emEdicao && <button type="button" className="btn-admin" onClick={cancelarEdicao}>Cancelar</button>}
+          <button type="submit" className="btn-submit">
+            <span className="material-symbols-outlined" aria-hidden="true">save</span>
+            {emEdicao ? 'Salvar alterações' : 'Cadastrar livro'}
+          </button>
+          {emEdicao && (
+            <button type="button" className="btn-admin" onClick={cancelarEdicao}>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>Cancelar
+            </button>
+          )}
         </div>
       </form>
     </div>
@@ -292,12 +314,18 @@ function AbaEmprestimos({ token }) {
                 <td className="admin-acoes">
                   {emprestimo.status === 'solicitado' && (
                     <>
-                      <button type="button" className="btn-admin" onClick={() => aprovar(emprestimo.id_emprestimo)}>Aprovar</button>
-                      <button type="button" className="btn-admin btn-admin-perigo" onClick={() => rejeitar(emprestimo.id_emprestimo)}>Rejeitar</button>
+                      <button type="button" className="btn-admin" onClick={() => aprovar(emprestimo.id_emprestimo)}>
+                        <span className="material-symbols-outlined" aria-hidden="true">check_circle</span>Aprovar
+                      </button>
+                      <button type="button" className="btn-admin btn-admin-perigo" onClick={() => rejeitar(emprestimo.id_emprestimo)}>
+                        <span className="material-symbols-outlined" aria-hidden="true">cancel</span>Rejeitar
+                      </button>
                     </>
                   )}
                   {(emprestimo.status === 'ativo' || emprestimo.status === 'atrasado') && (
-                    <button type="button" className="btn-admin" onClick={() => devolver(emprestimo.id_emprestimo)}>Marcar devolvido</button>
+                    <button type="button" className="btn-admin" onClick={() => devolver(emprestimo.id_emprestimo)}>
+                      <span className="material-symbols-outlined" aria-hidden="true">assignment_turned_in</span>Marcar devolvido
+                    </button>
                   )}
                 </td>
               </tr>
@@ -330,7 +358,9 @@ function AbaEmprestimos({ token }) {
           <input id="emp-data" type="date" value={form.data_prevista_devolucao} onChange={(e) => setForm({ ...form, data_prevista_devolucao: e.target.value })} required />
         </div>
         {mensagem && <p className={`form-mensagem form-mensagem-${mensagem.tipo}`}>{mensagem.texto}</p>}
-        <button type="submit" className="btn-submit">Registrar empréstimo</button>
+        <button type="submit" className="btn-submit">
+          <span className="material-symbols-outlined" aria-hidden="true">save</span>Registrar empréstimo
+        </button>
       </form>
     </div>
   );
@@ -412,7 +442,7 @@ function AbaResumo() {
       </div>
       <div className={`admin-resumo-cartao${estoqueBaixo > 0 ? ' admin-resumo-alerta' : ''}`}>
         <strong>{estoqueBaixo}</strong>
-        <span>Com estoque baixo (&lt;5)</span>
+        <span>{estoqueBaixo > 0 && <span className="material-symbols-outlined" aria-hidden="true">warning</span>}Com estoque baixo (&lt;5)</span>
       </div>
       <div className="admin-resumo-cartao">
         <strong>{promocoes.length}</strong>
@@ -424,21 +454,21 @@ function AbaResumo() {
       </div>
       <div className={`admin-resumo-cartao${atrasados > 0 ? ' admin-resumo-alerta' : ''}`}>
         <strong>{atrasados}</strong>
-        <span>Empréstimos atrasados</span>
+        <span>{atrasados > 0 && <span className="material-symbols-outlined" aria-hidden="true">warning</span>}Empréstimos atrasados</span>
       </div>
       <div className={`admin-resumo-cartao${pendentes > 0 ? ' admin-resumo-alerta' : ''}`}>
         <strong>{pendentes}</strong>
-        <span>Pedidos aguardando aprovação</span>
+        <span>{pendentes > 0 && <span className="material-symbols-outlined" aria-hidden="true">hourglass_empty</span>}Pedidos aguardando aprovação</span>
       </div>
     </div>
   );
 }
 
 const ABAS_PAINEL = [
-  { id: 'promocoes', rotulo: 'Promoções' },
-  { id: 'livros', rotulo: 'Biblioteca' },
-  { id: 'emprestimos', rotulo: 'Empréstimos' },
-  { id: 'clientes', rotulo: 'Clientes' }
+  { id: 'promocoes', rotulo: 'Promoções', icone: 'sell' },
+  { id: 'livros', rotulo: 'Biblioteca', icone: 'menu_book' },
+  { id: 'emprestimos', rotulo: 'Empréstimos', icone: 'import_contacts' },
+  { id: 'clientes', rotulo: 'Clientes', icone: 'group' }
 ];
 
 // A sessão/tipo de conta já foi conferida pela <RotaProtegida> que envolve
@@ -469,6 +499,7 @@ export default function PaginaPainelEquipe() {
                 className={`admin-tab${abaAtiva === aba.id ? ' admin-tab-ativa' : ''}`}
                 onClick={() => setAbaAtiva(aba.id)}
               >
+                <span className="material-symbols-outlined" aria-hidden="true">{aba.icone}</span>
                 {aba.rotulo}
               </button>
             ))}

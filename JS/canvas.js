@@ -59,13 +59,13 @@ function desenhar() {
 
         if (sobreCard) {
             // Em cima do card: transparência aumenta (80% transparente, alpha 0.2)
-            ctx.fillStyle = 'rgba(26, 71, 42, 0.2)';
-            ctx.shadowColor = 'rgba(26, 71, 42, 0.25)';
+            ctx.fillStyle = 'rgba(235, 193, 107, 0.25)';
+            ctx.shadowColor = 'rgba(235, 193, 107, 0.3)';
             ctx.shadowBlur = 8;
         } else {
             // No fundo normal: cor sólida com ~40% de transparência (alpha 0.6)
-            ctx.fillStyle = 'rgba(26, 71, 42, 0.6)';
-            ctx.shadowColor = 'rgba(26, 71, 42, 0.4)';
+            ctx.fillStyle = 'rgba(235, 193, 107, 0.6)';
+            ctx.shadowColor = 'rgba(235, 193, 107, 0.45)';
             ctx.shadowBlur = 15;
         }
 

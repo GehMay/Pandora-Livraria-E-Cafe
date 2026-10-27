@@ -14,10 +14,14 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
         <img src="/imagens/logo.svg" alt="Logo Pandora Livraria & Café" />
       </Link>
       <Link to="/" className="link-home">
-        <p>Pandora Livraria & Café</p>
+        <p>Pandora</p>
+        <p>Livraria e Café</p>
       </Link>
       <nav className="cabecalho_nav">
-        <Link to="/catalogo" className="cabecalho_link-catalogo">Catálogo</Link>
+        <Link to="/catalogo" className="cabecalho_link-catalogo">
+          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+          Catálogo
+        </Link>
         <p>{subtitulo}</p>
       </nav>
       {(usuario || mostrarAcoesPublicas) && (
@@ -25,9 +29,12 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
           {usuario ? (
             <>
               <span className="cabecalho_saudacao">
-                Olá, {primeiroNome}{ehEquipe ? ' · Equipe' : ''}
+                Olá, <strong>{primeiroNome}</strong>{ehEquipe ? ' · Equipe' : ''}
               </span>
-              <button type="button" className="btn-login" onClick={sair}>Sair</button>
+              <button type="button" className="btn-login" onClick={sair}>
+                <span className="material-symbols-outlined" aria-hidden="true">logout</span>
+                Sair
+              </button>
             </>
           ) : (
             <>
