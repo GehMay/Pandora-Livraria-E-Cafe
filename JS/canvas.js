@@ -53,6 +53,9 @@ const RAIO_BOLINHA = 6;
 function desenhar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Botão "desligar efeitos" no cabeçalho (preferencias.js) grava esse atributo.
+    if (document.documentElement.dataset.efeitos === 'off') return;
+
     if (mouseAtivo) {
         ctx.beginPath();
         ctx.arc(mouseX, mouseY, RAIO_BOLINHA, 0, Math.PI * 2);

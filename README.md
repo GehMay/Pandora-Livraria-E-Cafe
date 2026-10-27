@@ -78,6 +78,9 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Editar Perfil e Trocar Senha:** Qualquer conta logada (cliente ou equipe) edita nome/e-mail e troca a própria senha (pede a senha atual) em "Meus Dados" — no perfil do cliente e numa aba própria no painel da equipe. Trocar o e-mail nunca muda o tipo da conta (evita autopromoção pra funcionário mudando pra um e-mail do domínio da loja).
 - [x] **Gestão de Contas pelo Admin:** Na aba Clientes do painel, a equipe edita nome/e-mail/tipo de qualquer conta e remove contas — com uma trava no servidor pra impedir remover a própria conta por ali.
 - [x] **Validação de E-mail mais Rigorosa:** O formato aceito no cadastro (e na edição de conta) agora rejeita domínios com TLD de 1 letra, pontos duplicados e rótulos começando/terminando com hífen — antes só exigia ter um "@" e um ".".
+- [x] **Modo Claro/Escuro:** Botão no cabeçalho troca entre o tema escuro padrão e uma paleta clara ("pergaminho"), preferência salva no navegador e aplicada antes da 1ª pintura da página (sem piscar o tema errado).
+- [x] **Desligar Efeitos Mágicos:** Botão no cabeçalho desliga o brilho que segue o cursor, as fagulhas flutuantes, o brilho pulsante dos ícones e o brilho que varre os cards — sem desligar o fundo animado da página.
+- [x] **Trilha de Navegação:** Toda página (exceto a inicial) mostra um caminho tipo `Início › Catálogo › Poções Muito Malignas` logo abaixo do cabeçalho.
 
 ### 🟡 O que está no Roadmap (Próximos Passos)
 - [ ] **Sistema de Reservas:** Interface para o usuário autenticado selecionar grimórios para retirada presencial.
@@ -90,6 +93,7 @@ O sistema final permitirá que os clientes naveguem pelo acervo de grimórios e 
 - [x] **Catálogo, Página de Livro e Empréstimo pelo Site:** veja acima.
 - [x] **Cardápio, Página de Produto e Página de Promoção:** veja acima.
 - [x] **Editar Perfil, Gestão de Contas e Validação de E-mail:** veja acima.
+- [x] **Modo Claro/Escuro, Desligar Efeitos e Trilha de Navegação:** veja acima.
 - [x] **Sessão Segura de Usuário:** veja acima.
 
 ## 🔑 Contas de Teste
@@ -132,10 +136,12 @@ Abaixo está o mapa para você se encontrar dentro dos arquivos do projeto:
  │    │    ├── 📄 main.jsx                  # Ponto de entrada (monta o <BrowserRouter>)
  │    │    ├── 📄 App.jsx                   # Define as rotas (React Router)
  │    │    ├── 📄 sessao.js                 # Ler/salvar sessão, sair, decidir página por tipo de conta
+ │    │    ├── 📄 preferencias.js           # Ler/salvar tema (claro/escuro) e efeitos mágicos (on/off)
  │    │    ├── 📄 icones.js                 # Ícones SVG por categoria (livro e produto do café)
  │    │    ├── 📄 api.js                    # Chamadas fetch compartilhadas (login/cadastro, admin)
  │    │    ├── 📁 componentes
- │    │    │    ├── 📄 Cabecalho.jsx        # Cabeçalho único de todo o site
+ │    │    │    ├── 📄 Cabecalho.jsx        # Cabeçalho único de todo o site (inclui botões de tema/efeitos)
+ │    │    │    ├── 📄 Breadcrumb.jsx       # Trilha de navegação abaixo do cabeçalho
  │    │    │    ├── 📄 Rodape.jsx
  │    │    │    ├── 📄 VitrineLivros.jsx    # Grid de livros (/api/lancamentos)
  │    │    │    ├── 📄 VitrinePromocoes.jsx # Grid de promoções (/api/promocoes)

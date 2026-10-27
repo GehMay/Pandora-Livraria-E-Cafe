@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Cabecalho from '../componentes/Cabecalho.jsx';
 import Rodape from '../componentes/Rodape.jsx';
+import Breadcrumb from '../componentes/Breadcrumb.jsx';
 import { lerSessao } from '../sessao.js';
 import { ICONES_POR_CATEGORIA_PRODUTO, ICONE_PRODUTO_PADRAO } from '../icones.js';
 
@@ -28,6 +29,11 @@ export default function PaginaProduto() {
   return (
     <>
       <Cabecalho subtitulo="Detalhes do produto" usuario={usuario} />
+      <Breadcrumb itens={[
+        { rotulo: 'Início', href: '/' },
+        { rotulo: 'Cardápio', href: '/cardapio' },
+        { rotulo: produto?.nome || (naoEncontrado ? 'Não encontrado' : 'Carregando...') }
+      ]} />
 
       <main className="container">
         {naoEncontrado && (
