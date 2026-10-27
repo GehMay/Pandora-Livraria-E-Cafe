@@ -611,6 +611,42 @@ function AbaClientes({ token, idProprio }) {
   );
 }
 
+function AbaFeedback({ token }) {
+  const [feedbacks, setFeedbacks] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/admin/feedback', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then(setFeedbacks)
+      .catch(() => setFeedbacks([]));
+  }, [token]);
+
+  return (
+    <div className="admin-secao">
+      <div className="admin-tabela-wrap">
+        <table className="tabela-admin">
+          <thead>
+            <tr><th>Recebido em</th><th>Nome</th><th>E-mail</th><th>Nota</th><th>Mensagem</th></tr>
+          </thead>
+          <tbody>
+            {feedbacks === null && <tr><td colSpan="5">Carregando...</td></tr>}
+            {feedbacks?.length === 0 && <tr><td colSpan="5">Nenhum feedback recebido ainda.</td></tr>}
+            {feedbacks?.map((item) => (
+              <tr key={item.id}>
+                <td>{new Date(item.criado_em).toLocaleString('pt-BR')}</td>
+                <td>{item.nome || '—'}</td>
+                <td>{item.email || '—'}</td>
+                <td>{item.nota ? `${item.nota} ★` : '—'}</td>
+                <td>{item.mensagem}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function AbaResumo() {
   const [livros, setLivros] = useState(null);
   const [promocoes, setPromocoes] = useState(null);
@@ -673,6 +709,7 @@ const ABAS_PAINEL = [
   { id: 'produtos', rotulo: 'Cardápio', icone: 'local_cafe' },
   { id: 'emprestimos', rotulo: 'Empréstimos', icone: 'import_contacts' },
   { id: 'clientes', rotulo: 'Clientes', icone: 'group' },
+  { id: 'feedback', rotulo: 'Feedback', icone: 'forum' },
   { id: 'conta', rotulo: 'Minha Conta', icone: 'account_circle' }
 ];
 
@@ -716,6 +753,7 @@ export default function PaginaPainelEquipe() {
           {abaAtiva === 'produtos' && <AbaProdutos token={usuario.token} />}
           {abaAtiva === 'emprestimos' && <AbaEmprestimos token={usuario.token} />}
           {abaAtiva === 'clientes' && <AbaClientes token={usuario.token} idProprio={usuario.id} />}
+          {abaAtiva === 'feedback' && <AbaFeedback token={usuario.token} />}
           {abaAtiva === 'conta' && <EditarConta usuario={usuario} />}
         </div>
       </main>

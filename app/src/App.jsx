@@ -10,6 +10,7 @@ import PaginaLivro from './paginas/PaginaLivro.jsx';
 import PaginaCatalogoProdutos from './paginas/PaginaCatalogoProdutos.jsx';
 import PaginaProduto from './paginas/PaginaProduto.jsx';
 import PaginaPromocao from './paginas/PaginaPromocao.jsx';
+import PaginaFeedback from './paginas/PaginaFeedback.jsx';
 import { PaginaTesteMagica, PaginaTesteCanvas } from './paginas/PaginaTeste.jsx';
 import PaginaNaoEncontrada from './paginas/PaginaNaoEncontrada.jsx';
 
@@ -24,6 +25,7 @@ export default function App() {
       <Route path="/cardapio" element={<PaginaCatalogoProdutos />} />
       <Route path="/produto/:id" element={<PaginaProduto />} />
       <Route path="/promocao/:id" element={<PaginaPromocao />} />
+      <Route path="/feedback" element={<PaginaFeedback />} />
       <Route
         path="/perfil"
         element={

@@ -55,6 +55,15 @@ create table if not exists emprestimos (
   status text not null default 'ativo' check (status in ('solicitado', 'ativo', 'devolvido', 'rejeitado', 'cancelado'))
 );
 
+create table if not exists feedback (
+  id serial primary key,
+  nome text,
+  email text,
+  nota integer check (nota between 1 and 5),
+  mensagem text not null,
+  criado_em timestamptz not null default now()
+);
+
 -- Seed: mesmo acervo que já existia em dados/banco.json.
 -- Só insere se a tabela ainda estiver vazia, pra rodar este arquivo de novo não duplicar
 -- nada (nem apagar livros/promoções que você já tiver criado pelo painel da equipe).

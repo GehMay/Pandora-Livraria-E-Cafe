@@ -42,6 +42,10 @@ export default function Cabecalho({ subtitulo, usuario = null, mostrarAcoesPubli
           <span className="material-symbols-outlined" aria-hidden="true">local_cafe</span>
           Cardápio
         </Link>
+        <Link to="/feedback" className="cabecalho_link-catalogo">
+          <span className="material-symbols-outlined" aria-hidden="true">forum</span>
+          Feedback
+        </Link>
         <p>{subtitulo}</p>
       </nav>
       <div className="cabecalho_preferencias">

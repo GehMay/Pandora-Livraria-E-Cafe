@@ -967,6 +967,66 @@ async function apiAtualizarSenha(req, res, usuario) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 9.75 API: FEEDBACK (formulário público + leitura pela equipe)
+// ═══════════════════════════════════════════════════════════════
+
+async function apiEnviarFeedback(req, res) {
+  try {
+    const corpo = await lerCorpoRequisicao(req);
+
+    // Campo isca: invisível pra gente, mas bots que preenchem todo input do
+    // formulário costumam cair nele. Se vier preenchido, finge sucesso sem
+    // gravar nada (não vale alertar o remetente de que foi filtrado).
+    if (String(corpo.site || '').trim()) {
+      responderJson(res, 201, { mensagem: 'Obrigado pelo feedback!' });
+      return;
+    }
+
+    const nome = String(corpo.nome || '').trim().slice(0, 120);
+    const email = String(corpo.email || '').trim().slice(0, 254);
+    const mensagem = String(corpo.mensagem || '').trim();
+    const nota = corpo.nota !== undefined && corpo.nota !== '' ? Number(corpo.nota) : null;
+
+    if (!mensagem) {
+      responderJson(res, 400, { erro: 'Escreva sua mensagem antes de enviar' });
+      return;
+    }
+    if (mensagem.length > 2000) {
+      responderJson(res, 400, { erro: 'Mensagem muito longa (máximo 2000 caracteres)' });
+      return;
+    }
+    if (email && !emailValido(email)) {
+      responderJson(res, 400, { erro: 'Email inválido' });
+      return;
+    }
+    if (nota !== null && (!Number.isInteger(nota) || nota < 1 || nota > 5)) {
+      responderJson(res, 400, { erro: 'A nota deve ser um número inteiro de 1 a 5' });
+      return;
+    }
+
+    await pool.query(
+      `insert into feedback (nome, email, nota, mensagem) values ($1, $2, $3, $4)`,
+      [nome || null, email || null, nota, mensagem]
+    );
+
+    responderJson(res, 201, { mensagem: 'Obrigado pelo feedback!' });
+  } catch (erro) {
+    console.error('Erro ao enviar feedback:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar feedback' });
+  }
+}
+
+async function apiListarFeedback(res) {
+  try {
+    const { rows } = await pool.query('select * from feedback order by criado_em desc');
+    responderJson(res, 200, rows);
+  } catch (erro) {
+    console.error('Erro ao listar feedback:', erro.message);
+    responderJson(res, 400, { erro: 'Erro ao processar feedback' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 9.8 API: GESTÃO DE CONTAS PELO ADMIN (editar tipo, remover)
 // ═══════════════════════════════════════════════════════════════
 
@@ -1290,6 +1350,17 @@ const servidor = http.createServer(async (req, res) => {
       return;
     }
     await apiRemoverUsuarioAdmin(res, idUsuarioRota[1], usuarioLogado);
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/feedback') {
+    await apiEnviarFeedback(req, res);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/admin/feedback') {
+    if (!(await exigirFuncionario(req, res))) return;
+    await apiListarFeedback(res);
     return;
   }
 
